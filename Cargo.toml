@@ -5,7 +5,7 @@ resolver = "3"
 
 [package]
 name = "nixe-files"
-version = "1.1.0"
+version = "0.1.0"
 edition = "2024"
 description = "A fast, keyboard-first file manager for Linux"
 authors = ["Ken Smith", "LGSE Ltd."]
@@ -23,7 +23,7 @@ qa = ["dep:x11rb", "dep:regex"]
 invariant-checks = []
 
 [dependencies]
-nixe-cloud = { git = "https://github.com/design-nexus/nixe-cloud.git", rev = "95c2afde2b5cd5c1bafb5b6fb0a4629f07d9b1c0" }
+nixe-cloud = { git = "https://github.com/design-nexus/nixe-cloud.git", rev = "053a31d9704c5f0379c1b17e70a659b353357881" }
 anyhow = "1"
 ashpd = { version = "=0.13.13", default-features = false, features = ["backend", "file_chooser", "async-io", "tracing"] }
 async-io = "2.6.0"

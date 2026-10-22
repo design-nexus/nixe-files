@@ -4,7 +4,7 @@ use super::*;
 use nixe_cloud::{Client, Remote};
 
 pub(super) fn append(state: &Rc<SidebarState>) {
-    if state.local_only {
+    if state.local_only || !state.preference_manager.cloud_sidebar() {
         return;
     }
     state.append_separator();
@@ -56,7 +56,7 @@ fn refresh(holder: &gtk::Box, state: &Rc<SidebarState>) {
         }
         match result {
             Ok(Ok(remotes)) => {
-                for remote in remotes {
+                for remote in remotes.into_iter().filter(|r| r.storage_enabled) {
                     append_remote(&holder, &state, remote);
                 }
             }
@@ -67,21 +67,6 @@ fn refresh(holder: &gtk::Box, state: &Rc<SidebarState>) {
                 holder.append(&label);
             }
         }
-        let manage = sidebar_button(
-            crate::assets::icons::CLOUD,
-            &crate::i18n::tr("Manage cloud accounts"),
-        );
-        manage.connect_clicked(|_| {
-            let _ = gio::Subprocess::newv(
-                &[
-                    std::ffi::OsStr::new("nixe-settings"),
-                    std::ffi::OsStr::new("--section"),
-                    std::ffi::OsStr::new("cloud-storage"),
-                ],
-                gio::SubprocessFlags::NONE,
-            );
-        });
-        holder.append(&manage);
     });
 }
 fn append_remote(holder: &gtk::Box, state: &Rc<SidebarState>, remote: Remote) {
@@ -128,10 +113,19 @@ fn append_remote(holder: &gtk::Box, state: &Rc<SidebarState>, remote: Remote) {
             match result {
                 Ok(Ok(path)) => { state.browser.navigate(Location::local(PathBuf::from(path))); state.view.focus_file_view(); },
                 _ => {
-                    super::super::notice::show_status(&state.view.overlay(), &crate::i18n::tr("Cloud connection failed. Retry the account or open Cloud Storage in Settings."), Duration::from_secs(12));
+                    super::super::notice::show_status(&state.view.overlay(), &crate::i18n::tr("Cloud connection failed. Retry the account or open Online Accounts in Settings."), Duration::from_secs(12));
                 }
             }
         });
     });
     holder.append(&row);
+}
+
+/// Cloud owns this private mount namespace, including hidden Notes-only accounts.
+pub(super) fn is_cloud_mount(path: &std::path::Path) -> bool {
+    let data = std::env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| super::home_directory().join(".local/share"));
+    path.strip_prefix(data.join("nixe/cloud/mounts"))
+        .is_ok_and(|relative| relative.components().count() == 1)
 }

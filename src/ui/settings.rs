@@ -26,6 +26,7 @@ mod tests;
 mod about;
 mod actions;
 mod bindings;
+mod cloud;
 mod diagnostics;
 mod exclusions;
 mod general;
@@ -1001,6 +1002,11 @@ pub fn build_layer(
                             responsive_panel.add_flow(flow, columns);
                         }
                         dismiss_hooks.add(page.dismiss);
+                    }
+                    "cloud" => {
+                        let page = cloud::cloud_page(preferences.clone());
+                        search::apply(&page, &search_state);
+                        stack.add_named(&page, Some("cloud"));
                     }
                     "actions" => {
                         let page = actions::actions_page();
@@ -3159,7 +3165,7 @@ struct NavigationEntry {
 
 /// Settings pages in navigation order. Search finds page titles here and routes
 /// to the button built from each entry.
-static NAVIGATION: [NavigationEntry; 7] = [
+static NAVIGATION: [NavigationEntry; 8] = [
     NavigationEntry {
         page: "general",
         label: "General",
@@ -3186,6 +3192,13 @@ static NAVIGATION: [NavigationEntry; 7] = [
         label: "Integrations",
         subtitle: "Apps and services",
         icon: icons::BLOCKS,
+        accessible_label: None,
+    },
+    NavigationEntry {
+        page: "cloud",
+        label: "Cloud Storage",
+        subtitle: "Connections and cache",
+        icon: icons::CLOUD,
         accessible_label: None,
     },
     NavigationEntry {

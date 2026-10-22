@@ -13,7 +13,30 @@ struct Target {
 }
 
 const TARGETS: &[Target] = &[
-    Target { id: "preview-style", page: "general", title: "Preview style", aliases: "popup panel floating quick look" },
+    Target {
+        id: "cloud-sidebar",
+        page: "cloud",
+        title: "Show Cloud Storage in sidebar",
+        aliases: "cloud accounts drive dropbox onedrive storage sidebar",
+    },
+    Target {
+        id: "online-accounts",
+        page: "cloud",
+        title: "Online Accounts",
+        aliases: "cloud account authentication sign in storage settings",
+    },
+    Target {
+        id: "refresh-connections",
+        page: "cloud",
+        title: "Refresh connections",
+        aliases: "cloud connection status mount cache bandwidth login",
+    },
+    Target {
+        id: "preview-style",
+        page: "general",
+        title: "Preview style",
+        aliases: "popup panel floating quick look",
+    },
     Target {
         id: "language",
         page: "general",

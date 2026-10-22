@@ -4,8 +4,10 @@ Independent Strata-derived Rust/GTK4 file manager for the Nixe desktop.
 Upstream file-management functionality and visual design are retained, with
 integrated cloud navigation and selectable preview presentation.
 
-- Cloud Storage lists accounts configured or adopted in Settings.
+- Cloud Storage lists accounts enabled for Storage in Settings → Online Accounts.
 - Selecting an account mounts it through Cloud and opens the filesystem.
+- Settings → Cloud Storage controls sidebar visibility, connections, login mounting,
+  cache limits and bandwidth, with a link to Online Accounts for authorization.
 - Ordinary file operations use the existing asynchronous operation engine.
 - Files continues to manage local files when Cloud is absent.
 - Settings → General → Browsing → Preview style selects Popup (default) or Panel.

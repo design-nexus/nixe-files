@@ -229,6 +229,16 @@ impl SidebarState {
         let weak = Rc::downgrade(self);
         self.preference_manager.bind_preference(
             &self.widget,
+            PreferenceManager::cloud_sidebar,
+            move |_, _| {
+                if let Some(state) = weak.upgrade() {
+                    state.rebuild();
+                }
+            },
+        );
+        let weak = Rc::downgrade(self);
+        self.preference_manager.bind_preference(
+            &self.widget,
             PreferenceManager::sidebar_order,
             move |_, order| {
                 if let Some(state) = weak.upgrade() {

@@ -1684,7 +1684,16 @@ impl SidebarState {
     }
 
     fn append_devices(self: &Rc<Self>) {
-        let volumes = self.volume_monitor.volumes();
+        let volumes: Vec<_> = self
+            .volume_monitor
+            .volumes()
+            .into_iter()
+            .filter(|v| {
+                !v.get_mount()
+                    .and_then(|m| m.root().path())
+                    .is_some_and(|p| cloud::is_cloud_mount(&p))
+            })
+            .collect();
         let mounts = self.mounts_without_volumes(&volumes);
         let password_drives =
             orphaned_password_drives(&volumes, &self.volume_monitor.connected_drives());
@@ -1728,6 +1737,12 @@ impl SidebarState {
             .mounts()
             .into_iter()
             .filter(|mount| !mount.is_shadowed())
+            .filter(|mount| {
+                !mount
+                    .root()
+                    .path()
+                    .is_some_and(|p| cloud::is_cloud_mount(&p))
+            })
             .filter(|mount| {
                 !mount
                     .volume()

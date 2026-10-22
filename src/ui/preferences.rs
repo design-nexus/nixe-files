@@ -91,6 +91,8 @@ pub(in crate::ui) struct Preferences {
     #[serde(default)]
     preview_style: PreviewStyle,
     #[serde(default = "default_enabled")]
+    cloud_sidebar: bool,
+    #[serde(default = "default_enabled")]
     single_click_previews: bool,
     #[serde(default = "default_enabled")]
     columns_mirror_selection: bool,
@@ -372,6 +374,7 @@ impl Default for Preferences {
             omarchy_variant: OmarchyVariant::default(),
             folder_peeking: false,
             preview_style: PreviewStyle::Popup,
+            cloud_sidebar: true,
             single_click_previews: true,
             columns_mirror_selection: true,
             columns_show_sizes: true,
@@ -801,6 +804,14 @@ impl PreferenceManager {
     /// that bindings derive from preferences (such as theme availability).
     pub(in crate::ui) fn notify_changes(&self) {
         self.changes.notify(self);
+    }
+
+    pub(crate) fn cloud_sidebar(&self) -> bool {
+        self.preferences.borrow().cloud_sidebar
+    }
+    pub(crate) fn set_cloud_sidebar(&self, enabled: bool) {
+        self.preferences.borrow_mut().cloud_sidebar = enabled;
+        self.save_preferences();
     }
 
     pub(crate) fn preview_style(&self) -> PreviewStyle {

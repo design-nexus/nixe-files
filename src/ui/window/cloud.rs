@@ -70,18 +70,7 @@ fn refresh(holder: &gtk::Box, state: &Rc<SidebarState>) {
     });
 }
 fn append_remote(holder: &gtk::Box, state: &Rc<SidebarState>, remote: Remote) {
-    let label = format!(
-        "{} · {}",
-        remote.name,
-        crate::i18n::tr(match remote.connection.as_str() {
-            "connected" => "Connected",
-            "connecting" => "Connecting…",
-            "authentication_required" => "Authentication required",
-            "error" => "Error",
-            _ => "Disconnected",
-        })
-    );
-    let row = sidebar_button(crate::assets::icons::CLOUD, &label);
+    let row = sidebar_button(crate::assets::icons::CLOUD, &remote.name);
     let weak = Rc::downgrade(state);
     row.connect_clicked(move |button| {
         let Some(state) = weak.upgrade() else { return; };

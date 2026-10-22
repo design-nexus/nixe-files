@@ -12,5 +12,5 @@ jobs:
     container: archlinux:base-devel
     steps:
       - run: pacman -Syu --noconfirm --needed git rust gtk4 gtksourceview5 poppler-glib gstreamer gst-plugins-base-libs fontconfig
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: cargo build --release --locked

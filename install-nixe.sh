@@ -21,5 +21,9 @@ cat > "$data_home/dbus-1/services/io.github.design_nexus.nixe.Files.FileManager1
 Name=org.freedesktop.FileManager1
 Exec=$bin_dir/nixe-files --gapplication-service
 SERVICE
+install -d "$data_home/licenses/nixe-files"
+for notice in LICENSE LICENSE-MIT COPYING THIRD_PARTY_LICENSES.md; do
+  install -m644 "$notice" "$data_home/licenses/nixe-files/$notice"
+done
 update-desktop-database "$data_home/applications"
 xdg-mime default io.github.design_nexus.nixe.Files.desktop inode/directory

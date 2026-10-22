@@ -41,7 +41,7 @@ A successful local write can still await cloud upload. Account removal never
 deletes cloud data. Quotas, sharing links, offline pinning, and cloud-wide search
 are secondary features and are not implemented.
 
-Licensing/provenance: [UPSTREAM.md](UPSTREAM.md), original MIT [LICENSE](LICENSE),
+Licensing/provenance: [UPSTREAM.md](UPSTREAM.md), original MIT [LICENSE-MIT](LICENSE-MIT),
 GPLv3 [COPYING](COPYING), and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 The combined application includes GPL-3.0-or-later source files. RAR/CBR decoding
 uses a separate MIT/UnRAR-licensed helper, included by the installer; its native

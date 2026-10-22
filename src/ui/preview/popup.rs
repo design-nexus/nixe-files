@@ -130,7 +130,9 @@ impl PreviewState {
             .and_downcast::<gtk::Window>()
         {
             window.set_transient_for(Some(&parent));
-            window.set_application(parent.application().as_ref());
+            // This cached window is hidden between previews. Registering it with
+            // the application would keep Files alive after its last browser closes.
+            window.set_application(None::<&gtk::Application>);
         }
         self.popup.replace(Some(window.clone()));
         self.pane.set_size_request(0, -1);

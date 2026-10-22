@@ -1346,6 +1346,7 @@ fn all_preference_setters_publish_and_persist_without_duplicate_notifications() 
                 |m| m.set_preview_text_wrap(false),
                 |m| m.set_preview_autoplay(false),
                 |m| m.set_preview_style(PreviewStyle::Popup),
+                |m| m.set_cloud_sidebar(true),
                 |m| m.set_watch_network_folders(true),
                 |m| m.set_thumbnail_workers(3),
                 |m| m.set_show_thumbnails(true),

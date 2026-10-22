@@ -76,7 +76,7 @@ fn actions_follow_status_and_hide_unknown_indicator() {
             crate::ui::prepare_portal_ui();
             let row = gtk::Box::new(gtk::Orientation::Vertical, 2);
             let summary = summary_on(&row);
-            let use_strata = summary.use_strata.upgrade().expect("Use Strata action");
+            let use_strata = summary.use_strata.upgrade().expect("Use Files action");
             let restore = summary.restore.upgrade().expect("Restore default action");
             let indicator = summary.indicator.row.upgrade().expect("status row");
             summary.show_result(Ok(UdiskieStatus {
@@ -201,11 +201,11 @@ fn shared_busy_flag_blocks_portal_and_udiskie() {
             let (config, state) = udiskie_paths();
             assert!(
                 !config.exists(),
-                "refused Use Strata should not write udiskie config.yml"
+                "refused Use Files should not write udiskie config.yml"
             );
             assert!(
                 !state.exists(),
-                "refused Use Strata should not write udiskie state.toml"
+                "refused Use Files should not write udiskie state.toml"
             );
             SETUP_RUNNING.set(false);
         },

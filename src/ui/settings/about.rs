@@ -25,7 +25,7 @@ pub(super) fn about_page() -> gtk::Widget {
     copy.set_hexpand(true);
     copy.set_valign(gtk::Align::Center);
     let heading = gtk::Box::new(gtk::Orientation::Horizontal, 10);
-    let name = gtk::Label::new(Some("Strata"));
+    let name = gtk::Label::new(Some("Files"));
     name.add_css_class("about-name");
     heading.append(&name);
     let kind = crate::build_info::build_kind();
@@ -59,7 +59,7 @@ pub(super) fn about_page() -> gtk::Widget {
         (
             "Website",
             icons::GLOBE,
-            "https://stratafiles.io/".to_owned(),
+            "https://github.com/design-nexus/nixe-files".to_owned(),
             "",
         ),
         (
@@ -77,8 +77,8 @@ pub(super) fn about_page() -> gtk::Widget {
         (
             "License",
             icons::SCALE,
-            format!("{}/blob/main/LICENSE", crate::build_info::REPOSITORY),
-            "MIT",
+            format!("{}/blob/main/COPYING", crate::build_info::REPOSITORY),
+            "GPL-3.0-or-later",
         ),
     ] {
         let button = gtk::LinkButton::builder().uri(&uri).build();
@@ -118,7 +118,7 @@ pub(super) fn toolkit_version() -> String {
 }
 
 fn version_info() -> String {
-    rust_i18n::t!("Strata %{value1}\n%{value2}\nCommit: %{value3}\nToolkit: %{value4}\nAuthor: %{value5}\nLicense: MIT", value1 = crate::build_info::displayed_version(), value2 = crate::i18n::tr("Navigate every layer."), value3 = crate::build_info::COMMIT, value4 = toolkit_version(), value5 = crate::build_info::AUTHOR).into_owned()
+    rust_i18n::t!("Files %{value1}\n%{value2}\nCommit: %{value3}\nToolkit: %{value4}\nAuthor: %{value5}\nLicense: GPL-3.0-or-later", value1 = crate::build_info::displayed_version(), value2 = crate::i18n::tr("Navigate every layer."), value3 = crate::build_info::COMMIT, value4 = toolkit_version(), value5 = crate::build_info::AUTHOR).into_owned()
 }
 
 fn append_about_detail(container: &gtk::Box, label: &str, value: &str) {

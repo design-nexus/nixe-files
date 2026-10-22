@@ -57,7 +57,7 @@ fn choice(version: &str, kind: BuildKind) -> ReleaseChoice {
     ReleaseChoice {
         release: ReleaseMetadata {
             version: version.to_owned(),
-            url: format!("https://github.com/lgse/strata/releases/tag/v{version}"),
+            url: format!("https://github.com/design-nexus/nixe-files/releases/tag/v{version}"),
             notes: String::new(),
             note_blocks: Vec::new(),
             kind,
@@ -212,7 +212,7 @@ fn choosing_an_older_release_confirms_it_then_installs_exactly_that_release() {
             });
             let text = page_text(window.upcast_ref());
             for expected in [
-                "Install Strata v0.4.0".to_owned(),
+                "Install Files v0.4.0".to_owned(),
                 format!("Installed v{installed}  →  Selected v0.4.0"),
                 "0123abcd".to_owned(),
                 "Review the release notes before installing this release.".to_owned(),

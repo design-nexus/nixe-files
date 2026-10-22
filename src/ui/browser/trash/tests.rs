@@ -284,7 +284,7 @@ fn delete_summary_loaded(window: &gtk::Window) -> bool {
     .is_some()
 }
 
-/// Treats `root` as an sshfs mount, as Strata sees cloud and network mounts.
+/// Treats `root` as an sshfs mount, as Files sees cloud and network mounts.
 fn mount_as_network_share(root: &Path) {
     crate::adapters::set_mountinfo_for_isolated_test(Some(format!(
         "1 0 8:1 / / rw - ext4 /dev/root rw\n\
@@ -350,7 +350,7 @@ fn unsupported_trash_fallback_explains_and_focuses_cancel() {
                     (
                         "Delete without Trash",
                         "Delete 2 items",
-                        "These items will be deleted without using Trash. Strata can't undo this; whether they can be recovered depends on the storage provider.",
+                        "These items will be deleted without using Trash. Files can't undo this; whether they can be recovered depends on the storage provider.",
                     )
                 } else {
                     (

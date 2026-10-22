@@ -8,7 +8,7 @@ fn renders_flowchart_and_sequence_diagrams_without_a_browser() {
     let input = directory.path().join("diagram.mmd");
     for source in [
         "flowchart LR\n A[Open file] --> B{Supported?}\n B -->|Yes| C[Render diagram]",
-        "sequenceDiagram\n participant User\n participant Strata\n User->>Strata: Select Markdown\n Strata-->>User: Render preview",
+        "sequenceDiagram\n participant User\n participant Files\n User->>Strata: Select Markdown\n Strata-->>User: Render preview",
     ] {
         fs::write(&input, source).expect("diagram");
         let png = mermaid(&input).expect("render Mermaid");

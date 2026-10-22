@@ -270,7 +270,7 @@ fn wire_entry_submission(entry: &gtk::Entry, confirm: &gtk::Button) {
 fn label_validation_error(label: &str) -> Option<String> {
     if label.chars().count() > 255 {
         Some(crate::i18n::tr(
-            "Strata labels hold at most 255 characters.",
+            "Files labels hold at most 255 characters.",
         ))
     } else if label.chars().any(char::is_control) {
         Some(crate::i18n::tr("Labels cannot contain control characters."))
@@ -482,14 +482,14 @@ fn drive_properties_grid(
     };
     rows.add("System name", name);
     if let Some(id) = label_id {
-        let label = rows.add("Strata label", &crate::i18n::tr("Not set"));
+        let label = rows.add("Files label", &crate::i18n::tr("Not set"));
         super::super::preferences::PreferenceManager::shared().bind_preference(
             &label,
             move |manager| manager.device_label(&id),
             |widget, value| {
                 widget
                     .downcast_ref::<gtk::Label>()
-                    .expect("Strata label value")
+                    .expect("Files label value")
                     .set_text(
                         &value
                             .as_deref()
@@ -725,7 +725,7 @@ fn show_label_dialog_for_identity(
                     refresh_label_validity(
                         widget
                             .downcast_ref::<gtk::Entry>()
-                            .expect("Strata label entry"),
+                            .expect("Files label entry"),
                         label.as_deref().unwrap_or(""),
                         &confirm,
                         &error,

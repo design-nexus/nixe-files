@@ -166,7 +166,7 @@ fn a_run_fills_every_row_and_marks_checks_that_never_reported() {
                 .expect("report text")
                 .to_string();
             for expected in [
-                "Strata diagnostics",
+                "Files diagnostics",
                 &format!("Version: {}", crate::build_info::displayed_version()),
                 "PREVIEW SANDBOX",
                 "[Problem] Preview sandbox: Bubblewrap (bwrap) isn't installed",

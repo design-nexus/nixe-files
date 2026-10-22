@@ -321,7 +321,7 @@ impl Controller {
                 return Ok(());
             }
             if Instant::now() >= deadline {
-                return Err("the Strata window never showed an entry list".to_owned());
+                return Err("the Files window never showed an entry list".to_owned());
             }
             match window.as_ref().and_then(WidgetExt::frame_clock) {
                 Some(clock) => next_paint(&clock, POLL_INTERVAL).await,

@@ -113,7 +113,7 @@ impl SaveNotices {
             crate::ui::modal::show_error_dialog_with_summary(
                 &window,
                 &title,
-                &crate::i18n::tr("Changes last only until Strata closes"),
+                &crate::i18n::tr("Changes last only until Files closes"),
                 &detail,
                 Rc::new(|| {}),
             );
@@ -147,7 +147,7 @@ fn notice_text(
         SaveProblem::WriteFailed => (
             title,
             rust_i18n::t!(
-                "Strata couldn't write “%{path}”: %{reason}. It tries again with each change.",
+                "Files couldn't write “%{path}”: %{reason}. It tries again with each change.",
                 path = path,
                 reason = reason
             )
@@ -156,7 +156,7 @@ fn notice_text(
         SaveProblem::UnreadableAtStartup => (
             title,
             rust_i18n::t!(
-                "Strata couldn't read “%{path}” when it started: %{reason}. To keep the file as it is, Strata won't save over it. Fix or remove the file, then restart Strata.",
+                "Files couldn't read “%{path}” when it started: %{reason}. To keep the file as it is, Files won't save over it. Fix or remove the file, then restart Strata.",
                 path = path,
                 reason = reason
             )

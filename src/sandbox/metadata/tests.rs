@@ -104,7 +104,7 @@ fn malformed_or_unknown_values_are_not_presented_as_facts() {
 #[test]
 fn audio_tags_read_format_and_stream_tags_in_any_case() {
     let mp3 = AudioTags::from_json(
-        br#"{"streams":[{}],"format":{"tags":{"title":"Night Drive","artist":"Layers","album":"Strata OST","track":"3/12"}}}"#,
+        br#"{"streams":[{}],"format":{"tags":{"title":"Night Drive","artist":"Layers","album":"Files OST","track":"3/12"}}}"#,
     )
     .expect("audio tags");
     assert_eq!(
@@ -112,7 +112,7 @@ fn audio_tags_read_format_and_stream_tags_in_any_case() {
         AudioTags {
             title: Some("Night Drive".into()),
             artist: Some("Layers".into()),
-            album: Some("Strata OST".into()),
+            album: Some("Files OST".into()),
             track: Some(3),
             track_total: Some(12),
         }

@@ -40,7 +40,7 @@ mod tests;
 
 const INVALID_ARCHIVE: &str = "This file is not a valid archive or is damaged.";
 const UNSUPPORTED_ARCHIVE: &str =
-    "This archive uses a compression method or feature that Strata does not support.";
+    "This archive uses a compression method or feature that Files does not support.";
 
 fn invalid_archive() -> ArchiveError {
     archive_failed(crate::i18n::tr(INVALID_ARCHIVE))

@@ -1320,13 +1320,13 @@ fn automatic_updates_option(manager: &Rc<PreferenceManager>, method: UpdateMetho
     let (row, toggle) = settings_option(
         "Check for updates automatically",
         match method {
-            UpdateMethod::InPlace => "Look for a new release on GitHub when Strata starts.",
-            UpdateMethod::Aur => "Check the AUR for a newer packaged release when Strata starts.",
+            UpdateMethod::InPlace => "Look for a new release on GitHub when Files starts.",
+            UpdateMethod::Aur => "Check the AUR for a newer packaged release when Files starts.",
             UpdateMethod::Omarchy => {
-                "Check the Omarchy package repository for a newer release when Strata starts."
+                "Check the Omarchy package repository for a newer release when Files starts."
             }
             UpdateMethod::Pacman => {
-                "Check the configured package repositories for a newer release when Strata starts."
+                "Check the configured package repositories for a newer release when Files starts."
             }
         },
         manager.checks_for_updates(),
@@ -1354,7 +1354,7 @@ fn channel_label(channel: Channel) -> String {
     })
 }
 
-/// The manifest's channel id, shown by its localized name when Strata knows it.
+/// The manifest's channel id, shown by its localized name when Files knows it.
 fn managed_channel_label(managed: &ManagedInstall) -> Option<String> {
     let id = managed.channel()?;
     Some(
@@ -1570,7 +1570,7 @@ fn release_notes_card(kind: ReleaseNotesKind, title: &str, initial: &str) -> Rel
     let notes = gtk::Box::new(gtk::Orientation::Vertical, 6);
     set_release_notes_message(&notes, initial);
     let fallback = gtk::LinkButton::with_label(
-        "https://github.com/lgse/strata/releases",
+        "https://github.com/design-nexus/nixe-files/releases",
         &crate::i18n::tr("View on GitHub"),
     );
     fallback.set_has_tooltip(false);
@@ -1940,7 +1940,7 @@ fn update_check_row_with(
                             },
                         );
                         title.set_text(&crate::i18n::tr(match &result {
-                            UpdateCheck::UpToDate => "Strata is up to date",
+                            UpdateCheck::UpToDate => "Files is up to date",
                             UpdateCheck::Available { .. } => "An update is available",
                             UpdateCheck::Failed(_) => "Couldn’t check for updates",
                         }));
@@ -2018,7 +2018,7 @@ fn update_check_row_with(
                         title.set_text(&crate::i18n::tr("Couldn’t check for updates"));
                         crate::assets::set_primary_icon(&status_icon, icons::TRIANGLE_ALERT);
                         status.set_markup(&crate::i18n::tr(
-                            "Couldn't check for updates · <a href=\"https://github.com/lgse/strata/releases/latest\">View releases on GitHub</a>",
+                            "Couldn't check for updates · <a href=\"https://github.com/design-nexus/nixe-files/releases/latest\">View releases on GitHub</a>",
                         ));
                         available_notes.container.set_visible(false);
                         button.set_sensitive(true);
@@ -2542,7 +2542,7 @@ fn build_update_dialog(
     let installed = crate::build_info::installed_version();
     let (title, subtitle) = match offer {
         UpdateOffer::Available => (
-            rust_i18n::t!("Strata v%{value1} is available", value1 = release.version),
+            rust_i18n::t!("Files v%{value1} is available", value1 = release.version),
             rust_i18n::t!(
                 "Installed v%{value1}  →  Available v%{value2}",
                 value1 = installed,
@@ -2550,7 +2550,7 @@ fn build_update_dialog(
             ),
         ),
         UpdateOffer::Chosen => (
-            rust_i18n::t!("Install Strata v%{value1}", value1 = release.version),
+            rust_i18n::t!("Install Files v%{value1}", value1 = release.version),
             rust_i18n::t!(
                 "Installed v%{value1}  →  Selected v%{value2}",
                 value1 = installed,
@@ -3145,7 +3145,7 @@ fn update_check_message(result: &UpdateCheck, update_method: UpdateMethod) -> St
             }
             .into_owned()
         }
-        UpdateCheck::Failed(message) => rust_i18n::t!("Couldn't check for updates: %{value1} · <a href=\"https://github.com/lgse/strata/releases/latest\">View releases on GitHub</a>", value1 = glib::markup_escape_text(message)).into_owned(),
+        UpdateCheck::Failed(message) => rust_i18n::t!("Couldn't check for updates: %{value1} · <a href=\"https://github.com/design-nexus/nixe-files/releases/latest\">View releases on GitHub</a>", value1 = glib::markup_escape_text(message)).into_owned(),
     }
 }
 

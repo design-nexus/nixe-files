@@ -20,7 +20,7 @@ pub(super) fn settings_row() -> gtk::Box {
     title.set_xalign(0.0);
     title.add_css_class("settings-option-title");
     let description = gtk::Label::new(Some(&crate::i18n::tr(
-        "When you plug in an encrypted drive, open Strata with the password prompt instead of udiskie's dialog. On Omarchy this edits `~/.config/udiskie/config.yml` and restarts udiskie.",
+        "When you plug in an encrypted drive, open Files with the password prompt instead of udiskie's dialog. On Omarchy this edits `~/.config/udiskie/config.yml` and restarts udiskie.",
     )));
     description.set_xalign(0.0);
     description.set_wrap(true);

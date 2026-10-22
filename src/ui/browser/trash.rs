@@ -157,10 +157,10 @@ fn reach_description(reach: DeletionReach, single: bool) -> String {
             "These items will be permanently deleted. This action cannot be undone."
         }
         (DeletionReach::Remote, true) => {
-            "This item will be deleted without using Trash. Strata can't undo this; whether it can be recovered depends on the storage provider."
+            "This item will be deleted without using Trash. Files can't undo this; whether it can be recovered depends on the storage provider."
         }
         (DeletionReach::Remote, false) => {
-            "These items will be deleted without using Trash. Strata can't undo this; whether they can be recovered depends on the storage provider."
+            "These items will be deleted without using Trash. Files can't undo this; whether they can be recovered depends on the storage provider."
         }
     })
 }

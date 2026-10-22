@@ -153,7 +153,7 @@ pub(crate) fn discover(root: &Path) -> Vec<Registration> {
                     .filter(|id| slug(id))
                     .unwrap_or("invalid-id");
                 eprintln!(
-                    "Strata provider {id}: registration rejected (permissions, manifest or artwork)"
+                    "Files provider {id}: registration rejected (permissions, manifest or artwork)"
                 );
             }
             loaded

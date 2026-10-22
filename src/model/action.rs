@@ -254,7 +254,7 @@ impl fmt::Display for ActionError {
             }
             Self::UnsupportedSchema { found } => write!(
                 formatter,
-                "This action uses schema version {found}, but this Strata build supports {ACTION_SCHEMA_VERSION}"
+                "This action uses schema version {found}, but this Files build supports {ACTION_SCHEMA_VERSION}"
             ),
             Self::InvalidId(id) => write!(
                 formatter,
@@ -360,7 +360,7 @@ impl ActionError {
                 t!("Unable to write the action file: %{error}", error = message)
             }
             Self::UnsupportedSchema { found } => t!(
-                "This action uses schema version %{found}, but this Strata build supports %{supported}",
+                "This action uses schema version %{found}, but this Files build supports %{supported}",
                 found = found,
                 supported = ACTION_SCHEMA_VERSION
             ),

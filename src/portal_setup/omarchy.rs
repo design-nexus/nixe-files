@@ -69,7 +69,7 @@ fn installed_bindings(original: &str, major: u8, executable: &Path) -> Result<St
             .all(|byte| byte.is_ascii_alphanumeric() || b"/._-".contains(&byte))
     {
         return Err(crate::i18n::tr(
-            "The Strata executable path contains characters unsupported by keyboard shortcuts.",
+            "The Files executable path contains characters unsupported by keyboard shortcuts.",
         ));
     }
     let prefix = if major == 4 { "--" } else { "#" };
@@ -114,7 +114,7 @@ pub(super) fn restore(context: &SetupContext) -> Result<(), String> {
     };
     if detected_nautilus().is_none() {
         return Err(crate::i18n::tr(
-            "Nautilus was not detected; the Strata keyboard shortcuts were left unchanged.",
+            "Nautilus was not detected; the Files keyboard shortcuts were left unchanged.",
         ));
     }
     replace_bindings(&path, &original, &updated, reload)
@@ -161,7 +161,7 @@ fn restored_bindings(original: &str, major: u8) -> Result<Option<String>, String
     }
     if original.matches(&start).count() != 1 || original.matches(&end).count() != 1 {
         return Err(crate::i18n::tr(
-            "The Strata keyboard shortcut block is ambiguous; restore it manually.",
+            "The Files keyboard shortcut block is ambiguous; restore it manually.",
         ));
     }
     let start_index = original
@@ -170,7 +170,7 @@ fn restored_bindings(original: &str, major: u8) -> Result<Option<String>, String
     let end_index = original.find(&end).ok_or("Missing shortcut block end")?;
     if end_index < start_index {
         return Err(crate::i18n::tr(
-            "The Strata keyboard shortcut block is malformed; restore it manually.",
+            "The Files keyboard shortcut block is malformed; restore it manually.",
         ));
     }
     let block = &original[start_index + start.len()..end_index];
@@ -200,7 +200,7 @@ fn restored_bindings(original: &str, major: u8) -> Result<Option<String>, String
     };
     if !recognized {
         return Err(crate::i18n::tr(
-            "The Strata keyboard shortcuts have been customized; restore them manually to avoid losing your edits.",
+            "The Files keyboard shortcuts have been customized; restore them manually to avoid losing your edits.",
         ));
     }
     let replacement = if major == 4 {

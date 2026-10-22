@@ -4,6 +4,7 @@ use super::*;
 use crate::model::{Location, MetadataValue};
 
 mod audio;
+mod presentation;
 mod find;
 mod media_controls;
 mod model;

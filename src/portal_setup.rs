@@ -29,8 +29,8 @@ const SERVICE_FILE: &str = "org.freedesktop.impl.portal.desktop.strata.service";
 const STATE_DIRECTORY: &str = "strata/portal-install";
 const STATE_FILE: &str = "state.toml";
 const PORTAL_BACKEND_UNIT: &str = "dbus-:*-org.freedesktop.impl.portal.desktop.strata@*.service";
-const DESKTOP_ID: &str = "io.github.lgse.Strata.desktop";
-const FILE_MANAGER_SERVICE: &str = "io.github.lgse.Strata.FileManager1.service";
+const DESKTOP_ID: &str = "io.github.design_nexus.nixe.Files.desktop";
+const FILE_MANAGER_SERVICE: &str = "io.github.design_nexus.nixe.Files.FileManager1.service";
 const FILE_MANAGER_STATE_DIRECTORY: &str = "strata/file-manager-install";
 const FILE_MANAGER_STATE_FILE: &str = "state.toml";
 const INODE_DIRECTORY: &str = "inode/directory";
@@ -38,7 +38,7 @@ const INODE_DIRECTORY: &str = "inode/directory";
 pub(crate) fn install() -> Result<String, String> {
     let executable = crate::services::installed_executable().map_err(|error| {
         rust_i18n::t!(
-            "Could not locate the Strata executable: %{error}",
+            "Could not locate the Files executable: %{error}",
             error = error
         )
         .into_owned()
@@ -48,7 +48,7 @@ pub(crate) fn install() -> Result<String, String> {
     dismiss_prompt_at(&context)?;
     let restart_warning = refresh_portals();
     Ok(format!(
-        "Installed Strata as the per-user file chooser.\nConfiguration: {}{}",
+        "Installed Files as the per-user file chooser.\nConfiguration: {}{}",
         config.display(),
         restart_warning
     ))
@@ -65,14 +65,14 @@ pub(crate) fn uninstall() -> Result<String, String> {
         ""
     };
     Ok(format!(
-        "Removed the per-user Strata file chooser integration.{edit_note}{restart_warning}"
+        "Removed the per-user Files file chooser integration.{edit_note}{restart_warning}"
     ))
 }
 
 pub(crate) fn install_file_manager() -> Result<String, String> {
     let executable = crate::services::installed_executable().map_err(|error| {
         rust_i18n::t!(
-            "Could not locate the Strata executable: %{error}",
+            "Could not locate the Files executable: %{error}",
             error = error
         )
         .into_owned()
@@ -83,7 +83,7 @@ pub(crate) fn install_file_manager() -> Result<String, String> {
     set_default_file_manager()?;
     omarchy::install(&context, &executable)?;
     reload_dbus();
-    Ok("Installed Strata as the default file manager. Reveal and Open Containing Folder from other apps will now use Strata.".into())
+    Ok("Installed Files as the default file manager. Reveal and Open Containing Folder from other apps will now use Strata.".into())
 }
 
 pub(crate) fn uninstall_file_manager() -> Result<String, String> {
@@ -101,10 +101,10 @@ pub(crate) fn uninstall_file_manager() -> Result<String, String> {
     reload_dbus();
     Ok(if let Some(restored) = restored {
         format!(
-            "Removed the Strata file manager integration. Restored the folder handler: {restored}."
+            "Removed the Files file manager integration. Restored the folder handler: {restored}."
         )
     } else {
-        "Removed the Strata file manager integration. Your system default file manager will handle folders again.".into()
+        "Removed the Files file manager integration. Your system default file manager will handle folders again.".into()
     })
 }
 
@@ -129,13 +129,13 @@ fn install_file_manager_at(
     let executable = secure_executable(executable)?;
     let executable = executable
         .to_str()
-        .ok_or_else(|| crate::i18n::tr("Strata must be installed at a UTF-8 path"))?;
+        .ok_or_else(|| crate::i18n::tr("Files must be installed at a UTF-8 path"))?;
     if executable
         .chars()
         .any(|character| character.is_whitespace() || matches!(character, '\\' | '\'' | '"'))
     {
         return Err(crate::i18n::tr(
-            "The Strata executable path contains characters unsupported by D-Bus activation",
+            "The Files executable path contains characters unsupported by D-Bus activation",
         ));
     }
 
@@ -153,7 +153,7 @@ fn install_file_manager_at(
         .into_owned());
     }
 
-    let service = include_str!("../data/io.github.lgse.Strata.FileManager1.service")
+    let service = include_str!("../data/io.github.design_nexus.nixe.Files.FileManager1.service")
         .replace("/usr/bin/strata", executable);
     let state_directory = context.data_home.join(FILE_MANAGER_STATE_DIRECTORY);
     if read_file_manager_state(&state_directory)?.is_none() {
@@ -449,7 +449,7 @@ pub(crate) fn refresh_stale_portal() -> Result<(), String> {
     let context = SetupContext::from_environment()?;
     let executable = crate::services::installed_executable().map_err(|error| {
         rust_i18n::t!(
-            "Could not locate the Strata executable: %{error}",
+            "Could not locate the Files executable: %{error}",
             error = error
         )
         .into_owned()
@@ -494,7 +494,7 @@ fn portal_backend_is_stale_at(
     }
     let service = context.data_home.join("dbus-1/services").join(SERVICE_FILE);
     let expected_exec = format!("Exec={} --portal", executable.display());
-    // Do not interfere with a portal explicitly installed from another Strata build.
+    // Do not interfere with a portal explicitly installed from another Files build.
     if !read_utf8(&service)?
         .lines()
         .any(|line| line == expected_exec)
@@ -502,7 +502,7 @@ fn portal_backend_is_stale_at(
         return Ok(false);
     }
     let installed = fs::metadata(executable).map_err(|error| {
-        path_error("inspect the installed Strata executable", executable, error)
+        path_error("inspect the installed Files executable", executable, error)
     })?;
     let entries = fs::read_dir(proc_root)
         .map_err(|error| path_error("inspect running processes", proc_root, error))?;
@@ -704,13 +704,13 @@ fn install_at(context: &SetupContext, executable: &Path) -> Result<PathBuf, Stri
     let executable = secure_executable(executable)?;
     let executable = executable
         .to_str()
-        .ok_or_else(|| crate::i18n::tr("Strata must be installed at a UTF-8 path"))?;
+        .ok_or_else(|| crate::i18n::tr("Files must be installed at a UTF-8 path"))?;
     if executable
         .chars()
         .any(|character| character.is_whitespace() || matches!(character, '\\' | '\'' | '"'))
     {
         return Err(crate::i18n::tr(
-            "The Strata executable path contains characters unsupported by D-Bus activation",
+            "The Files executable path contains characters unsupported by D-Bus activation",
         ));
     }
 
@@ -787,29 +787,29 @@ fn secure_executable(path: &Path) -> Result<PathBuf, String> {
 
 fn secure_executable_for_user(path: &Path, effective_user: u32) -> Result<PathBuf, String> {
     let path = fs::canonicalize(path)
-        .map_err(|error| path_error("resolve the Strata executable", path, error))?;
+        .map_err(|error| path_error("resolve the Files executable", path, error))?;
     for (index, component) in path.ancestors().enumerate() {
         let metadata = fs::metadata(component)
-            .map_err(|error| path_error("inspect the Strata executable path", component, error))?;
+            .map_err(|error| path_error("inspect the Files executable path", component, error))?;
         if index == 0 {
             if !metadata.is_file() || metadata.permissions().mode() & 0o111 == 0 {
                 return Err(crate::i18n::tr(
-                    "The Strata executable must be a regular executable file",
+                    "The Files executable must be a regular executable file",
                 ));
             }
         } else if !metadata.is_dir() {
             return Err(crate::i18n::tr(
-                "The Strata executable path must contain only directories",
+                "The Files executable path must contain only directories",
             ));
         }
         if !trusted_owner(metadata.uid(), effective_user) {
             return Err(crate::i18n::tr(
-                "The Strata executable path must be owned by the current user or root",
+                "The Files executable path must be owned by the current user or root",
             ));
         }
         if metadata.permissions().mode() & 0o022 != 0 {
             return Err(crate::i18n::tr(
-                "The Strata executable path must not be writable by other users",
+                "The Files executable path must not be writable by other users",
             ));
         }
     }
@@ -1101,7 +1101,7 @@ fn path_error(action: &str, path: &Path, error: io::Error) -> String {
             path = path,
             error = error
         ),
-        "inspect" | "inspect the installed Strata executable" | "inspect running processes" => {
+        "inspect" | "inspect the installed Files executable" | "inspect running processes" => {
             rust_i18n::t!(
                 "Could not inspect %{path}: %{error}",
                 path = path,
@@ -1120,13 +1120,13 @@ fn path_error(action: &str, path: &Path, error: io::Error) -> String {
             path = path,
             error = error
         ),
-        "resolve the Strata executable" => rust_i18n::t!(
-            "Could not resolve the Strata executable %{path}: %{error}",
+        "resolve the Files executable" => rust_i18n::t!(
+            "Could not resolve the Files executable %{path}: %{error}",
             path = path,
             error = error
         ),
-        "inspect the Strata executable path" => rust_i18n::t!(
-            "Could not inspect the Strata executable path %{path}: %{error}",
+        "inspect the Files executable path" => rust_i18n::t!(
+            "Could not inspect the Files executable path %{path}: %{error}",
             path = path,
             error = error
         ),

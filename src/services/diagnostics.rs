@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-//! On-demand checks of the runtime components Strata does not link against.
+//! On-demand checks of the runtime components Files does not link against.
 //! Results are language-neutral; Settings → Diagnostics localizes them.
 
 use std::{

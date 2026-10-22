@@ -11,7 +11,7 @@ const MAX_ENTRY_BYTES: u64 = 256 * 1024 * 1024;
 const MAX_TOTAL_BYTES: u64 = 512 * 1024 * 1024;
 
 // Allow extra regular files so future package additions do not strand older updaters.
-const REQUIRED_ENTRIES: &[&str] = &["strata", "SOURCE_COMMIT"];
+const REQUIRED_ENTRIES: &[&str] = &["nixe-files", "nixe-files-rar", "SOURCE_COMMIT"];
 
 pub(super) fn extract_release_archive(
     archive: &Path,

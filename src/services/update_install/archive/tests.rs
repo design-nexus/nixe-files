@@ -130,7 +130,7 @@ fn release_tar_format_extracts_long_prerelease_portal_paths() {
         let directory = tempfile::tempdir().expect("release fixture");
         let package = format!("strata-{version}-aarch64-unknown-linux-gnu");
         let root = directory.path().join(&package);
-        let portal = "portal/dbus-1/services/io.github.lgse.Strata.FileChooser.service";
+        let portal = "portal/dbus-1/services/io.github.design_nexus.nixe.Files.FileChooser.service";
         fs::create_dir_all(root.join(portal).parent().expect("portal directory"))
             .expect("package directory");
         fs::write(root.join("strata"), b"binary").expect("binary");

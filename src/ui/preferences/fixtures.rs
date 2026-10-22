@@ -11,6 +11,7 @@ pub(in crate::ui) fn non_default_preferences() -> Preferences {
         theme: "nord".into(),
         omarchy_variant: OmarchyVariant::Darker,
         folder_peeking: true,
+        preview_style: super::PreviewStyle::Panel,
         single_click_previews: false,
         columns_mirror_selection: false,
         columns_show_sizes: false,

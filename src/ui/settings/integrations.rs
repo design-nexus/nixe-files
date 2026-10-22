@@ -73,7 +73,7 @@ pub(super) fn integrations_page_with(source: Source) -> gtk::Widget {
     title.set_xalign(0.0);
     title.add_css_class("settings-option-title");
     let description = gtk::Label::new(Some(&crate::i18n::tr(
-        "Optional integrations bundled with Strata connect the context menu to other apps and services, such as sending files to a phone. They run with your permissions, like any program you install.",
+        "Optional integrations bundled with Files connect the context menu to other apps and services, such as sending files to a phone. They run with your permissions, like any program you install.",
     )));
     description.set_xalign(0.0);
     description.set_wrap(true);

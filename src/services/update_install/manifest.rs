@@ -7,11 +7,11 @@ use serde::Deserialize;
 
 use super::{InstallCancel, InstallRequest, InstallStop, MAX_UPDATE_ARCHIVE_BYTES, REPOSITORY};
 
-pub(super) const MANIFEST_NAME: &str = "strata-update-manifest.json";
-pub(super) const SIGNATURES_NAME: &str = "strata-update-manifest.signatures.json";
+pub(super) const MANIFEST_NAME: &str = "nixe-files-update-manifest.json";
+pub(super) const SIGNATURES_NAME: &str = "nixe-files-update-manifest.signatures.json";
 pub(super) const MAX_MANIFEST_BYTES: u64 = 32 * 1024;
 pub(super) const MAX_SIGNATURES_BYTES: u64 = 8 * 1024;
-const DOMAIN: &[u8] = b"strata-update-manifest-v1\0";
+const DOMAIN: &[u8] = b"nixe-files-update-manifest-v1\0";
 const TRUSTED_KEYS_JSON: &str = include_str!("../../../data/update-keys.json");
 
 #[derive(Deserialize)]
@@ -176,7 +176,7 @@ fn authenticate_with_keys(
         || manifest.artifacts.len() > 8
     {
         return Err(crate::i18n::tr(
-            "The signed manifest does not identify the selected Strata release",
+            "The signed manifest does not identify the selected Files release",
         ));
     }
     let version = request
@@ -189,7 +189,7 @@ fn authenticate_with_keys(
         if !matches!(
             artifact.target.as_str(),
             "x86_64-unknown-linux-gnu" | "aarch64-unknown-linux-gnu"
-        ) || artifact.name != format!("strata-{version}-{}.tar.gz", artifact.target)
+        ) || artifact.name != format!("nixe-files-{version}-{}.tar.gz", artifact.target)
             || artifact.size == 0
             || artifact.size > MAX_UPDATE_ARCHIVE_BYTES
             || !lower_hex(&artifact.sha256, 64)

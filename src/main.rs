@@ -21,6 +21,7 @@ mod portal_setup;
 #[cfg(feature = "qa")]
 mod qa;
 #[cfg(feature = "rar")]
+#[allow(dead_code, reason = "The MIT wire protocol is shared with the separately licensed decoder")]
 mod rar_extraction;
 mod sandbox;
 mod sandbox_helper;
@@ -41,7 +42,7 @@ use gtk::{gio, glib, prelude::*};
 
 use ui::UnlockTarget;
 
-const APPLICATION_ID: &str = "io.github.lgse.Strata";
+const APPLICATION_ID: &str = "io.github.design_nexus.nixe.Files";
 const CAIRO_SELECTED_BY_STRATA: &str = "STRATA_CAIRO_SELECTED_BY_STRATA";
 const GVFS_PROBE_ARGUMENT: &str = "--gvfs-probe";
 const GVFS_PROBE_TIMEOUT: Duration = Duration::from_secs(2);
@@ -100,7 +101,7 @@ fn has_desktop_theme_override() -> bool {
 /// have started threads. Returns only when the restart fails.
 fn restart_for_gtk_environment(arguments: &[OsString], select_cairo: bool) -> gtk::glib::ExitCode {
     let Ok(executable) = std::env::current_exe() else {
-        eprintln!("Unable to locate Strata to restart it");
+        eprintln!("Unable to locate Files to restart it");
         return gtk::glib::ExitCode::FAILURE;
     };
     let mut command = std::process::Command::new(executable);
@@ -113,7 +114,7 @@ fn restart_for_gtk_environment(arguments: &[OsString], select_cairo: bool) -> gt
             .env(CAIRO_SELECTED_BY_STRATA, "1");
     }
     let error = command.exec();
-    eprintln!("Unable to restart Strata: {error}");
+    eprintln!("Unable to restart Files: {error}");
     gtk::glib::ExitCode::FAILURE
 }
 
@@ -159,7 +160,7 @@ fn run_udiskie_hook(arguments: &[OsString]) -> gtk::glib::ExitCode {
         return gtk::glib::ExitCode::SUCCESS;
     };
     let Ok(executable) = std::env::current_exe() else {
-        eprintln!("Unable to locate the Strata executable");
+        eprintln!("Unable to locate the Files executable");
         return gtk::glib::ExitCode::FAILURE;
     };
     let error = std::process::Command::new(executable)
@@ -283,7 +284,7 @@ fn main() -> gtk::glib::ExitCode {
     }
 
     if let Err(error) = portal_setup::refresh_stale_portal() {
-        tracing::warn!(%error, "could not refresh the stale Strata portal");
+        tracing::warn!(%error, "could not refresh the stale Files portal");
     }
 
     // Timed from here so `window presented` covers the whole launch, the way
@@ -471,7 +472,7 @@ fn leave_launch_folder() {
 
 fn install_application_identity() {
     glib::set_prgname(Some(APPLICATION_ID));
-    glib::set_application_name("Strata");
+    glib::set_application_name("Files");
 }
 
 fn install_x11_program_class() {
@@ -557,7 +558,7 @@ fn restart_with_local_vfs_if_gvfs_is_unresponsive() {
         .args(std::env::args_os().skip(1))
         .envs(GIO_FALLBACK_BACKENDS)
         .exec();
-    eprintln!("Unable to restart Strata with local filesystem and volume support: {error}");
+    eprintln!("Unable to restart Files with local filesystem and volume support: {error}");
 }
 
 fn gvfs_probe_marker_path() -> Option<std::path::PathBuf> {

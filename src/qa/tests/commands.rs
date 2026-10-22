@@ -504,8 +504,8 @@ fn batch_six_commands_parse_only_in_their_valid_shapes() {
         json!({"role": ["check box", "toggle button"], "name": "Confirm"})
     );
     assert_eq!(
-        serde_json::from_value::<Target>(json!({"other_window": "Strata"})).ok(),
-        Some(Target::OtherWindow("Strata".to_owned()))
+        serde_json::from_value::<Target>(json!({"other_window": "Files"})).ok(),
+        Some(Target::OtherWindow("Files".to_owned()))
     );
     assert!(serde_json::from_value::<Target>(json!({"role": [], "name": "x"})).is_err());
     let Ok(Command::Wait {
@@ -585,7 +585,7 @@ fn portal_reveal_and_window_steps_parse_and_reject_what_they_cannot_mean() {
         );
     }
     for valid in [
-        r#"{"wait":{"some_window":{"title":"Strata","holds":{"windows":{"title":"Strata","count":2}}}}}"#,
+        r#"{"wait":{"some_window":{"title":"Files","holds":{"windows":{"title":"Files","count":2}}}}}"#,
         r#"{"wait":{"child_names":{"of":{"parent":{"sidebar":"Home"}},"role":"button","names":{"starts_with":["Home"]}}}}"#,
         r#"{"wait":{"present":{"role":"*","states":["selected"],"within":{"preview":true}}}}"#,
         r#"{"wait":{"present":{"role":"list item","has":{"role":"label","name":"a"}}}}"#,

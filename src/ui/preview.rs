@@ -51,6 +51,7 @@ mod pdf_ranges_tests;
 mod pdf_text;
 mod player_layout;
 mod session;
+mod popup;
 pub(super) mod video;
 mod waveform;
 
@@ -218,6 +219,9 @@ struct PreviewState {
     continue_playback: RefCell<Option<PlaybackContinuation>>,
     split: RefCell<Option<gtk::Paned>>,
     sizing: layout::SplitSizing,
+    floating: Cell<bool>,
+    panel_split: RefCell<Option<gtk::Paned>>,
+    popup: RefCell<Option<gtk::Window>>,
     current: RefCell<Option<FileEntry>>,
     current_depth: Cell<Option<usize>>,
     pending_show: RefCell<Option<glib::SourceId>>,
@@ -419,6 +423,9 @@ impl PreviewDrawer {
 
         let state = Rc::new(PreviewState {
             provider,
+            floating: Cell::new(false),
+            panel_split: RefCell::new(None),
+            popup: RefCell::new(None),
             revealer,
             slot,
             resize_grip,
@@ -962,6 +969,7 @@ impl PreviewState {
     }
 
     fn show(self: &Rc<Self>, entry: FileEntry, depth: Option<usize>) {
+        if self.floating.get() { self.present_popup(); }
         if self
             .current
             .borrow()
@@ -1017,6 +1025,7 @@ impl PreviewState {
     }
 
     fn stop(&self) {
+        if let Some(window) = self.popup.borrow().clone() { window.set_visible(false); }
         self.set_enabled(false);
         self.child_pane.set(false);
         self.clear_target();
@@ -1027,6 +1036,11 @@ impl PreviewState {
     }
 
     fn close(self: &Rc<Self>) {
+        if self.floating.get() {
+            if let Some(window) = self.popup.borrow().clone() { window.set_visible(false); }
+            self.finish_close();
+            return;
+        }
         let tree_focused = self
             .archive_browser
             .borrow()

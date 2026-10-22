@@ -200,7 +200,7 @@ fn show_trust_question_dialog(
     let backend_message = message_dialog_description(&sanitize_failure_message(message));
     layout.body.append(&backend_message);
     let warning = message_dialog_description(&crate::i18n::tr(
-        "If the server did not provide a fingerprint, verify it outside Strata before continuing.",
+        "If the server did not provide a fingerprint, verify it outside Files before continuing.",
     ));
     layout.body.append(&warning);
     layout.actions.remove(&layout.cancel);
@@ -2221,7 +2221,7 @@ impl ViewState {
         }
         .begin_global_activity(crate::i18n::tr("Connecting…"));
         // Keep GTK's native question handler for other schemes and devices;
-        // SFTP host-key choices are rendered by Strata without answering automatically.
+        // SFTP host-key choices are rendered by Files without answering automatically.
         let sftp_question = matches!(
             &target,
             MountTarget::Location(location, _) if location.backend_name() == "sftp"
@@ -2279,7 +2279,7 @@ impl ViewState {
         operation.connect_ask_password(
             move |operation, message, default_user, default_domain, flags| {
                 // Suppress GtkMountOperation's native password dialog: we reply
-                // ourselves so it cannot race the Strata authentication prompt.
+                // ourselves so it cannot race the Files authentication prompt.
                 operation.stop_signal_emission_by_name("ask-password");
                 details_for_signal.replace(Some(MountPromptDetails {
                     message: message.to_owned(),

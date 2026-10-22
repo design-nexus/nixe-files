@@ -135,7 +135,7 @@ impl LocationValidationError {
 }
 
 /// Localized text for an I/O failure. An unrecognized OS error gets a generic reason and its
-/// system text is logged; errors built by Strata or a library keep their own message.
+/// system text is logged; errors built by Files or a library keep their own message.
 pub(crate) fn io_error_message(error: &std::io::Error) -> String {
     if let Some(link) = error
         .get_ref()

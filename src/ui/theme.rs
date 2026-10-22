@@ -34,7 +34,7 @@ const RESET_CSS: &str = "* { all: unset; }";
 /// Above the static stylesheet so generated density spacing wins over its presets.
 const DENSITY_STYLE_PRIORITY: u32 = STYLE_PRIORITY + 1;
 const TOKEN_STYLE_PRIORITY: u32 = DENSITY_STYLE_PRIORITY + 1;
-/// Above every Strata stylesheet, so `~/.config/strata/style.css` has the final word.
+/// Above every Files stylesheet, so `~/.config/strata/style.css` has the final word.
 const USER_STYLE_PRIORITY: u32 = TOKEN_STYLE_PRIORITY + 1;
 const USER_STYLE_FILE: &str = "style.css";
 const STYLE_CSS: &str = include_str!("../style.css");
@@ -1425,7 +1425,7 @@ fn source_style_scheme_xml(tokens: &ThemeTokens, palette: Option<&SourcePalette>
     let palette = resolved_source_palette(tokens, palette);
     format!(
         r#"<?xml version="1.0" encoding="UTF-8"?>
-<style-scheme id="strata-current" _name="Strata Current Theme" version="1.0">
+<style-scheme id="strata-current" _name="Files Current Theme" version="1.0">
   <color name="background" value="{}"/>
   <color name="surface" value="{}"/>
   <color name="text" value="{}"/>
@@ -1505,7 +1505,7 @@ fn pin_base_theme() {
     set_enum_setting(&settings, "gtk-interface-contrast", "no-preference");
 }
 
-/// The built-in theme's light or dark variant follows the active Strata theme
+/// The built-in theme's light or dark variant follows the active Files theme
 /// rather than the desktop color scheme.
 fn apply_base_variant(dark: bool) {
     let Some(settings) = gtk::Settings::default() else {
@@ -1592,7 +1592,7 @@ fn tokens_css(tokens: &ThemeTokens, root_font_px: f64) -> String {
 }
 
 /// Parses colours GTK accepts (`#rgb`, `#rrggbb`, `rgb(...)`, names) into 8-bit
-/// channels. Strata emits these channels as `#rrggbb` in GtkSourceView schemes.
+/// channels. Files emits these channels as `#rrggbb` in GtkSourceView schemes.
 pub(crate) fn parse_rgb_channels(value: &str) -> Option<[u8; 3]> {
     parse_rgba_channels(value).map(|[red, green, blue, _]| [red, green, blue])
 }

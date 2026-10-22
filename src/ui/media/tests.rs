@@ -406,7 +406,7 @@ mod thread_probe {
                     "Thread probe",
                     "Testing",
                     "Records the threads that build it and change its state",
-                    "Strata",
+                    "Files",
                 )
             }))
         }

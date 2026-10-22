@@ -34,7 +34,7 @@ use crate::adapters::gio_close;
 use crate::model::{FileEntry, Location};
 
 const BACKEND_NAME: &str = "org.freedesktop.impl.portal.desktop.strata";
-pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.lgse.Strata.FileChooser";
+pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.design_nexus.nixe.Files.FileChooser";
 pub(crate) const FILE_CHOOSER_VERSION: u32 = 4;
 const MAX_ACTIVE_REQUESTS: usize = 16;
 const MAX_CHOICES: usize = 16;
@@ -209,7 +209,7 @@ impl FileChooserBackend {
 
 pub(crate) fn run(#[cfg(feature = "qa")] qa: Option<crate::qa::Session>) -> glib::ExitCode {
     glib::set_prgname(Some(CHOOSER_APPLICATION_ID));
-    glib::set_application_name("Strata");
+    glib::set_application_name("Files");
 
     // Keep worker-thread invocations queued until GTK is ready on this thread.
     let context = glib::MainContext::default();
@@ -248,13 +248,13 @@ pub(crate) fn run(#[cfg(feature = "qa")] qa: Option<crate::qa::Session>) -> glib
         });
         if let Err(error) = result {
             failed.store(true, Ordering::SeqCst);
-            eprintln!("Strata portal backend failed: {error}");
+            eprintln!("Files portal backend failed: {error}");
         }
         glib::MainContext::default().invoke(move || service_loop.quit());
     });
 
     if let Err(error) = gtk::init() {
-        eprintln!("Unable to initialize the Strata portal UI: {error}");
+        eprintln!("Unable to initialize the Files portal UI: {error}");
         return glib::ExitCode::FAILURE;
     }
     crate::metrics::initialize();
@@ -262,7 +262,7 @@ pub(crate) fn run(#[cfg(feature = "qa")] qa: Option<crate::qa::Session>) -> glib
     crate::util::ui_thread::stalls::start();
     tracing::info!(
         version = FILE_CHOOSER_VERSION,
-        "starting Strata FileChooser portal backend"
+        "starting Files FileChooser portal backend"
     );
     if let Err(error) = crate::assets::prepare() {
         eprintln!("Unable to prepare bundled assets: {error}");

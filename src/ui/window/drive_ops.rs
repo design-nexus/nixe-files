@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 //! Storage metadata and removable-only formatting.
-//! Display labels belong to Strata preferences, not the filesystem.
+//! Display labels belong to Files preferences, not the filesystem.
 
 use std::{
     path::{Path, PathBuf},

@@ -200,10 +200,10 @@ fn notice_handler(sidebar: &SidebarView, available: AvailableUpdate) -> UpdateNo
 fn update_tooltip(release: &ReleaseMetadata, method: UpdateMethod) -> String {
     match method {
         UpdateMethod::InPlace => {
-            rust_i18n::t!("Install Strata v%{value1}", value1 = release.version).into_owned()
+            rust_i18n::t!("Install Files v%{value1}", value1 = release.version).into_owned()
         }
         UpdateMethod::Aur => rust_i18n::t!(
-            "Strata v%{value1} is available through %{value2}",
+            "Files v%{value1} is available through %{value2}",
             value1 = release.version,
             value2 = InstallSource::detect().managed().map_or_else(
                 || crate::i18n::tr("your package manager"),
@@ -212,12 +212,12 @@ fn update_tooltip(release: &ReleaseMetadata, method: UpdateMethod) -> String {
         )
         .into_owned(),
         UpdateMethod::Omarchy => rust_i18n::t!(
-            "Strata v%{value1} is available through Omarchy",
+            "Files v%{value1} is available through Omarchy",
             value1 = release.version
         )
         .into_owned(),
         UpdateMethod::Pacman => rust_i18n::t!(
-            "Strata v%{value1} is available through pacman",
+            "Files v%{value1} is available through pacman",
             value1 = release.version
         )
         .into_owned(),

@@ -105,7 +105,7 @@ enum RestartMode {
 pub(crate) fn install() -> Result<String, String> {
     let executable = crate::services::installed_executable().map_err(|error| {
         rust_i18n::t!(
-            "Could not locate the Strata executable: %{error}",
+            "Could not locate the Files executable: %{error}",
             error = error
         )
         .into_owned()
@@ -114,7 +114,7 @@ pub(crate) fn install() -> Result<String, String> {
     let config = install_at(&context, &executable)?;
     let restart_warning = restart_udiskie(RestartMode::EnsureRunning);
     Ok(format!(
-        "Installed Strata as the encrypted-volume unlock handler.\nConfiguration: {}{}",
+        "Installed Files as the encrypted-volume unlock handler.\nConfiguration: {}{}",
         config.display(),
         restart_warning
     ))
@@ -125,14 +125,14 @@ pub(crate) fn uninstall() -> Result<String, String> {
     uninstall_at(&context)?;
     let restart_warning = restart_udiskie(RestartMode::ReloadIfRunning);
     Ok(format!(
-        "Removed the Strata encrypted-volume unlock integration.{restart_warning}"
+        "Removed the Files encrypted-volume unlock integration.{restart_warning}"
     ))
 }
 
 pub(crate) fn status() -> Result<UdiskieStatus, String> {
     let executable = crate::services::installed_executable().map_err(|error| {
         rust_i18n::t!(
-            "Could not locate the Strata executable: %{error}",
+            "Could not locate the Files executable: %{error}",
             error = error
         )
         .into_owned()
@@ -784,7 +784,7 @@ fn read_state(directory: &Path) -> Result<Option<UdiskieInstallState>, String> {
 fn utf8_path(path: &Path) -> Result<String, String> {
     path.to_str()
         .map(str::to_owned)
-        .ok_or_else(|| "Strata must be installed at a UTF-8 path".to_owned())
+        .ok_or_else(|| "Files must be installed at a UTF-8 path".to_owned())
 }
 
 fn program_on_path(name: &str) -> Option<PathBuf> {

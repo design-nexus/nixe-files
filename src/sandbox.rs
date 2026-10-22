@@ -491,7 +491,7 @@ fn parse_canonical(
         None
     };
     let current_executable = std::env::current_exe()
-        .map_err(|error| format!("Unable to locate the Strata executable: {error}"))?;
+        .map_err(|error| format!("Unable to locate the Files executable: {error}"))?;
     let running_executable = PathBuf::from(format!("/proc/{}/exe", std::process::id()));
     let executable =
         resolve_renderer_executable(&current_executable, &running_executable, output.path())?;
@@ -633,7 +633,7 @@ fn resolve_renderer_executable(
 
     let snapshot = private_output.join("strata-preview-helper");
     fs::copy(running, &snapshot)
-        .map_err(|error| format!("Unable to preserve the running Strata executable: {error}"))?;
+        .map_err(|error| format!("Unable to preserve the running Files executable: {error}"))?;
     Ok(snapshot)
 }
 
@@ -848,6 +848,12 @@ pub(crate) fn sandbox_tool(name: &str) -> Option<PathBuf> {
 fn runtime_command(bwrap: &Path, needs_media_libraries: bool) -> Command {
     let runtime = runtime::current();
     let mut command = Command::new(bwrap);
+    if let Ok(executable) = std::env::current_exe() {
+        if let Some(directory) = executable.parent() {
+            let helper = directory.join("nixe-files-rar");
+            if helper.is_file() { command.arg("--ro-bind").arg(helper).arg("/app/nixe-files-rar"); }
+        }
+    }
     command.args([
         "--info-fd",
         "2",

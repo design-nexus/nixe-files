@@ -3,7 +3,7 @@
 use super::*;
 use crate::services::document::{DocumentBlock, DocumentKind, parse_document};
 
-const SAMPLE: &str = r"{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Helvetica;}}{\*\generator Strata 1.0;}
+const SAMPLE: &str = r"{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Helvetica;}}{\*\generator Files 1.0;}
 \pard Plain \b bold\b0  \i italic\i0  \ul underlined\ulnone  \strike struck\strike0  and A & B < C.\par
 \pard \'93Smart\'94 quotes\u8212?dashes\line second line\par}";
 
@@ -16,7 +16,7 @@ fn styled_runs_escape_text_and_drop_control_destinations() {
     assert!(html.contains("<s>struck</s>"), "{html}");
     assert!(html.contains("A &amp; B &lt; C."), "{html}");
     assert!(!html.contains("Helvetica"), "{html}");
-    assert!(!html.contains("Strata 1.0"), "{html}");
+    assert!(!html.contains("Files 1.0"), "{html}");
 }
 
 #[test]

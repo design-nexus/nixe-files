@@ -29,20 +29,20 @@ mod manifest;
 
 use download::{DownloadTimeouts, describe_download_error, describe_read_error, download_agent};
 
-const RELEASE_DOWNLOAD_ROOT: &str = "https://github.com/lgse/strata/releases/download";
+const RELEASE_DOWNLOAD_ROOT: &str = "https://github.com/design-nexus/nixe-files/releases/download";
 /// Releases published before signed update manifests cannot be verified, so cannot be installed.
 pub(super) const UPDATE_MANIFEST_ASSETS: [&str; 2] =
     [manifest::MANIFEST_NAME, manifest::SIGNATURES_NAME];
-const REPOSITORY: &str = "lgse/strata";
+const REPOSITORY: &str = "design-nexus/nixe-files";
 const MAX_UPDATE_ARCHIVE_BYTES: u64 = 128 * 1024 * 1024;
-const DESKTOP_ENTRY: &str = "io.github.lgse.Strata.desktop";
-const APPLICATION_ICON: &str = "io.github.lgse.Strata.svg";
+const DESKTOP_ENTRY: &str = "io.github.design_nexus.nixe.Files.desktop";
+const APPLICATION_ICON: &str = "io.github.design_nexus.nixe.Files.svg";
 const AUR_RPC: &str = "https://aur.archlinux.org/rpc/v5/info";
 const AUR_RESPONSE_LIMIT: u64 = 1024 * 1024;
 const PACMAN: &str = "/usr/bin/pacman";
 const PACMAN_CONF: &str = "/usr/bin/pacman-conf";
 const OS_RELEASE: &str = "/etc/os-release";
-const PACKAGE_NAME: &str = "strata";
+const PACKAGE_NAME: &str = "nixe-files";
 const REPOSITORY_DATABASE_LIMIT: u64 = 4 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -214,7 +214,7 @@ fn os_release_has_id(contents: &str, expected: &str) -> bool {
     })
 }
 
-/// Returns the Strata version currently offered by pacman's configured sync
+/// Returns the Files version currently offered by pacman's configured sync
 /// databases. This is deliberately a local query: package-managed installs
 /// must not advertise a GitHub release until their package manager can
 /// actually install it.
@@ -423,7 +423,7 @@ fn repository_database_version(database: &[u8], package: &str) -> Result<Version
         }
     }
     Err(crate::i18n::tr(
-        "Strata is not available in the Omarchy repository",
+        "Files is not available in the Omarchy repository",
     ))
 }
 
@@ -631,7 +631,7 @@ fn try_install(
 
     refresh_desktop_metadata(&package_dir, current_exe, &glib::user_data_dir());
     if let Err(error) = crate::portal_setup::refresh_after_in_place_update() {
-        tracing::warn!(%error, "could not refresh the configured Strata portal after updating");
+        tracing::warn!(%error, "could not refresh the configured Files portal after updating");
     }
     retire_old_instances(Path::new("/proc"), current_exe, &old_executable);
 
@@ -679,7 +679,7 @@ fn prepare_release_binary(
     verify_package_name(&package, request)?;
     release.verify_source_commit(&package)?;
     cancel.check()?;
-    let staged = stage_verified_binary(&package.join("strata"), workdir)?;
+    let staged = stage_verified_binary(&package.join("nixe-files"), workdir)?;
     Ok((package, staged))
 }
 
@@ -725,7 +725,7 @@ fn restore_rollback(rollback: &Path, current_exe: &Path) -> Result<(), InstallSt
     fs::rename(rollback, current_exe).map_err(|error| {
         InstallStop::Failed(
             rust_i18n::t!(
-                "The update failed and the previous version could not be restored: %{error}. Reinstall Strata from the release page.",
+                "The update failed and the previous version could not be restored: %{error}. Reinstall Files from the release page.",
                 error = crate::services::io_error_detail(&error)
             )
             .into_owned(),
@@ -884,7 +884,7 @@ fn read_metadata_body(
 /// updating instance alive to report success and relaunch the replacement.
 fn retire_old_instances(proc_root: &Path, install_path: &Path, old_executable: &fs::Metadata) {
     let Ok(entries) = fs::read_dir(proc_root) else {
-        tracing::warn!("could not enumerate old Strata processes after updating");
+        tracing::warn!("could not enumerate old Files processes after updating");
         return;
     };
     let mut retirees = Vec::new();
@@ -909,7 +909,7 @@ fn retire_old_instances(proc_root: &Path, install_path: &Path, old_executable: &
         let fd = match rustix::process::pidfd_open(pid, rustix::process::PidfdFlags::empty()) {
             Ok(fd) => fd,
             Err(error) => {
-                tracing::warn!(%error, pid = pid.as_raw_pid(), "could not identify old Strata process safely");
+                tracing::warn!(%error, pid = pid.as_raw_pid(), "could not identify old Files process safely");
                 continue;
             }
         };
@@ -917,7 +917,7 @@ fn retire_old_instances(proc_root: &Path, install_path: &Path, old_executable: &
             match rustix::process::pidfd_send_signal(&fd, rustix::process::Signal::TERM) {
                 Ok(()) => retirees.push((pid, fd)),
                 Err(error) => {
-                    tracing::warn!(%error, pid = pid.as_raw_pid(), "could not stop old Strata instance")
+                    tracing::warn!(%error, pid = pid.as_raw_pid(), "could not stop old Files instance")
                 }
             }
         }
@@ -930,9 +930,9 @@ fn retire_old_instances(proc_root: &Path, install_path: &Path, old_executable: &
         // A lingering old instance could still own the GApplication bus name.
         // Do not relaunch into it after the replacement has been installed.
         if let Err(error) = rustix::process::pidfd_send_signal(&fd, rustix::process::Signal::KILL) {
-            tracing::warn!(%error, pid = pid.as_raw_pid(), "could not terminate old Strata instance");
+            tracing::warn!(%error, pid = pid.as_raw_pid(), "could not terminate old Files instance");
         } else if !pidfd_exited(&fd, Instant::now() + Duration::from_secs(2)) {
-            tracing::warn!(pid = pid.as_raw_pid(), "old Strata instance has not exited");
+            tracing::warn!(pid = pid.as_raw_pid(), "old Files instance has not exited");
         }
     }
 }
@@ -988,6 +988,19 @@ fn is_old_instance(proc_entry: &Path, install_path: &Path, old_executable: &fs::
 /// not gain one from an update. Failures are reported but never fail the update,
 /// which has already replaced the binary.
 fn refresh_desktop_metadata(package_dir: &Path, executable: &Path, data_home: &Path) {
+    if let Some(directory) = executable.parent() {
+        let helper = package_dir.join("nixe-files-rar");
+        if helper.is_file() {
+            let installed = (|| -> Result<(), String> {
+                let staged = stage_binary_path(directory)?;
+                fs::copy(&helper, staged.path()).map_err(|e| e.to_string())?;
+                set_executable(staged.path())?;
+                staged.persist(directory.join("nixe-files-rar")).map_err(|e| e.error.to_string())?;
+                Ok(())
+            })();
+            if installed.is_err() { tracing::warn!("RAR helper update failed; reinstall Files to update it"); }
+        }
+    }
     let entry_path = data_home.join("applications").join(DESKTOP_ENTRY);
     if !entry_path.is_file() {
         return;

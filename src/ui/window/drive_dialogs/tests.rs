@@ -375,7 +375,7 @@ fn strata_labels_allow_clearing_and_do_not_require_filesystem_tools() {
                     preferences.clone(),
                 );
                 let layer =
-                    super::super::visible_modal_layer(&window).expect("Strata label dialog");
+                    super::super::visible_modal_layer(&window).expect("Files label dialog");
                 let entry = descendants(layer.upcast_ref())
                     .into_iter()
                     .find_map(|widget| widget.downcast::<gtk::Entry>().ok())

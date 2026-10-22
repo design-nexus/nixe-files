@@ -515,7 +515,7 @@ fn replacement_stops_before_exchanging_a_substituted_target() -> Result<(), Box<
 
         let family = mount_capabilities(scope.key()).family;
         if op == Op::OpenAt && matches!(family, Some(Family::Nfs | Family::Nfs4)) {
-            eprintln!("skipped on an NFS base, where Strata holds no item it trashes: {op:?}");
+            eprintln!("skipped on an NFS base, where Files holds no item it trashes: {op:?}");
             continue;
         }
         let error = result.expect_err("a substituted target must fail identity validation");

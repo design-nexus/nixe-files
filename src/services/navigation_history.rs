@@ -229,7 +229,7 @@ impl HistoryMatcher {
 
 fn default_history_path() -> PathBuf {
     glib::user_state_dir()
-        .join("strata")
+        .join("nixe-files")
         .join("navigation-history.json")
 }
 

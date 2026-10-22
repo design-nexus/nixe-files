@@ -82,7 +82,7 @@ fn wait_until_dismissed(dialog: &UpdateDialog) {
 fn release() -> ReleaseMetadata {
     ReleaseMetadata {
         version: "99.0.0".to_owned(),
-        url: "https://github.com/lgse/strata/releases/tag/v99.0.0".to_owned(),
+        url: "https://github.com/design-nexus/nixe-files/releases/tag/v99.0.0".to_owned(),
         notes: String::new(),
         note_blocks: Vec::new(),
         kind: BuildKind::Stable,
@@ -484,7 +484,7 @@ fn aur_helpers_are_found_off_the_ui_thread_and_the_update_actions_use_that_answe
             assert_eq!(aur_update_action_label(), "Open AUR Update");
             let summary = managed_install_summary(managed);
             assert!(
-                summary.contains("Update Strata with: paru -Syu strata-bin"),
+                summary.contains("Update Files with: paru -Syu strata-bin"),
                 "{summary}"
             );
 

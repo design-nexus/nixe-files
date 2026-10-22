@@ -486,7 +486,7 @@ fn message(check: &Check) -> String {
         Finding::RarExcluded => tr("This build doesn't include RAR support."),
         Finding::GvfsRunning => tr("GVfs is running."),
         Finding::GvfsBypassed => tr(
-            "This session uses local files only because GVfs didn't respond when Strata started. Trash, network locations and devices are unavailable until Strata restarts with GVfs working.",
+            "This session uses local files only because GVfs didn't respond when Files started. Trash, network locations and devices are unavailable until Files restarts with GVfs working.",
         ),
         Finding::GvfsMissing => {
             tr("GVfs isn't running, so trash, network locations and devices are unavailable.")
@@ -518,7 +518,7 @@ fn message(check: &Check) -> String {
         Finding::TerminalMissing => crate::ui::terminal::no_terminal_message(),
         Finding::ServiceAvailable => tr("The service is available."),
         Finding::PortalMissing => tr(
-            "xdg-desktop-portal isn't available, so Strata can't provide file dialogs to other apps.",
+            "xdg-desktop-portal isn't available, so Files can't provide file dialogs to other apps.",
         ),
         Finding::SecretServiceMissing => tr(
             "No Secret Service provider, such as GNOME Keyring or KWallet, is available, so passwords for encrypted drives can't be remembered.",
@@ -633,7 +633,7 @@ fn report(
     manager: Option<PackageManager>,
 ) -> String {
     let tr = crate::i18n::tr;
-    let mut lines = vec![tr("Strata diagnostics")];
+    let mut lines = vec![tr("Files diagnostics")];
     lines.extend(environment.iter().map(|(label, value)| field(label, value)));
     for (group, ids) in GROUPS {
         lines.push(String::new());

@@ -154,24 +154,24 @@ impl ManagedInstall {
 
     fn update_instruction_with(&self, available: impl Fn(&str) -> bool + Copy) -> String {
         if let Some(command) = self.update_command.as_deref() {
-            return rust_i18n::t!("Update Strata with: %{command}", command = command).into_owned();
+            return rust_i18n::t!("Update Files with: %{command}", command = command).into_owned();
         }
         if let Some((helper, package)) = self.aur_update_target_with(available) {
             return rust_i18n::t!(
-                "Update Strata with: %{command}",
+                "Update Files with: %{command}",
                 command = format!("{helper} -Syu {package}")
             )
             .into_owned();
         }
         if let (Some(helper), Some(package)) = (self.aur_helpers.first(), self.package()) {
             return rust_i18n::t!(
-                "Update Strata with an AUR helper, for example: %{command}",
+                "Update Files with an AUR helper, for example: %{command}",
                 command = format!("{helper} -Syu {package}")
             )
             .into_owned();
         }
         rust_i18n::t!(
-            "Update Strata through %{manager}.",
+            "Update Files through %{manager}.",
             manager = self.manager()
         )
         .into_owned()

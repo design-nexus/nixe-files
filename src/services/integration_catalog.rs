@@ -233,7 +233,7 @@ pub(crate) fn parse(id: &str, files: BTreeMap<String, Vec<u8>>) -> Result<Entry,
             return Err(format!("invalid filename {name:?}"));
         }
         if [MANIFEST_FILE, RECORD_FILE, file_providers::DISABLED_FILE].contains(&name.as_str()) {
-            return Err(format!("{name} is written by Strata at install time"));
+            return Err(format!("{name} is written by Files at install time"));
         }
         if bytes.len() > FILE_SIZE_LIMIT {
             return Err(format!("{name} exceeds {FILE_SIZE_LIMIT} bytes"));
@@ -377,7 +377,7 @@ pub(crate) fn load_directory(root: &Path) -> Vec<Entry> {
         .filter_map(|directory| match read_directory(directory) {
             Ok(entry) => Some(entry),
             Err(error) => {
-                eprintln!("Strata integration {}: {error}", directory.display());
+                eprintln!("Files integration {}: {error}", directory.display());
                 None
             }
         })
@@ -397,7 +397,7 @@ pub(crate) fn bundled() -> &'static [Entry] {
                 match parse(id, files) {
                     Ok(entry) => Some(entry),
                     Err(error) => {
-                        eprintln!("Strata bundled integration {id}: {error}");
+                        eprintln!("Files bundled integration {id}: {error}");
                         None
                     }
                 }
@@ -423,7 +423,7 @@ pub(crate) enum Status {
         update: bool,
         modified: bool,
     },
-    /// Registered by hand or by another tool; Strata only removes it.
+    /// Registered by hand or by another tool; Files only removes it.
     Manual,
 }
 
@@ -580,7 +580,7 @@ fn private_directory(path: &Path) -> Result<(), String> {
         }
         Ok(metadata) if !metadata.is_dir() => Err(format!("{} is not a folder", path.display())),
         Ok(metadata) if metadata.mode() & 0o022 != 0 => Err(format!(
-            "{} is writable by other users, so Strata will not load providers from it",
+            "{} is writable by other users, so Files will not load providers from it",
             path.display()
         )),
         Ok(_) => Ok(()),
@@ -646,7 +646,7 @@ pub(crate) fn install(entry: &Entry, root: &Path) -> Result<PathBuf, String> {
     Ok(directory)
 }
 
-/// Deletes `root/<id>`, whether Strata or the user installed it.
+/// Deletes `root/<id>`, whether Files or the user installed it.
 pub(crate) fn remove(root: &Path, id: &str) -> Result<(), String> {
     if !file_providers::slug(id) {
         return Err(format!("{id:?} is not a provider id"));

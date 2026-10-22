@@ -1948,7 +1948,7 @@ fn columns_mirror_home_and_end_in_the_default_key_map() {
                 wait_until(|| location_ends_with(browser.location_at(1), "b-dir"));
                 wait_loaded(&browser, 1);
 
-                assert!(fixture.press(end_key, none), "Strata handles {end_key:?}");
+                assert!(fixture.press(end_key, none), "Files handles {end_key:?}");
                 assert_eq!(focused_name(&browser), "e.bin", "{end_key:?}");
                 assert_eq!(fill_names(&browser), ["e.bin"], "{end_key:?}");
                 wait_until(|| browser.location_at(1).is_none());
@@ -1964,7 +1964,7 @@ fn columns_mirror_home_and_end_in_the_default_key_map() {
                 wait_until(|| location_ends_with(browser.location_at(1), "c-dir"));
                 wait_loaded(&browser, 1);
 
-                assert!(fixture.press(home_key, none), "Strata handles {home_key:?}");
+                assert!(fixture.press(home_key, none), "Files handles {home_key:?}");
                 assert_eq!(focused_name(&browser), "a-dir", "{home_key:?}");
                 wait_until(|| location_ends_with(browser.location_at(1), "a-dir"));
                 wait_loaded(&browser, 1);
@@ -2000,7 +2000,7 @@ fn home_and_end_jump_to_the_first_and_last_item_in_the_default_key_map() {
                 assert_eq!(focused_name(&browser), "b.txt", "{mode:?}");
                 assert_eq!(fill_names(&browser), ["a.txt", "b.txt"], "{mode:?}");
 
-                assert!(fixture.press(Key::End, none), "{mode:?} Strata handles End");
+                assert!(fixture.press(Key::End, none), "{mode:?} Files handles End");
                 assert_eq!(focused_name(&browser), "c.txt", "{mode:?}");
                 assert_eq!(fill_names(&browser), ["c.txt"], "{mode:?}");
                 assert!(fixture.view.item_view_has_focus(), "{mode:?}");
@@ -2010,7 +2010,7 @@ fn home_and_end_jump_to_the_first_and_last_item_in_the_default_key_map() {
 
                 assert!(
                     fixture.press(Key::Home, none),
-                    "{mode:?} Strata handles Home"
+                    "{mode:?} Files handles Home"
                 );
                 assert_eq!(focused_name(&browser), "a.txt", "{mode:?}");
                 assert_eq!(fill_names(&browser), ["a.txt"], "{mode:?}");

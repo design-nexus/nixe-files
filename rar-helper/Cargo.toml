@@ -1,0 +1,13 @@
+[package]
+name = "nixe-files-rar"
+version = "0.1.0"
+edition = "2024"
+license-file = "LICENSE"
+description = "Separately licensed sandboxed RAR decoder for Files"
+
+[dependencies]
+unrar = "0.5.8"
+unrar_sys = "0.5.8"
+
+[dev-dependencies]
+tempfile = "3.27"

@@ -47,7 +47,7 @@ pub(super) struct FolderViewStore {
     load_failure: Option<io::Error>,
     save_timer: RefCell<Option<(glib::SourceId, Duration)>>,
     trashed: RefCell<TrashedValues<TakenViews>>,
-    /// Follow what another Strata process, such as the portal chooser, saves.
+    /// Follow what another Files process, such as the portal chooser, saves.
     _monitors: [LoadHandle; 2],
 }
 
@@ -107,7 +107,7 @@ pub(in crate::ui) fn folder_views_path() -> PathBuf {
     crate::storage::state_directory().join(FILE_NAME)
 }
 
-/// Keeps other Strata processes from saving between this one's merge and its
+/// Keeps other Files processes from saving between this one's merge and its
 /// rename, which would drop their changes. Locks the directory, because every
 /// save replaces the file.
 fn lock_saves(path: &Path, wait: Duration) -> io::Result<fs::File> {
@@ -295,7 +295,7 @@ impl PreferenceManager {
         !self.folder_view_store().views.borrow().is_empty()
     }
 
-    /// Also clears what another Strata process saved and this one has not merged yet.
+    /// Also clears what another Files process saved and this one has not merged yet.
     pub(in crate::ui) fn forget_folder_views(&self) {
         self.change_folder_views(Affects::Sorts, |views| {
             views.clear();
@@ -387,7 +387,7 @@ impl PreferenceManager {
         });
     }
 
-    /// Another Strata process, such as the portal chooser, can change the
+    /// Another Files process, such as the portal chooser, can change the
     /// defaults that folder values are stored relative to.
     fn adopt_defaults_saved_elsewhere(&self) {
         if self.load_failure.is_some() {

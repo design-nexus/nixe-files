@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 //! Folder colors and custom icons are keyed by absolute path, so the file
-//! operations Strata performs carry, drop or bring back those keys.
+//! operations Files performs carry, drop or bring back those keys.
 
 use std::{
     cell::{Cell, RefCell},

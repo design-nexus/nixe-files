@@ -71,6 +71,15 @@ pub(crate) enum FileIconColors {
     Theme,
 }
 
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub(crate) enum PreviewStyle {
+    Panel,
+    #[default]
+    #[serde(other)]
+    Popup,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub(in crate::ui) struct Preferences {
     mode: String,
@@ -79,6 +88,8 @@ pub(in crate::ui) struct Preferences {
     omarchy_variant: OmarchyVariant,
     #[serde(default)]
     folder_peeking: bool,
+    #[serde(default)]
+    preview_style: PreviewStyle,
     #[serde(default = "default_enabled")]
     single_click_previews: bool,
     #[serde(default = "default_enabled")]
@@ -360,6 +371,7 @@ impl Default for Preferences {
             theme: "tokyo-night".to_owned(),
             omarchy_variant: OmarchyVariant::default(),
             folder_peeking: false,
+            preview_style: PreviewStyle::Popup,
             single_click_previews: true,
             columns_mirror_selection: true,
             columns_show_sizes: true,
@@ -789,6 +801,15 @@ impl PreferenceManager {
     /// that bindings derive from preferences (such as theme availability).
     pub(in crate::ui) fn notify_changes(&self) {
         self.changes.notify(self);
+    }
+
+    pub(crate) fn preview_style(&self) -> PreviewStyle {
+        self.preferences.borrow().preview_style
+    }
+
+    pub(crate) fn set_preview_style(&self, style: PreviewStyle) {
+        self.preferences.borrow_mut().preview_style = style;
+        self.save_preferences();
     }
 
     pub fn folder_peeking(&self) -> bool {

@@ -36,7 +36,7 @@ mod sidebar;
 
 use sidebar::{SidebarChord, activate_sidebar_focus, move_sidebar_focus, sidebar_chord};
 
-// None tries the next Strata stage; Some(Proceed) gives the event to GTK instead.
+// None tries the next Files stage; Some(Proceed) gives the event to GTK instead.
 type KeyResult = Option<Propagation>;
 
 /// Window actions that run once every other stage yields the key. The flag

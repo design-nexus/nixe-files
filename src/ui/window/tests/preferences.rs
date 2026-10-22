@@ -1562,7 +1562,7 @@ fn unreadable_folder_settings_use_defaults_and_are_never_overwritten() {
                     .column_preferences(0)
                     .map(|preferences| preferences.sort_key),
                 Some(SortKey::Size),
-                "changes still apply until Strata closes"
+                "changes still apply until Files closes"
             );
             PreferenceManager::shared().flush_folder_views();
             crate::storage::writer::settle();
@@ -1884,7 +1884,7 @@ impl OpenWindow {
         let preferences = PreferenceManager::shared();
         let window = gtk::ApplicationWindow::builder()
             .application(&test_application())
-            .title("Strata")
+            .title("Files")
             .default_width(width)
             .default_height(760)
             .build();

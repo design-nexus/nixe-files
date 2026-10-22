@@ -109,7 +109,7 @@ pub(super) fn general_page(
         &manager,
         PreferenceSwitch {
             title: "Restore open tabs",
-            description: "Reopen your tabs from the last session when launching Strata without a target.",
+            description: "Reopen your tabs from the last session when launching Files without a target.",
             read: PreferenceManager::restore_tabs,
             write: PreferenceManager::set_restore_tabs,
         },
@@ -149,7 +149,7 @@ fn append_language_option(content: &gtk::Box, manager: &Rc<PreferenceManager>) {
     controls.append(&restart);
     group.append(&super::control_row(
         "Language",
-        "Auto-detect follows your system language. Restart Strata to apply changes.",
+        "Auto-detect follows your system language. Restart Files to apply changes.",
         &controls,
     ));
 }
@@ -282,6 +282,13 @@ struct PreferenceSwitch {
 
 fn append_browsing_options(content: &gtk::Box, manager: &Rc<PreferenceManager>) {
     let browsing = super::settings_group(content, "BROWSING");
+    let (choice, buttons) = segmented_control(&["Popup", "Panel"], if manager.preview_style() == crate::ui::preferences::PreviewStyle::Popup { 0 } else { 1 });
+    for (button, style) in buttons.iter().zip([crate::ui::preferences::PreviewStyle::Popup, crate::ui::preferences::PreviewStyle::Panel]) {
+        bind_choice(manager, button, style, PreferenceManager::preview_style, PreferenceManager::set_preview_style);
+    }
+    let row = super::control_row("Preview style", "Open file previews in a popup window or a side panel.", &choice);
+    browsing.append(&row);
+
     for switch in [
         PreferenceSwitch {
             title: "Folder peeking",
@@ -570,7 +577,7 @@ fn append_default_directory_option(content: &gtk::Box, manager: &Rc<PreferenceMa
 
     let row = super::control_row(
         "Default directory",
-        "Open this folder when launching Strata without a target.",
+        "Open this folder when launching Files without a target.",
         &controls,
     );
     content.append(&row);

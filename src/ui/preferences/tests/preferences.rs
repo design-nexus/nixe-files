@@ -311,7 +311,7 @@ fn unreadable_preferences_are_preserved_while_live_changes_still_apply() {
                     &notices[0],
                     "Settings file can't be read",
                     &format!(
-                        "Strata couldn't read “{}” when it started:",
+                        "Files couldn't read “{}” when it started:",
                         settings_path().display()
                     ),
                 );
@@ -513,7 +513,7 @@ fn failed_saves_show_one_notice_per_failure_streak() {
                 &notices[0],
                 "Settings can't be saved",
                 &format!(
-                    "Strata couldn't write “{path}”: The destination “{path}” is not a regular file.",
+                    "Files couldn't write “{path}”: The destination “{path}” is not a regular file.",
                     path = settings_path().display()
                 ),
             );
@@ -605,7 +605,7 @@ fn save_notices(window: &gtk::Window) -> Vec<SaveNoticeText> {
 fn assert_notice(notice: &SaveNoticeText, title: &str, detail_start: &str) {
     let compact = |text: &str| text.split_whitespace().collect::<String>();
     assert_eq!(notice.title, title);
-    assert_eq!(notice.summary, "Changes last only until Strata closes");
+    assert_eq!(notice.summary, "Changes last only until Files closes");
     assert!(
         compact(&notice.detail).starts_with(&compact(detail_start)),
         "{notice:?}"
@@ -1345,6 +1345,7 @@ fn all_preference_setters_publish_and_persist_without_duplicate_notifications() 
                 |m| m.set_preview_volume(0.8),
                 |m| m.set_preview_text_wrap(false),
                 |m| m.set_preview_autoplay(false),
+                |m| m.set_preview_style(PreviewStyle::Popup),
                 |m| m.set_watch_network_folders(true),
                 |m| m.set_thumbnail_workers(3),
                 |m| m.set_show_thumbnails(true),
@@ -2180,4 +2181,22 @@ fn list_columns_order_and_visibility_persist_and_update() {
             assert!(saved_reset.list_hidden_columns.is_empty());
         },
     );
+}
+
+#[test]
+fn preview_presentation_defaults_to_popup_and_persists_panel() {
+    gtk_test("ui::preferences::tests::preferences::preview_presentation_defaults_to_popup_and_persists_panel", || {
+        let manager = PreferenceManager::load();
+        assert_eq!(manager.preview_style(), PreviewStyle::Popup);
+        manager.set_preview_style(PreviewStyle::Panel);
+        crate::storage::writer::settle();
+        assert_eq!(PreferenceManager::load().preview_style(), PreviewStyle::Panel);
+        let mut saved = toml::Value::try_from(manager.preferences.borrow().clone()).expect("preferences");
+        saved.as_table_mut().unwrap().remove("preview_style");
+        fs::write(settings_path(), toml::to_string(&saved).unwrap()).unwrap();
+        assert_eq!(PreferenceManager::load().preview_style(), PreviewStyle::Popup);
+        saved.as_table_mut().unwrap().insert("preview_style".into(), toml::Value::String("unknown".into()));
+        fs::write(settings_path(), toml::to_string(&saved).unwrap()).unwrap();
+        assert_eq!(PreferenceManager::load().preview_style(), PreviewStyle::Popup);
+    });
 }

@@ -31,7 +31,7 @@ impl Controller {
             return self.adopt(title, *timeout, message.as_deref()).await;
         }
         let Some(window) = self.window() else {
-            return Outcome::error("the Strata window is gone".to_owned());
+            return Outcome::error("the Files window is gone".to_owned());
         };
         let Some(injector) = self.injector.as_ref() else {
             return Outcome::error("no X input connection".to_owned());

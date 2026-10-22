@@ -48,6 +48,7 @@ use super::{
 };
 
 mod bookmarks;
+mod cloud;
 mod composition;
 mod density_slider;
 mod device_labels;
@@ -315,7 +316,7 @@ pub(super) fn present_target(
 
     let window = gtk::ApplicationWindow::builder()
         .application(application)
-        .title("Strata")
+        .title("Files")
         .default_width(1200)
         .default_height(760)
         .build();
@@ -1545,6 +1546,7 @@ impl SidebarState {
             self.append_ordered_place(place);
         }
         self.append_pinned_places();
+        cloud::append(self);
     }
 
     fn append_ordered_place(self: &Rc<Self>, place: &'static str) {

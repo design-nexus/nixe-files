@@ -149,11 +149,11 @@ impl DestinationError {
 }
 
 pub(crate) fn config_directory() -> PathBuf {
-    gtk::glib::user_config_dir().join("strata")
+    gtk::glib::user_config_dir().join("nixe-files")
 }
 
 pub(crate) fn state_directory() -> PathBuf {
-    gtk::glib::user_state_dir().join("strata")
+    gtk::glib::user_state_dir().join("nixe-files")
 }
 
 /// Tells this process's last write or read of a file apart from another

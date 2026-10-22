@@ -187,6 +187,7 @@ impl PreviewDrawer {
         sidebar: Option<&SidebarView>,
     ) {
         self.state.split.replace(Some(split.clone()));
+        self.state.panel_split.replace(Some(split.clone()));
         self.state.sizing.binding.replace(Some(BrowserBinding {
             content: content.downgrade(),
             browser: browser.downgrade(),
@@ -246,6 +247,7 @@ impl PreviewDrawer {
             let Some(state) = weak.upgrade() else {
                 return;
             };
+            if state.floating.get() { return; }
             state.publish_column_width_limit(split);
             if state.is_enabled() || state.reserves_column_space() {
                 state.sync_split(split);
@@ -272,6 +274,15 @@ impl PreviewDrawer {
             handle.set_cursor_from_name(Some("col-resize"));
         }
         install_resize(split, &self.state);
+        let weak = Rc::downgrade(&self.state);
+        crate::ui::preferences::PreferenceManager::shared().bind_preference(
+            split,
+            |manager| manager.preview_style(),
+            move |_, style| {
+                if let Some(state) = weak.upgrade() { state.change_presentation(style); }
+            },
+        );
+
         install_resize_grip(split, &self.state);
     }
 }
@@ -324,7 +335,7 @@ impl PreviewState {
     }
 
     pub(super) fn reserves_column_space(&self) -> bool {
-        self.reserve_columns.get() && self.browsing_columns()
+        !self.floating.get() && self.reserve_columns.get() && self.browsing_columns()
     }
 
     // Columns may use the whole browser area; the slot yields down to zero
@@ -447,9 +458,9 @@ impl PreviewState {
     /// A preview, a reserved placeholder, or Columns' reserved slot takes part
     /// in the sidebar fit rule; otherwise the window-only rule applies.
     pub(super) fn preview_present(&self) -> bool {
-        self.current.borrow().is_some()
+        !self.floating.get() && (self.current.borrow().is_some()
             || self.reserves_empty_preview()
-            || self.reserves_column_space()
+            || self.reserves_column_space())
     }
 
     pub(super) fn sync_sidebar_without_preview(&self) {

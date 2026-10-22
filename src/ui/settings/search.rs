@@ -13,6 +13,7 @@ struct Target {
 }
 
 const TARGETS: &[Target] = &[
+    Target { id: "preview-style", page: "general", title: "Preview style", aliases: "popup panel floating quick look" },
     Target {
         id: "language",
         page: "general",

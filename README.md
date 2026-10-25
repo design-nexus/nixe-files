@@ -1,8 +1,8 @@
 # Files
 
-Independent Strata-derived Rust/GTK4 file manager for the Nixe desktop.
-Upstream file-management functionality and visual design are retained, with
-integrated cloud navigation and selectable preview presentation.
+A Rust/GTK4 file manager for the Nixe desktop, with integrated cloud navigation
+and selectable preview presentation. Its origin and licenses are in
+[UPSTREAM.md](UPSTREAM.md) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 
 - Cloud Storage lists accounts enabled for Storage in Settings → Online Accounts.
 - Selecting an account mounts it through Cloud and opens the filesystem.
@@ -36,7 +36,7 @@ cargo build --release --locked
 The installer installs the binary, launcher and icon and makes Files the default
 folder handler. An existing per-user FileManager1 activation file is backed up
 before replacement. Installation does not launch or restart the application.
-Settings/state/cache are independent of Strata. Existing Strata data is preserved.
+Files keeps its settings, state and cache in its own folders.
 
 Public dependencies are pinned to immutable Git revisions. CI builds the app
 independently. Tagged x86_64 releases package installation resources and publish

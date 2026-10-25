@@ -15,6 +15,12 @@ integrated cloud navigation and selectable preview presentation.
   closes it, and Up/Down follows files in the owning browser.
 - Panel retains the embedded preview. Both use existing sandboxed renderers.
 
+## Install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe-files/main/install-nixe.sh | bash
+```
+
 ## Build and install
 
 Requires Rust, GTK4 4.12+, GtkSourceView5, Poppler GLib, Fontconfig,

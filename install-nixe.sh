@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Piped from curl (`curl -fsSL …/install-nixe.sh | bash`): no checkout here, so fetch
+# the source and run its installer from there.
+if [[ -z ${BASH_SOURCE[0]:-} ]]; then
+  command -v git >/dev/null || { echo "Git is needed to install nixe-files." >&2; exit 1; }
+  work=$(mktemp -d)
+  trap 'rm -rf "$work"' EXIT
+  git clone -q --depth 1 https://github.com/design-nexus/nixe-files.git "$work/src"
+  bash "$work/src/install-nixe.sh" "$@"
+  exit
+fi
 cd -- "$(dirname -- "$0")"
 if [[ -f Cargo.toml ]]; then cargo build --release --locked; binary=target/release/nixe-files; helper=target/release/nixe-files-rar; else binary=./nixe-files; helper=./nixe-files-rar; fi
 bin_dir="$HOME/.local/bin"

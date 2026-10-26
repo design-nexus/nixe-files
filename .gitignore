@@ -40,3 +40,4 @@ packaging/aur/*/*.pkg.tar.zst
 /docs/images/
 
 .github/workflows/*.upstream
+/dist/

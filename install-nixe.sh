@@ -11,7 +11,9 @@ if [[ -z ${BASH_SOURCE[0]:-} ]]; then
   exit
 fi
 cd -- "$(dirname -- "$0")"
-if [[ -f Cargo.toml ]]; then cargo build --release --locked; binary=target/release/nixe-files; helper=target/release/nixe-files-rar; else binary=./nixe-files; helper=./nixe-files-rar; fi
+# A release archive (.prebuilt) brings its binaries in target/release.
+if [[ -f .prebuilt ]]; then binary=target/release/nixe-files; helper=target/release/nixe-files-rar
+elif [[ -f Cargo.toml ]]; then cargo build --release --locked; binary=target/release/nixe-files; helper=target/release/nixe-files-rar; else binary=./nixe-files; helper=./nixe-files-rar; fi
 bin_dir="$HOME/.local/bin"
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 install -Dm755 "$helper" "$bin_dir/nixe-files-rar.new"

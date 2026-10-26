@@ -1,0 +1,12 @@
+{
+  "application": "files",
+  "directory": ".",
+  "packages": [
+    "nixe-files",
+    "nixe-files-rar"
+  ],
+  "manifest": "Cargo.toml",
+  "prepare": [],
+  "binaries": [],
+  "test_commands": []
+}

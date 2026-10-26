@@ -1,36 +1,32 @@
-name: Files release
+# Builds, packages and publishes a release for the tag given.
+name: Standalone release
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag matching the application version
+        required: true
+        default: v0.1.0
 permissions:
   contents: write
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: archlinux:base-devel
+    container: archlinux@sha256:e43f1fd80e073992c5f173efbbbf65144170bf60aeb7369940087d63eacea8f4
+    env:
+      CARGO_BUILD_JOBS: '2'
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - run: pacman -Syu --noconfirm --needed git rust gtk4 gtksourceview5 poppler-glib gstreamer gst-plugins-base-libs fontconfig github-cli python openssl
-      - uses: actions/checkout@v4
-      - run: cargo build --release --locked
-      - name: Package
+      - name: Prepare Git checkout
         run: |
-          package="package/nixe-files-${GITHUB_REF_NAME#v}"
-          mkdir -p "$package/data/icons/scalable/apps"
-          cp target/release/nixe-files target/release/nixe-files-rar LICENSE LICENSE-MIT COPYING UPSTREAM.md THIRD_PARTY_LICENSES.md install-nixe.sh "$package/"
-          cp data/io.github.design_nexus.nixe.Files.desktop "$package/"
-          cp data/icons/scalable/apps/io.github.design_nexus.nixe.Files.svg "$package/"
-          cp data/io.github.design_nexus.nixe.Files.desktop "$package/data/"
-          cp data/icons/scalable/apps/io.github.design_nexus.nixe.Files.svg "$package/data/icons/scalable/apps/"
-          cp rar-helper/LICENSE "$package/RAR-HELPER-LICENSE"
-          printf '%s\n' "$GITHUB_SHA" > "$package/SOURCE_COMMIT"
-          tar -czf nixe-files-${GITHUB_REF_NAME#v}-x86_64-unknown-linux-gnu.tar.gz -C package "nixe-files-${GITHUB_REF_NAME#v}"
-          mkdir release-assets
-          mv *.tar.gz release-assets/
-          python scripts/sign_update_manifest.py --directory release-assets --version "${GITHUB_REF_NAME#v}" --source-commit "$GITHUB_SHA"
-          cd release-assets
-          sha256sum *.tar.gz *.json > SHA256SUMS
+          printf 'Server = https://archive.archlinux.org/repos/2026/10/20/$repo/os/$arch\n' > /etc/pacman.d/mirrorlist
+          pacman -Syyuu --noconfirm --needed git
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+      - name: Pinned build prerequisites
+        run: bash tools/ci-bootstrap.sh gtksourceview5 poppler-glib gstreamer gst-plugins-base-libs fontconfig
+      - run: python3 tools/ci.py
+      - run: python3 tools/release.py --tag "$RELEASE_TAG" --publish
         env:
-          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
-      - run: gh release create "$GITHUB_REF_NAME" release-assets/* --generate-notes
-        env:
-          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}

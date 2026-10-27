@@ -6,8 +6,11 @@ pub(super) const DEFAULT_FAMILIES: [&str; 2] = ["JetBrains Mono", "JetBrainsMono
 /// The chosen family first, then the bundled ones, so text keeps the default
 /// look when a saved family is no longer installed.
 fn families(custom: Option<&str>) -> Vec<&str> {
+    // A theme may list one family under several names: "Inter, Inter 18pt".
     custom
         .into_iter()
+        .flat_map(|names| names.split(','))
+        .map(str::trim)
         .chain(DEFAULT_FAMILIES)
         .filter(|family| !family.is_empty())
         .collect()

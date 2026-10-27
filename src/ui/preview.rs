@@ -27,8 +27,8 @@ use crate::{
 use super::keys::{
     self, KeyPress,
     bindings::{
-        COPY, MEDIA_MUTE, MEDIA_NEXT, MEDIA_PLAY_PAUSE, MEDIA_PREVIOUS, MEDIA_SEEK_BACK,
-        MEDIA_SEEK_FORWARD, MEDIA_VOLUME_DOWN, MEDIA_VOLUME_UP, PEEK, SELECT_ALL, SPACE,
+        COPY, DOWN, MEDIA_MUTE, MEDIA_NEXT, MEDIA_PLAY_PAUSE, MEDIA_PREVIOUS, MEDIA_SEEK_BACK,
+        MEDIA_SEEK_FORWARD, MEDIA_VOLUME_DOWN, MEDIA_VOLUME_UP, PEEK, SELECT_ALL, SPACE, UP,
     },
 };
 use super::{
@@ -200,6 +200,9 @@ struct PreviewState {
     raw_details_scroll: gtk::ScrolledWindow,
     raw_metadata_load: RefCell<Option<super::raw_details::MetadataLoad>>,
     open: gtk::Button,
+    close: gtk::Button,
+    /// Key hints under a popup preview.
+    footer: gtk::Label,
     print: gtk::Button,
     wrap: gtk::ToggleButton,
     text_view: RefCell<Option<sourceview5::View>>,
@@ -256,6 +259,7 @@ pub(in crate::ui) use keyboard::{
 mod tests;
 
 pub(crate) const PREVIEW_LABEL: &str = "Preview";
+const NEXT_FILE: &[keys::Binding] = &[UP, DOWN];
 
 #[derive(Clone)]
 pub struct PreviewDrawer {
@@ -342,6 +346,22 @@ impl PreviewDrawer {
         )));
         close.add_css_class("preview-close");
         close.add_css_class("preview-header-action");
+        let footer = gtk::Label::new(None);
+        footer.add_css_class("preview-footer");
+        footer.set_xalign(0.0);
+        footer.set_visible(false);
+        super::preferences::PreferenceManager::shared().bind_preference(
+            &footer,
+            super::preferences::PreferenceManager::tenxer_mode,
+            |footer, tenxer| {
+                if let Some(footer) = footer.downcast_ref::<gtk::Label>() {
+                    footer.set_markup(&crate::ui::shortcut_reference::legend_markup(&[
+                        (keys::Keys::One(if tenxer { PEEK } else { SPACE }), "Close"),
+                        (keys::Keys::Any(NEXT_FILE), "Next file"),
+                    ]));
+                }
+            },
+        );
         let header_handle = gtk::Box::new(gtk::Orientation::Horizontal, 8);
         header_handle.add_css_class("preview-header-handle");
         header_handle.set_hexpand(true);
@@ -398,6 +418,7 @@ impl PreviewDrawer {
             .build();
         raw_details_scroll.add_css_class("media-details-scroll");
         pane.append(&raw_details_scroll);
+        pane.append(&footer);
 
         let revealer = gtk::Revealer::builder()
             .child(&pane)
@@ -454,6 +475,8 @@ impl PreviewDrawer {
             raw_details_scroll,
             raw_metadata_load: RefCell::new(None),
             open: open.clone(),
+            close: close.clone(),
+            footer,
             print: print.clone(),
             wrap: wrap.clone(),
             text_view: RefCell::new(None),

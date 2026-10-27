@@ -71,11 +71,20 @@ impl Header {
         }
         let location = browser.location_widget();
         location.set_hexpand(true);
+        let path = nixe_ui::clamp::Clamp::new(&location, PATH_MAX_WIDTH);
+        path.set_start(true);
+        path.set_hexpand(true);
         let search_label = crate::ui::shortcut_reference::with_keys(
             "Search (%{keys})",
             crate::ui::keys::Keys::One(crate::ui::keys::bindings::SEARCH),
         );
-        let search = header_action(icons::SEARCH, &search_label);
+        let search = search_field(
+            &search_label,
+            &crate::ui::shortcut_reference::with_keys(
+                "%{keys}",
+                crate::ui::keys::Keys::One(crate::ui::keys::bindings::SEARCH),
+            ),
+        );
         crate::ui::accessibility::set_label(&search, &search_label);
         crate::ui::tenxer_mode::hide_while_enabled(&search);
         let appearance =
@@ -137,7 +146,6 @@ impl Header {
         );
         crate::ui::accessibility::set_label(&new_tab, &crate::i18n::tr("New tab"));
         actions.append(&new_tab);
-        actions.append(&search);
         actions.append(&appearance);
         actions.append(&settings);
         let window_buttons = gtk::Box::new(gtk::Orientation::Horizontal, 0);
@@ -146,7 +154,7 @@ impl Header {
         window_buttons.append(&close);
         show_while_floating(window, &window_buttons, &close, preferences);
         actions.append(&window_buttons);
-        let content = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+        let content = gtk::Box::new(gtk::Orientation::Horizontal, 10);
         content.add_css_class("header-row");
         content.set_hexpand(true);
         content.set_valign(gtk::Align::Center);
@@ -156,10 +164,11 @@ impl Header {
         brand.append(&gtk::Label::new(Some(&crate::i18n::tr("Files"))));
         content.append(&brand);
         content.append(&sidebar_toggle);
-        content.append(&location);
+        content.append(&path);
+        content.append(&search);
         content.append(&actions);
         if let Some(toggle) = brand.next_sibling() {
-            browser.attach_header(&content, &toggle);
+            browser.attach_header(&content, &toggle, path.upcast_ref());
         }
         widget.set_title_widget(Some(&content));
         Self {
@@ -260,6 +269,31 @@ fn bind_maximize_icon(window: &gtk::ApplicationWindow, button: &gtk::Button) {
     };
     update(window);
     window.connect_maximized_notify(move |window| update(window));
+}
+
+/// The path bar's widest, as in the Nixe 2.0 mockup; it sits at the start.
+const PATH_MAX_WIDTH: i32 = 520;
+
+/// Search as a field in the header: its icon, a placeholder and its keys.
+fn search_field(tooltip: &str, keys: &str) -> gtk::Button {
+    let button = gtk::Button::builder().tooltip_text(tooltip).build();
+    button.add_css_class("header-search");
+    button.set_hexpand(false);
+    button.set_valign(gtk::Align::Center);
+    button.set_cursor_from_name(Some("text"));
+    let row = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+    row.append(&assets::chrome_icon(icons::SEARCH));
+    let placeholder = gtk::Label::new(Some(&crate::i18n::tr("Search")));
+    placeholder.add_css_class("header-search-placeholder");
+    placeholder.set_xalign(0.0);
+    placeholder.set_hexpand(true);
+    row.append(&placeholder);
+    let caps = gtk::Label::new(Some(keys));
+    caps.add_css_class("header-search-keys");
+    caps.set_valign(gtk::Align::Center);
+    row.append(&caps);
+    button.set_child(Some(&row));
+    button
 }
 
 pub(super) fn header_action(icon: &str, tooltip: &str) -> gtk::Button {

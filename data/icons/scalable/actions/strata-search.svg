@@ -5,10 +5,10 @@
   viewBox="0 0 24 24"
   fill="none"
   stroke="#8bc9eb"
-  stroke-width="2"
+  stroke-width="1.6"
   stroke-linecap="round"
   stroke-linejoin="round"
 >
-  <path d="m21 21-4.34-4.34" />
-  <circle cx="11" cy="11" r="8" />
+  <circle cx="10.5" cy="10.5" r="6.5" />
+  <path d="M15.5 15.5 20 20" />
 </svg>

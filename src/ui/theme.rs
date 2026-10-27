@@ -1012,7 +1012,7 @@ fn suite_sizes_css() -> String {
         "headerbar, headerbar > windowhandle > box {{ min-height: {header}px; }}\n\
          headerbar button.header-action, headerbar menubutton.header-action > button, headerbar .sidebar-toggle {{ min-width: {control}px; min-height: {control}px; }}\n\
          .header-row .list-navigation-button, .header-row .pane-actions button, .header-row .pane-actions menubutton > button, .header-row .header-actions button.header-action, .header-row .header-actions menubutton.header-action > button {{ min-width: {grouped}px; min-height: {grouped}px; }}\n\
-         .location-control, .location-entry {{ min-height: {control}px; }}\n\
+         .location-control, .location-entry, .header-row button.header-search {{ min-height: {control}px; }}\n\
          .sidebar-row {{ min-height: {nav}px; }}\n\
          .list-row {{ min-height: {row}px; }}\n\
          .shortcut-footer {{ min-height: {status}px; }}\n"

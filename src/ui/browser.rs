@@ -1476,9 +1476,9 @@ impl BrowserView {
     }
 
     /// In List and Icons the pane's row (back, forward, up, its actions) joins
-    /// `row` after `after`, with the path inside it.
-    pub fn attach_header(&self, row: &gtk::Box, after: &gtk::Widget) {
-        let host = crate::ui::browser_modes::HeaderHost::new(row, after, &self.location_widget());
+    /// `row` after `after`, with `path` (the path control, or what holds it) inside it.
+    pub fn attach_header(&self, row: &gtk::Box, after: &gtk::Widget, path: &gtk::Widget) {
+        let host = crate::ui::browser_modes::HeaderHost::new(row, after, path);
         self.state.mode_views.borrow().set_header_host(Rc::new(host));
     }
 

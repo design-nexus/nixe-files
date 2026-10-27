@@ -380,15 +380,17 @@ impl TabWindow {
                 header.actions.prepend(&header.new_tab);
                 header.actions.append(&header.close);
                 header.new_tab.set_visible(!multiple);
-                header
-                    .close
-                    .set_visible(!multiple && self.preferences.window_show_close());
+                header.close.set_visible(
+                    !multiple
+                        && self.preferences.window_show_close()
+                        && super::layout::is_floating(&header.close),
+                );
             }
             if tab.id == self.active.get() {
                 header.new_tab.set_visible(true);
-                header
-                    .close
-                    .set_visible(self.preferences.window_show_close());
+                header.close.set_visible(
+                    self.preferences.window_show_close() && super::layout::is_floating(&header.close),
+                );
             }
         }
         self.strip.hints(self.hints.get());

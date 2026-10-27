@@ -3,17 +3,22 @@
 /// The bundled interface font; the Nerd Font build covers icon glyphs it lacks.
 pub(super) const DEFAULT_FAMILIES: [&str; 2] = ["JetBrains Mono", "JetBrainsMono Nerd Font"];
 
-/// The chosen family first, then the bundled ones, so text keeps the default
-/// look when a saved family is no longer installed.
+/// The chosen families then `sans-serif`, or the bundled ones then `monospace`
+/// when none is chosen. A chosen list names neither the bundled family nor
+/// `monospace`: fontconfig rules can put either ahead of everything listed.
 fn families(custom: Option<&str>) -> Vec<&str> {
     // A theme may list one family under several names: "Inter, Inter 18pt".
-    custom
+    let chosen: Vec<&str> = custom
         .into_iter()
         .flat_map(|names| names.split(','))
         .map(str::trim)
-        .chain(DEFAULT_FAMILIES)
         .filter(|family| !family.is_empty())
-        .collect()
+        .collect();
+    if chosen.is_empty() {
+        DEFAULT_FAMILIES.into_iter().chain(["monospace"]).collect()
+    } else {
+        chosen.into_iter().chain(["sans-serif"]).collect()
+    }
 }
 
 /// Interface text rules. GTK's built-in theme resets popover fonts with
@@ -21,8 +26,10 @@ fn families(custom: Option<&str>) -> Vec<&str> {
 pub(super) fn stylesheet(custom: Option<&str>) -> String {
     let stack = families(custom)
         .into_iter()
-        .map(css_string)
-        .chain(["monospace".to_owned()])
+        .map(|family| match family {
+            "sans-serif" | "monospace" => family.to_owned(),
+            _ => css_string(family),
+        })
         .collect::<Vec<_>>()
         .join(", ");
     format!(

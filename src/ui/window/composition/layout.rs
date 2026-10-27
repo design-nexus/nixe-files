@@ -122,8 +122,9 @@ impl Header {
             (&maximize, PreferenceManager::window_show_maximize),
             (&close, PreferenceManager::window_show_close),
         ] {
-            preferences
-                .bind_preference(button, read, |widget, visible| widget.set_visible(visible));
+            preferences.bind_preference(button, read, |widget, visible| {
+                widget.set_visible(visible && is_floating(widget));
+            });
         }
         let actions = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         actions.add_css_class("header-actions");
@@ -143,7 +144,7 @@ impl Header {
         window_buttons.append(&minimize);
         window_buttons.append(&maximize);
         window_buttons.append(&close);
-        show_while_floating(window, &window_buttons);
+        show_while_floating(window, &window_buttons, &close, preferences);
         actions.append(&window_buttons);
         let content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         content.set_hexpand(true);
@@ -171,31 +172,60 @@ impl Header {
 
 /// A tiled, maximized or fullscreen window is placed by the compositor, so it
 /// has no use for window buttons.
-fn show_while_floating(window: &gtk::ApplicationWindow, buttons: &gtk::Box) {
+pub(super) fn is_floating(widget: &impl IsA<gtk::Widget>) -> bool {
+    widget
+        .native()
+        .and_then(|native| native.surface())
+        .and_downcast::<gdk::Toplevel>()
+        .is_none_or(|toplevel| floating_state(toplevel.state()))
+}
+
+fn floating_state(state: gdk::ToplevelState) -> bool {
+    use gdk::ToplevelState as S;
+    let placed = S::TILED
+        | S::TOP_TILED
+        | S::RIGHT_TILED
+        | S::BOTTOM_TILED
+        | S::LEFT_TILED
+        | S::MAXIMIZED
+        | S::FULLSCREEN;
+    !state.intersects(placed)
+}
+
+/// The close button moves to the tab strip with several tabs, so it is
+/// handled on its own rather than through `buttons`.
+fn show_while_floating(
+    window: &gtk::ApplicationWindow,
+    buttons: &gtk::Box,
+    close: &gtk::Button,
+    preferences: &Rc<PreferenceManager>,
+) {
     let update = {
-        let buttons = buttons.downgrade();
-        move |toplevel: &gtk::gdk::Toplevel| {
-            use gtk::gdk::ToplevelState as S;
-            let placed = S::TILED
-                | S::TOP_TILED
-                | S::RIGHT_TILED
-                | S::BOTTOM_TILED
-                | S::LEFT_TILED
-                | S::MAXIMIZED
-                | S::FULLSCREEN;
+        let (buttons, close) = (buttons.downgrade(), close.downgrade());
+        let preferences = preferences.clone();
+        move |toplevel: &gdk::Toplevel| {
+            let floating = floating_state(toplevel.state());
             if let Some(buttons) = buttons.upgrade() {
-                buttons.set_visible(!toplevel.state().intersects(placed));
+                buttons.set_visible(floating);
+            }
+            if let Some(close) = close.upgrade() {
+                close.set_visible(floating && preferences.window_show_close());
             }
         }
     };
-    window.connect_realize(move |window| {
-        let Some(toplevel) = window.surface().and_downcast::<gtk::gdk::Toplevel>() else {
+    let watch = move |window: &gtk::ApplicationWindow| {
+        let Some(toplevel) = window.surface().and_downcast::<gdk::Toplevel>() else {
             return;
         };
         update(&toplevel);
         let update = update.clone();
         toplevel.connect_state_notify(move |toplevel| update(toplevel));
-    });
+    };
+    if window.is_realized() {
+        watch(window);
+    } else {
+        window.connect_realize(watch);
+    }
 }
 
 fn bind_maximize_icon(window: &gtk::ApplicationWindow, button: &gtk::Button) {

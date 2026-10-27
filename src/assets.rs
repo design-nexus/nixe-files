@@ -233,7 +233,7 @@ pub(crate) enum IconContext {
 }
 const JETBRAINS_MONO: &[u8] = include_bytes!("../data/fonts/JetBrainsMono[wght].ttf");
 
-pub const CHROME_ICON_PX: i32 = 16;
+pub const CHROME_ICON_PX: i32 = 17;
 
 struct PrimaryIcon {
     image: glib::WeakRef<gtk::Image>,

@@ -581,7 +581,6 @@ impl ThemeManager {
             _ => String::new(),
         };
         css.push_str(&frame_density_css(frame.px()));
-        css.push_str(&suite_sizes_css());
         self.density_provider.load_from_string(&css);
     }
 
@@ -670,8 +669,9 @@ impl ThemeManager {
             "transparent"
         };
         self.provider.load_from_string(&format!(
-            "{}\n@define-color strata_glow {glow};\n",
-            tokens_css(tokens, root_font_px)
+            "{}\n@define-color strata_glow {glow};\n{}",
+            tokens_css(tokens, root_font_px),
+            suite_sizes_css()
         ));
         let family = self
             .preferences
@@ -998,8 +998,8 @@ fn theme_list_stamp() -> Vec<(PathBuf, Option<std::time::SystemTime>)> {
     files
 }
 
-/// The suite density's sizes from STYLE.md (compact, balanced, relaxed), above
-/// Files' own density presets.
+/// The suite density's sizes from STYLE.md (compact, balanced, relaxed), loaded
+/// after the token sizing so they win over Files' own.
 fn suite_sizes_css() -> String {
     let density = nixe_theme::read_suite().unwrap_or_default().density;
     let (header, nav, row, control, status) = match density.as_str() {
@@ -1009,7 +1009,7 @@ fn suite_sizes_css() -> String {
     };
     let grouped = control - 4;
     format!(
-        "headerbar, headerbar > windowhandle > box {{ min-height: {header}px; }}\n\
+        "headerbar, headerbar > windowhandle > box, headerbar.browser-header, headerbar.browser-header > windowhandle > box {{ min-height: {header}px; }}\n\
          headerbar button.header-action, headerbar menubutton.header-action > button, headerbar .sidebar-toggle {{ min-width: {control}px; min-height: {control}px; }}\n\
          .header-row .list-navigation-button, .header-row .pane-actions button, .header-row .pane-actions menubutton > button, .header-row .header-actions button.header-action, .header-row .header-actions menubutton.header-action > button {{ min-width: {grouped}px; min-height: {grouped}px; }}\n\
          .location-control, .location-entry, .header-row button.header-search {{ min-height: {control}px; }}\n\

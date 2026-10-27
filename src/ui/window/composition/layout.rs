@@ -137,6 +137,7 @@ impl Header {
         }
         let actions = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         actions.add_css_class("header-actions");
+        actions.set_valign(gtk::Align::Center);
         let new_tab = header_action(
             icons::PLUS,
             &crate::ui::shortcut_reference::with_keys(

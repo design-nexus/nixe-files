@@ -139,9 +139,12 @@ impl Header {
         actions.append(&search);
         actions.append(&appearance);
         actions.append(&settings);
-        actions.append(&minimize);
-        actions.append(&maximize);
-        actions.append(&close);
+        let window_buttons = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+        window_buttons.append(&minimize);
+        window_buttons.append(&maximize);
+        window_buttons.append(&close);
+        show_while_floating(window, &window_buttons);
+        actions.append(&window_buttons);
         let content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         content.set_hexpand(true);
         content.set_valign(gtk::Align::Center);
@@ -164,6 +167,35 @@ impl Header {
             new_tab,
         }
     }
+}
+
+/// A tiled, maximized or fullscreen window is placed by the compositor, so it
+/// has no use for window buttons.
+fn show_while_floating(window: &gtk::ApplicationWindow, buttons: &gtk::Box) {
+    let update = {
+        let buttons = buttons.downgrade();
+        move |toplevel: &gtk::gdk::Toplevel| {
+            use gtk::gdk::ToplevelState as S;
+            let placed = S::TILED
+                | S::TOP_TILED
+                | S::RIGHT_TILED
+                | S::BOTTOM_TILED
+                | S::LEFT_TILED
+                | S::MAXIMIZED
+                | S::FULLSCREEN;
+            if let Some(buttons) = buttons.upgrade() {
+                buttons.set_visible(!toplevel.state().intersects(placed));
+            }
+        }
+    };
+    window.connect_realize(move |window| {
+        let Some(toplevel) = window.surface().and_downcast::<gtk::gdk::Toplevel>() else {
+            return;
+        };
+        update(&toplevel);
+        let update = update.clone();
+        toplevel.connect_state_notify(move |toplevel| update(toplevel));
+    });
 }
 
 fn bind_maximize_icon(window: &gtk::ApplicationWindow, button: &gtk::Button) {

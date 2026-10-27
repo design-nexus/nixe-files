@@ -7440,3 +7440,50 @@ popover.settings-action-library > contents {
 .settings-dialog.modal-constrained {
   min-width: 0;
 }
+
+/* Nixe 2.0: the header, sidebar, bars and content are one surface; spacing,
+   not lines or fills, separates them. */
+headerbar,
+.mode-pane-header,
+.tab-strip,
+.preview-header,
+.sidebar-shell,
+.sidebar-scroll,
+.sidebar-scroll viewport,
+.sidebar {
+  background: @strata_bg;
+}
+
+headerbar,
+headerbar > windowhandle > box,
+headerbar.browser-header,
+.mode-pane-header,
+.column-header,
+.list-headings,
+.shortcut-footer {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+.sidebar-shell {
+  border-right-color: transparent;
+}
+
+.sidebar-row:hover,
+.sidebar-device:hover {
+  background: alpha(@strata_accent, 0.06);
+}
+
+.sidebar-row.active,
+.sidebar-row.active:hover,
+.sidebar-device.active,
+.sidebar-device.active:hover {
+  background: alpha(@strata_accent, 0.16);
+  box-shadow: inset 2px 0 0 @strata_accent;
+}
+
+.file-list-mode row:focus-visible,
+.keyboard-navigation .file-list-mode row:focus-within {
+  outline-color: alpha(@strata_accent, 0.5);
+}

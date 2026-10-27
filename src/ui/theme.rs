@@ -670,7 +670,10 @@ impl ThemeManager {
             "{}\n@define-color strata_glow {glow};\n",
             tokens_css(tokens, root_font_px)
         ));
-        let family = self.preferences.interface_font();
+        let family = self
+            .preferences
+            .interface_font()
+            .or_else(|| nixe_theme::suite_theme("files").look.font.ui);
         self.font_provider
             .load_from_string(&font::stylesheet(family.as_deref()));
         apply_interface_font(family.as_deref(), root_font_px);

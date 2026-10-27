@@ -29,20 +29,20 @@ mod manifest;
 
 use download::{DownloadTimeouts, describe_download_error, describe_read_error, download_agent};
 
-const RELEASE_DOWNLOAD_ROOT: &str = "https://github.com/design-nexus/nixe-files/releases/download";
+const RELEASE_DOWNLOAD_ROOT: &str = "https://github.com/design-nexus/nyx-files/releases/download";
 /// Releases published before signed update manifests cannot be verified, so cannot be installed.
 pub(super) const UPDATE_MANIFEST_ASSETS: [&str; 2] =
     [manifest::MANIFEST_NAME, manifest::SIGNATURES_NAME];
-const REPOSITORY: &str = "design-nexus/nixe-files";
+const REPOSITORY: &str = "design-nexus/nyx-files";
 const MAX_UPDATE_ARCHIVE_BYTES: u64 = 128 * 1024 * 1024;
-const DESKTOP_ENTRY: &str = "io.github.design_nexus.nixe.Files.desktop";
-const APPLICATION_ICON: &str = "io.github.design_nexus.nixe.Files.svg";
+const DESKTOP_ENTRY: &str = "io.github.design_nexus.nyx.Files.desktop";
+const APPLICATION_ICON: &str = "io.github.design_nexus.nyx.Files.svg";
 const AUR_RPC: &str = "https://aur.archlinux.org/rpc/v5/info";
 const AUR_RESPONSE_LIMIT: u64 = 1024 * 1024;
 const PACMAN: &str = "/usr/bin/pacman";
 const PACMAN_CONF: &str = "/usr/bin/pacman-conf";
 const OS_RELEASE: &str = "/etc/os-release";
-const PACKAGE_NAME: &str = "nixe-files";
+const PACKAGE_NAME: &str = "nyx-files";
 const REPOSITORY_DATABASE_LIMIT: u64 = 4 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -679,7 +679,7 @@ fn prepare_release_binary(
     verify_package_name(&package, request)?;
     release.verify_source_commit(&package)?;
     cancel.check()?;
-    let staged = stage_verified_binary(&package.join("nixe-files"), workdir)?;
+    let staged = stage_verified_binary(&package.join("nyx-files"), workdir)?;
     Ok((package, staged))
 }
 
@@ -989,13 +989,13 @@ fn is_old_instance(proc_entry: &Path, install_path: &Path, old_executable: &fs::
 /// which has already replaced the binary.
 fn refresh_desktop_metadata(package_dir: &Path, executable: &Path, data_home: &Path) {
     if let Some(directory) = executable.parent() {
-        let helper = package_dir.join("nixe-files-rar");
+        let helper = package_dir.join("nyx-files-rar");
         if helper.is_file() {
             let installed = (|| -> Result<(), String> {
                 let staged = stage_binary_path(directory)?;
                 fs::copy(&helper, staged.path()).map_err(|e| e.to_string())?;
                 set_executable(staged.path())?;
-                staged.persist(directory.join("nixe-files-rar")).map_err(|e| e.error.to_string())?;
+                staged.persist(directory.join("nyx-files-rar")).map_err(|e| e.error.to_string())?;
                 Ok(())
             })();
             if installed.is_err() { tracing::warn!("RAR helper update failed; reinstall Files to update it"); }

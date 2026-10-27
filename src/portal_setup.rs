@@ -29,8 +29,8 @@ const SERVICE_FILE: &str = "org.freedesktop.impl.portal.desktop.strata.service";
 const STATE_DIRECTORY: &str = "strata/portal-install";
 const STATE_FILE: &str = "state.toml";
 const PORTAL_BACKEND_UNIT: &str = "dbus-:*-org.freedesktop.impl.portal.desktop.strata@*.service";
-const DESKTOP_ID: &str = "io.github.design_nexus.nixe.Files.desktop";
-const FILE_MANAGER_SERVICE: &str = "io.github.design_nexus.nixe.Files.FileManager1.service";
+const DESKTOP_ID: &str = "io.github.design_nexus.nyx.Files.desktop";
+const FILE_MANAGER_SERVICE: &str = "io.github.design_nexus.nyx.Files.FileManager1.service";
 const FILE_MANAGER_STATE_DIRECTORY: &str = "strata/file-manager-install";
 const FILE_MANAGER_STATE_FILE: &str = "state.toml";
 const INODE_DIRECTORY: &str = "inode/directory";
@@ -153,7 +153,7 @@ fn install_file_manager_at(
         .into_owned());
     }
 
-    let service = include_str!("../data/io.github.design_nexus.nixe.Files.FileManager1.service")
+    let service = include_str!("../data/io.github.design_nexus.nyx.Files.FileManager1.service")
         .replace("/usr/bin/strata", executable);
     let state_directory = context.data_home.join(FILE_MANAGER_STATE_DIRECTORY);
     if read_file_manager_state(&state_directory)?.is_none() {

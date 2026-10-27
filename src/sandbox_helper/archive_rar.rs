@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //! Adapter to the separately licensed decoder already bound inside the sandbox.
 use std::{io::{Read, Write}, path::Path, process::{Command, Stdio}};
-const HELPER: &str = "/app/nixe-files-rar";
+const HELPER: &str = "/app/nyx-files-rar";
 pub(super) fn run(path: &Path, password: Option<&str>, _writer: &mut impl Write) -> Result<(), String> {
     let mut command = Command::new(HELPER);
     command.arg("extract-rar").arg(path).stdout(Stdio::inherit()).stderr(Stdio::null());

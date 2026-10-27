@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //! Cloud accounts use the existing local navigation/operation stack through FUSE.
 use super::*;
-use nixe_cloud::{Client, Remote};
+use nyx_cloud::{Client, Remote};
 
 pub(super) fn append(state: &Rc<SidebarState>) {
     if state.local_only || !state.preference_manager.cloud_sidebar() {
@@ -21,10 +21,10 @@ pub(super) fn append(state: &Rc<SidebarState>) {
         let callback_holder = weak.clone();
         let callback_state = weak_state.clone();
         let subscription = bus.subscribe_to_signal(
-            Some(nixe_cloud::BUS),
-            Some(nixe_cloud::BUS),
+            Some(nyx_cloud::BUS),
+            Some(nyx_cloud::BUS),
             Some("Changed"),
-            Some(nixe_cloud::PATH),
+            Some(nyx_cloud::PATH),
             None,
             gio::DBusSignalFlags::NONE,
             move |_| {
@@ -115,6 +115,6 @@ pub(super) fn is_cloud_mount(path: &std::path::Path) -> bool {
     let data = std::env::var_os("XDG_DATA_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|| super::home_directory().join(".local/share"));
-    path.strip_prefix(data.join("nixe/cloud/mounts"))
+    path.strip_prefix(data.join("nyx/cloud/mounts"))
         .is_ok_and(|relative| relative.components().count() == 1)
 }

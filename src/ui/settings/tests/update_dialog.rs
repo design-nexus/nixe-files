@@ -82,7 +82,7 @@ fn wait_until_dismissed(dialog: &UpdateDialog) {
 fn release() -> ReleaseMetadata {
     ReleaseMetadata {
         version: "99.0.0".to_owned(),
-        url: "https://github.com/design-nexus/nixe-files/releases/tag/v99.0.0".to_owned(),
+        url: "https://github.com/design-nexus/nyx-files/releases/tag/v99.0.0".to_owned(),
         notes: String::new(),
         note_blocks: Vec::new(),
         kind: BuildKind::Stable,

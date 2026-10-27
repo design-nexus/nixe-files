@@ -120,7 +120,7 @@ fn closing_settings_cancels_the_theme_preview_and_collapses_the_editor() {
             crate::ui::prepare_portal_ui();
             let manager = ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("nixe-dark");
+            manager.select_theme("nyx-dark");
             let saved = manager.active_model_palette();
             let saved_accent = gdk::RGBA::parse(
                 manager
@@ -141,7 +141,7 @@ fn closing_settings_cancels_the_theme_preview_and_collapses_the_editor() {
             .enumerate()
             {
                 manager.cancel_preview();
-                manager.select_theme("nixe-dark");
+                manager.select_theme("nyx-dark");
                 let button = gtk::Button::with_label("Settings");
                 let content = gtk::Box::new(gtk::Orientation::Vertical, 0);
                 content.append(&button);

@@ -850,8 +850,8 @@ fn runtime_command(bwrap: &Path, needs_media_libraries: bool) -> Command {
     let mut command = Command::new(bwrap);
     if let Ok(executable) = std::env::current_exe() {
         if let Some(directory) = executable.parent() {
-            let helper = directory.join("nixe-files-rar");
-            if helper.is_file() { command.arg("--ro-bind").arg(helper).arg("/app/nixe-files-rar"); }
+            let helper = directory.join("nyx-files-rar");
+            if helper.is_file() { command.arg("--ro-bind").arg(helper).arg("/app/nyx-files-rar"); }
         }
     }
     command.args([

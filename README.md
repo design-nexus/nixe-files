@@ -1,6 +1,6 @@
 # Files
 
-A Rust/GTK4 file manager for the Nixe desktop, with integrated cloud navigation
+A Rust/GTK4 file manager for the Nyx desktop, with integrated cloud navigation
 and selectable preview presentation. Its origin and licenses are in
 [UPSTREAM.md](UPSTREAM.md) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 
@@ -18,19 +18,19 @@ and selectable preview presentation. Its origin and licenses are in
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe-files/main/install-nixe.sh | bash
+curl -fsSL https://raw.githubusercontent.com/design-nexus/nyx-files/main/install-nyx.sh | bash
 ```
 
 ## Build and install
 
 Requires Rust, GTK4 4.12+, GtkSourceView5, Poppler GLib, Fontconfig,
 GStreamer with app/base development libraries, and the existing preview helpers
-(including bubblewrap for isolated native decoding). Install `nixe-cloud`, rclone,
+(including bubblewrap for isolated native decoding). Install `nyx-cloud`, rclone,
 and FUSE3 for cloud features; Settings provides graphical account configuration.
 
 ```
 cargo build --release --locked
-./install-nixe.sh
+./install-nyx.sh
 ```
 
 The installer installs the binary, launcher and icon and makes Files the default
@@ -43,7 +43,7 @@ independently. Tagged x86_64 releases package installation resources and publish
 signed update manifests using this repository's dedicated Ed25519 release key.
 The private key is never committed; release automation reads UPDATE_SIGNING_KEY.
 
-See [Cloud](https://github.com/design-nexus/nixe-cloud) for mount locations,
+See [Cloud](https://github.com/design-nexus/nyx-cloud) for mount locations,
 configuration security, upload/cache semantics, and service API documentation.
 A successful local write can still await cloud upload. Account removal never
 deletes cloud data. Quotas, sharing links, offline pinning, and cloud-wide search

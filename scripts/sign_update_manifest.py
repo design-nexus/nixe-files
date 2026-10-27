@@ -11,9 +11,9 @@ import stat
 import subprocess
 import tempfile
 
-DOMAIN = b"nixe-files-update-manifest-v1\0"
-MANIFEST_NAME = "nixe-files-update-manifest.json"
-SIGNATURES_NAME = "nixe-files-update-manifest.signatures.json"
+DOMAIN = b"nyx-files-update-manifest-v1\0"
+MANIFEST_NAME = "nyx-files-update-manifest.json"
+SIGNATURES_NAME = "nyx-files-update-manifest.signatures.json"
 TARGETS = ("x86_64-unknown-linux-gnu",)
 MAX_ARCHIVE_BYTES = 128 * 1024 * 1024
 PUBLIC_KEY_PREFIX = bytes.fromhex("302a300506032b6570032100")
@@ -26,12 +26,12 @@ def manifest_bytes(directory, version, source_commit):
         raise ValueError("Invalid release version")
     if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
         raise ValueError("Invalid source commit")
-    expected = {f"nixe-files-{version}-{target}.tar.gz" for target in TARGETS}
+    expected = {f"nyx-files-{version}-{target}.tar.gz" for target in TARGETS}
     if {path.name for path in directory.glob("*.tar.gz")} != expected:
         raise ValueError("Release archives must exactly match the supported targets")
     artifacts = []
     for target in TARGETS:
-        name = f"nixe-files-{version}-{target}.tar.gz"
+        name = f"nyx-files-{version}-{target}.tar.gz"
         path = directory / name
         info = path.lstat()
         if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= MAX_ARCHIVE_BYTES:
@@ -39,7 +39,7 @@ def manifest_bytes(directory, version, source_commit):
         with path.open("rb") as archive:
             checksum = hashlib.file_digest(archive, "sha256").hexdigest()
         artifacts.append({"name": name, "target": target, "size": info.st_size, "sha256": checksum})
-    value = {"schema": 1, "repository": "design-nexus/nixe-files", "tag": f"v{version}", "source_commit": source_commit, "artifacts": artifacts}
+    value = {"schema": 1, "repository": "design-nexus/nyx-files", "tag": f"v{version}", "source_commit": source_commit, "artifacts": artifacts}
     return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
 
 

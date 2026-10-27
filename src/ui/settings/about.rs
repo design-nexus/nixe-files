@@ -59,7 +59,7 @@ pub(super) fn about_page() -> gtk::Widget {
         (
             "Website",
             icons::GLOBE,
-            "https://github.com/design-nexus/nixe-files".to_owned(),
+            "https://github.com/design-nexus/nyx-files".to_owned(),
             "",
         ),
         (

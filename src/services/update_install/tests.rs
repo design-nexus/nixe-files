@@ -89,7 +89,7 @@ fn in_place_retirement_signals_and_waits_for_an_owned_process() {
 }
 
 const PACKAGED_ENTRY: &str =
-    "[Desktop Entry]\nType=Application\nName=Files\nExec=strata %U\nIcon=io.github.design_nexus.nixe.Files\n";
+    "[Desktop Entry]\nType=Application\nName=Files\nExec=strata %U\nIcon=io.github.design_nexus.nyx.Files\n";
 
 fn scratch_dir(label: &str, line: u32) -> PathBuf {
     let dir = std::env::temp_dir().join(format!(
@@ -297,7 +297,7 @@ fn desktop_entry_exec_points_at_the_install_path_and_keeps_field_codes() {
 
     assert!(entry.contains("Exec=/home/user/.local/bin/strata %U\n"));
     assert!(entry.starts_with("[Desktop Entry]\n"));
-    assert!(entry.contains("Icon=io.github.design_nexus.nixe.Files\n"));
+    assert!(entry.contains("Icon=io.github.design_nexus.nyx.Files\n"));
 }
 
 #[test]
@@ -416,7 +416,7 @@ fn refresh_rewrites_an_installed_entry_and_icon() {
 
     let entry = fs::read_to_string(applications.join(DESKTOP_ENTRY)).expect("read entry");
     assert!(entry.contains(&format!("Exec={} %U\n", executable.display())));
-    assert!(entry.contains("Icon=io.github.design_nexus.nixe.Files\n"));
+    assert!(entry.contains("Icon=io.github.design_nexus.nyx.Files\n"));
     assert_eq!(
         fs::read(installed_icon(&data_home)).expect("read icon"),
         b"<svg/>"
@@ -472,7 +472,7 @@ fn request(tag: &str, asset: &str, advertised: &str) -> InstallRequest {
 const TAG: &str = "v0.11.2";
 
 fn release_url(tag: &str, asset: &str) -> String {
-    format!("https://github.com/design-nexus/nixe-files/releases/download/{tag}/{asset}")
+    format!("https://github.com/design-nexus/nyx-files/releases/download/{tag}/{asset}")
 }
 
 #[test]

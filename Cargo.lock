@@ -2138,132 +2138,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nixe-cloud"
-version = "0.1.0"
-source = "git+https://github.com/design-nexus/nixe-cloud.git?rev=053a31d9704c5f0379c1b17e70a659b353357881#053a31d9704c5f0379c1b17e70a659b353357881"
-dependencies = [
- "anyhow",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "uuid",
- "zbus",
-]
-
-[[package]]
-name = "nixe-core"
-version = "0.1.0"
-source = "git+https://github.com/design-nexus/nixe-core.git?rev=87682e6c936b6a4f006639b1a1c099e96346c07c#87682e6c936b6a4f006639b1a1c099e96346c07c"
-dependencies = [
- "anyhow",
- "gtk4",
- "serde",
- "serde_json",
- "toml 1.1.6+spec-1.1.0",
-]
-
-[[package]]
-name = "nixe-files"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "ashpd",
- "async-io",
- "cairo-rs",
- "calamine",
- "csv",
- "docx-rs",
- "flate2",
- "frizbee",
- "futures-channel",
- "futures-lite",
- "gdk-pixbuf",
- "gdk4-wayland",
- "gdk4-x11",
- "gio",
- "gio-unix",
- "glib",
- "glib-build-tools",
- "gstreamer",
- "gstreamer-app",
- "gtk4",
- "hex",
- "html5gum",
- "ignore",
- "image",
- "kamadak-exif",
- "landlock",
- "libc",
- "mermaid-svg",
- "nixe-cloud",
- "nixe-core",
- "nixe-theme",
- "nixe-ui",
- "pangocairo",
- "poppler-rs",
- "pulldown-cmark",
- "quick-xml",
- "regex",
- "resvg",
- "ring",
- "rquickjs",
- "rust-i18n",
- "rust-i18n-support",
- "rustix",
- "rustls",
- "seccompiler",
- "serde",
- "serde_json",
- "serde_norway",
- "sevenz-rust2",
- "sha2",
- "sourceview5",
- "tar",
- "tempfile",
- "toml 1.1.6+spec-1.1.0",
- "tracing",
- "tracing-subscriber",
- "unicode-normalization",
- "ureq",
- "x11rb",
- "yeslogic-fontconfig-sys",
- "zbus",
- "zip 9.0.4",
- "zstd",
-]
-
-[[package]]
-name = "nixe-files-rar"
-version = "0.1.0"
-dependencies = [
- "tempfile",
- "unrar",
- "unrar_sys",
-]
-
-[[package]]
-name = "nixe-theme"
-version = "0.1.0"
-source = "git+https://github.com/design-nexus/nixe-design.git?rev=94e812ee5f980434277f68459fbfb3fca4a0b94b#94e812ee5f980434277f68459fbfb3fca4a0b94b"
-dependencies = [
- "gtk4",
- "nixe-core",
- "serde",
- "toml 1.1.6+spec-1.1.0",
-]
-
-[[package]]
-name = "nixe-ui"
-version = "0.1.0"
-source = "git+https://github.com/design-nexus/nixe-design.git?rev=94e812ee5f980434277f68459fbfb3fca4a0b94b#94e812ee5f980434277f68459fbfb3fca4a0b94b"
-dependencies = [
- "gtk4",
- "nixe-core",
- "nixe-theme",
-]
-
-[[package]]
 name = "nohash-hasher"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2319,6 +2193,132 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "nyx-cloud"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nyx-cloud.git?rev=072cb06bf7a975e536b8fcdd2d19ec7a911e14d7#072cb06bf7a975e536b8fcdd2d19ec7a911e14d7"
+dependencies = [
+ "anyhow",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "uuid",
+ "zbus",
+]
+
+[[package]]
+name = "nyx-core"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nyx-core.git?rev=52cba5e27a3dd5f00c780f53e423302b4b5f9c9c#52cba5e27a3dd5f00c780f53e423302b4b5f9c9c"
+dependencies = [
+ "anyhow",
+ "gtk4",
+ "serde",
+ "serde_json",
+ "toml 1.1.6+spec-1.1.0",
+]
+
+[[package]]
+name = "nyx-files"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ashpd",
+ "async-io",
+ "cairo-rs",
+ "calamine",
+ "csv",
+ "docx-rs",
+ "flate2",
+ "frizbee",
+ "futures-channel",
+ "futures-lite",
+ "gdk-pixbuf",
+ "gdk4-wayland",
+ "gdk4-x11",
+ "gio",
+ "gio-unix",
+ "glib",
+ "glib-build-tools",
+ "gstreamer",
+ "gstreamer-app",
+ "gtk4",
+ "hex",
+ "html5gum",
+ "ignore",
+ "image",
+ "kamadak-exif",
+ "landlock",
+ "libc",
+ "mermaid-svg",
+ "nyx-cloud",
+ "nyx-core",
+ "nyx-theme",
+ "nyx-ui",
+ "pangocairo",
+ "poppler-rs",
+ "pulldown-cmark",
+ "quick-xml",
+ "regex",
+ "resvg",
+ "ring",
+ "rquickjs",
+ "rust-i18n",
+ "rust-i18n-support",
+ "rustix",
+ "rustls",
+ "seccompiler",
+ "serde",
+ "serde_json",
+ "serde_norway",
+ "sevenz-rust2",
+ "sha2",
+ "sourceview5",
+ "tar",
+ "tempfile",
+ "toml 1.1.6+spec-1.1.0",
+ "tracing",
+ "tracing-subscriber",
+ "unicode-normalization",
+ "ureq",
+ "x11rb",
+ "yeslogic-fontconfig-sys",
+ "zbus",
+ "zip 9.0.4",
+ "zstd",
+]
+
+[[package]]
+name = "nyx-files-rar"
+version = "0.1.0"
+dependencies = [
+ "tempfile",
+ "unrar",
+ "unrar_sys",
+]
+
+[[package]]
+name = "nyx-theme"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nyx-design.git?rev=938c638951a53f5874a8276d07ac9dcd68b191ad#938c638951a53f5874a8276d07ac9dcd68b191ad"
+dependencies = [
+ "gtk4",
+ "nyx-core",
+ "serde",
+ "toml 1.1.6+spec-1.1.0",
+]
+
+[[package]]
+name = "nyx-ui"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nyx-design.git?rev=938c638951a53f5874a8276d07ac9dcd68b191ad#938c638951a53f5874a8276d07ac9dcd68b191ad"
+dependencies = [
+ "gtk4",
+ "nyx-core",
+ "nyx-theme",
 ]
 
 [[package]]

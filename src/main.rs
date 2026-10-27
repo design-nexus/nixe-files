@@ -42,7 +42,7 @@ use gtk::{gio, glib, prelude::*};
 
 use ui::UnlockTarget;
 
-const APPLICATION_ID: &str = "io.github.design_nexus.nixe.Files";
+const APPLICATION_ID: &str = "io.github.design_nexus.nyx.Files";
 const CAIRO_SELECTED_BY_STRATA: &str = "STRATA_CAIRO_SELECTED_BY_STRATA";
 const GVFS_PROBE_ARGUMENT: &str = "--gvfs-probe";
 const GVFS_PROBE_TIMEOUT: Duration = Duration::from_secs(2);
@@ -172,7 +172,7 @@ fn run_udiskie_hook(arguments: &[OsString]) -> gtk::glib::ExitCode {
 }
 
 fn main() -> gtk::glib::ExitCode {
-    nixe_core::app::init(nixe_core::app::App { slug: "nixe-files", name: "Files" });
+    nyx_core::app::init(nyx_core::app::App { slug: "nyx-files", name: "Files" });
     let arguments: Vec<OsString> = std::env::args_os().collect();
     let mode = launch_mode(&arguments);
     match mode {

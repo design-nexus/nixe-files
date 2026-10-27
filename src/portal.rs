@@ -34,7 +34,7 @@ use crate::adapters::gio_close;
 use crate::model::{FileEntry, Location};
 
 const BACKEND_NAME: &str = "org.freedesktop.impl.portal.desktop.strata";
-pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.design_nexus.nixe.Files.FileChooser";
+pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.design_nexus.nyx.Files.FileChooser";
 pub(crate) const FILE_CHOOSER_VERSION: u32 = 4;
 const MAX_ACTIVE_REQUESTS: usize = 16;
 const MAX_CHOICES: usize = 16;

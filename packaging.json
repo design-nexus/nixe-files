@@ -2,8 +2,8 @@
   "application": "files",
   "directory": ".",
   "packages": [
-    "nixe-files",
-    "nixe-files-rar"
+    "nyx-files",
+    "nyx-files-rar"
   ],
   "manifest": "Cargo.toml",
   "prepare": [],

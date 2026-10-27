@@ -23,9 +23,9 @@ use super::{
     },
 };
 
-const API_ROOT: &str = "https://api.github.com/repos/design-nexus/nixe-files/releases";
-const COMMITS_ROOT: &str = "https://api.github.com/repos/design-nexus/nixe-files/commits";
-const RELEASES_URL: &str = "https://github.com/design-nexus/nixe-files/releases";
+const API_ROOT: &str = "https://api.github.com/repos/design-nexus/nyx-files/releases";
+const COMMITS_ROOT: &str = "https://api.github.com/repos/design-nexus/nyx-files/commits";
+const RELEASES_URL: &str = "https://github.com/design-nexus/nyx-files/releases";
 /// GitHub does not count requests to this endpoint against the API rate limit.
 const CONNECTION_TEST_URL: &str = "https://api.github.com/rate_limit";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
@@ -127,7 +127,7 @@ struct ReleaseAsset {
 /// The asset naming convention published by `.github/workflows/release.yml`.
 pub(super) fn archive_name(version: &str) -> String {
     format!(
-        "nixe-files-{version}-{}-unknown-linux-gnu.tar.gz",
+        "nyx-files-{version}-{}-unknown-linux-gnu.tar.gz",
         std::env::consts::ARCH
     )
 }
@@ -266,7 +266,7 @@ fn resolve_commit(release: &mut ReleaseMetadata) {
 }
 
 fn cache_dir() -> PathBuf {
-    glib::user_cache_dir().join("nixe-files")
+    glib::user_cache_dir().join("nyx-files")
 }
 
 fn update_check_cache_path() -> PathBuf {

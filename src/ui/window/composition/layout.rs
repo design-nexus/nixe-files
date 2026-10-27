@@ -71,7 +71,7 @@ impl Header {
         }
         let location = browser.location_widget();
         location.set_hexpand(true);
-        let path = nixe_ui::clamp::Clamp::new(&location, PATH_MAX_WIDTH);
+        let path = nyx_ui::clamp::Clamp::new(&location, PATH_MAX_WIDTH);
         path.set_start(true);
         path.set_hexpand(true);
         let search_label = crate::ui::shortcut_reference::with_keys(
@@ -272,7 +272,7 @@ fn bind_maximize_icon(window: &gtk::ApplicationWindow, button: &gtk::Button) {
     window.connect_maximized_notify(move |window| update(window));
 }
 
-/// The path bar's widest, as in the Nixe 2.0 mockup; it sits at the start.
+/// The path bar's widest, as in the Nyx 2.0 mockup; it sits at the start.
 const PATH_MAX_WIDTH: i32 = 520;
 
 /// Search as a field in the header: its icon, a placeholder and its keys.

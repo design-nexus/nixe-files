@@ -272,7 +272,7 @@ pub fn prepare() -> Result<(), Box<dyn std::error::Error>> {
     gio::resources_register_include!("strata.gresource")?;
 
     let font_directory = glib::user_cache_dir()
-        .join("nixe-files")
+        .join("nyx-files")
         .join("fonts")
         .join(FONT_VERSION);
     fs::create_dir_all(&font_directory)?;
@@ -583,8 +583,13 @@ fn primary_icon_texture_at(
             )
         });
     }
+    let cache_name = if name == icons::FOLDER {
+        format!("{name}@{:.2}", folder_stroke_width(logical_px))
+    } else {
+        name.to_owned()
+    };
     texture_from_svg(
-        &stroke_cache_name(name, logical_px, context),
+        &stroke_cache_name(&cache_name, logical_px, context),
         color,
         texture_px,
         || {
@@ -593,7 +598,7 @@ fn primary_icon_texture_at(
             let source = std::str::from_utf8(data.as_ref()).ok()?;
             let mut source = recolor_icon_source(source, color);
             if name == icons::FOLDER {
-                source = source.replacen(
+                source = folder_outline_at(&source, logical_px).replacen(
                     "fill=\"none\"",
                     &format!("fill=\"{color}\" fill-opacity=\"0.15\""),
                     1,
@@ -764,6 +769,22 @@ pub(crate) fn sized_folder_decoration_paintable(
     )
 }
 
+/// The folder outline's line weight at `logical_px`: the thin 0.8 line on large
+/// icons, heavier at list and sidebar sizes where 0.8 renders under a pixel and
+/// reads dull beside the other icons.
+fn folder_stroke_width(logical_px: i32) -> f64 {
+    let t = ((f64::from(logical_px) - 20.0) / 28.0).clamp(0.0, 1.0);
+    1.6 + (0.8 - 1.6) * t
+}
+
+fn folder_outline_at(source: &str, logical_px: i32) -> String {
+    source.replacen(
+        "stroke-width=\"0.8\"",
+        &format!("stroke-width=\"{:.2}\"", folder_stroke_width(logical_px)),
+        1,
+    )
+}
+
 /// The plain outline folder with `glyph` drawn small in its middle, in the same
 /// colour and line weight: how folders that hold one kind of thing look.
 pub(crate) fn sized_folder_glyph_paintable(
@@ -776,8 +797,9 @@ pub(crate) fn sized_folder_glyph_paintable(
     let texture_px = ICON_TEXTURE_PX
         .max(logical_px.saturating_mul(scale_factor))
         .clamp(24, 768);
+    let width = folder_stroke_width(logical_px);
     texture_from_svg(
-        &stroke_cache_name(&format!("folder-glyph:{glyph}"), logical_px, context),
+        &stroke_cache_name(&format!("folder-glyph:{glyph}@{width:.2}"), logical_px, context),
         color,
         texture_px,
         || {
@@ -790,12 +812,13 @@ pub(crate) fn sized_folder_glyph_paintable(
             let path = format!("/io/github/lgse/Strata/icons/scalable/actions/{glyph}.svg");
             let data = gio::resources_lookup_data(&path, gio::ResourceLookupFlags::NONE).ok()?;
             let body = svg_body(std::str::from_utf8(data.as_ref()).ok()?)?.to_owned();
-            // Centred in the folder body (x 3–21, y 8–19); 2 units at this scale is the
-            // folder's own 0.8 line.
+            // Centred in the folder body (x 3–21, y 8–19), drawn at the folder's own
+            // line weight once scaled.
+            let glyph_width = width / 0.4;
             let overlay = format!(
-                r#"<g transform="translate(7.2 8.7) scale(.4)" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{body}</g>"#,
+                r#"<g transform="translate(7.2 8.7) scale(.4)" fill="none" stroke="{color}" stroke-width="{glyph_width:.2}" stroke-linecap="round" stroke-linejoin="round">{body}</g>"#,
             );
-            let source = recolor_icon_source(folder, color)
+            let source = folder_outline_at(&recolor_icon_source(folder, color), logical_px)
                 .replacen(
                     "fill=\"none\"",
                     &format!("fill=\"{color}\" fill-opacity=\"0.15\""),

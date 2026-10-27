@@ -234,7 +234,7 @@ impl ThemeManager {
             .as_ref()
             .and_then(|state| state.tokens(OmarchyVariant::Original))
             .is_some();
-        let suite = nixe_theme::read_suite().unwrap_or_default();
+        let suite = nyx_theme::read_suite().unwrap_or_default();
         let appearance = AppearancePreferences {
             mode: suite_mode(&suite),
             theme: suite.theme.clone(),
@@ -309,11 +309,11 @@ impl ThemeManager {
     }
 
     pub fn follows_omarchy(&self) -> bool {
-        nixe_theme::read_suite().unwrap_or_default().mode == nixe_theme::ThemeMode::Omarchy
+        nyx_theme::read_suite().unwrap_or_default().mode == nyx_theme::ThemeMode::Omarchy
     }
 
     pub fn selected_id(&self) -> String {
-        nixe_theme::read_suite().unwrap_or_default().theme
+        nyx_theme::read_suite().unwrap_or_default().theme
     }
 
     pub(crate) fn active_model_palette(&self) -> crate::services::ModelPalette {
@@ -336,8 +336,8 @@ impl ThemeManager {
             return;
         }
         self.preview.take();
-        nixe_theme::update_suite(|suite| {
-            suite.mode = nixe_theme::ThemeMode::Theme;
+        nyx_theme::update_suite(|suite| {
+            suite.mode = nyx_theme::ThemeMode::Theme;
             suite.theme = id.to_owned();
         });
         self.suite_changed();
@@ -348,8 +348,8 @@ impl ThemeManager {
             return;
         }
         self.preview.take();
-        nixe_theme::update_suite(|suite| {
-            suite.mode = if enabled { nixe_theme::ThemeMode::Omarchy } else { nixe_theme::ThemeMode::Theme };
+        nyx_theme::update_suite(|suite| {
+            suite.mode = if enabled { nyx_theme::ThemeMode::Omarchy } else { nyx_theme::ThemeMode::Theme };
         });
         self.suite_changed();
     }
@@ -676,7 +676,7 @@ impl ThemeManager {
         let family = self
             .preferences
             .interface_font()
-            .or_else(|| nixe_theme::suite_theme("files").look.font.ui);
+            .or_else(|| nyx_theme::suite_theme("files").look.font.ui);
         self.font_provider
             .load_from_string(&font::stylesheet(family.as_deref()));
         apply_interface_font(family.as_deref(), root_font_px);
@@ -694,7 +694,7 @@ impl ThemeManager {
             dark_background,
         ));
         crate::assets::set_catppuccin_theme_colors(
-            nixe_theme::suite_theme("files").look.file_icon_colors == nixe_theme::FileIconColors::Theme,
+            nyx_theme::suite_theme("files").look.file_icon_colors == nyx_theme::FileIconColors::Theme,
         );
         // SVG strokes accept fewer color forms than GTK does.
         crate::assets::set_primary_icon_color(&color_to_hex(&tokens.accent));
@@ -708,7 +708,7 @@ impl ThemeManager {
     }
 
     fn on_preferences_changed(&self) {
-        let suite = nixe_theme::read_suite().unwrap_or_default();
+        let suite = nyx_theme::read_suite().unwrap_or_default();
         let appearance = AppearancePreferences {
             mode: suite_mode(&suite),
             theme: suite.theme.clone(),
@@ -920,7 +920,7 @@ fn builtins() -> Vec<Theme> {
 }
 
 fn suite_themes(custom: bool) -> Vec<Theme> {
-    let mut themes: Vec<_> = nixe_theme::all()
+    let mut themes: Vec<_> = nyx_theme::all()
         .into_iter()
         .filter(|theme| theme.id.starts_with("custom:") == custom)
         .map(|theme| Theme {
@@ -934,12 +934,12 @@ fn suite_themes(custom: bool) -> Vec<Theme> {
 }
 
 fn suite_tokens() -> ThemeTokens {
-    tokens_from(&nixe_theme::suite_theme("files"))
+    tokens_from(&nyx_theme::suite_theme("files"))
 }
 
 /// Dim text carries the same contrast floors as body text, and the lift stops
 /// at the first passing step, so it stays dimmer than text.
-fn tokens_from(theme: &nixe_theme::Theme) -> ThemeTokens {
+fn tokens_from(theme: &nyx_theme::Theme) -> ThemeTokens {
     let (palette, syntax) = (&theme.palette, &theme.look.syntax);
     let hex = |value: &str| canonical_color(value).unwrap_or_else(|| value.to_owned());
     let code = |value: &Option<String>| value.as_deref().map(hex);
@@ -988,7 +988,7 @@ fn suite_theme_file(tokens: &ThemeTokens) -> String {
 }
 
 fn theme_list_stamp() -> Vec<(PathBuf, Option<std::time::SystemTime>)> {
-    let mut files: Vec<_> = nixe_theme::theme_dirs()
+    let mut files: Vec<_> = nyx_theme::theme_dirs()
         .iter()
         .filter_map(|dir| fs::read_dir(dir).ok())
         .flat_map(|entries| entries.filter_map(Result::ok))
@@ -1001,7 +1001,7 @@ fn theme_list_stamp() -> Vec<(PathBuf, Option<std::time::SystemTime>)> {
 /// The suite density's sizes from STYLE.md (compact, balanced, relaxed), loaded
 /// after the token sizing so they win over Files' own.
 fn suite_sizes_css() -> String {
-    let density = nixe_theme::read_suite().unwrap_or_default().density;
+    let density = nyx_theme::read_suite().unwrap_or_default().density;
     let (header, nav, row, control, status) = match density.as_str() {
         "compact" => (42, 30, 30, 30, 26),
         "relaxed" => (50, 38, 42, 34, 30),
@@ -1019,10 +1019,10 @@ fn suite_sizes_css() -> String {
     )
 }
 
-fn suite_mode(suite: &nixe_theme::Suite) -> String {
+fn suite_mode(suite: &nyx_theme::Suite) -> String {
     match suite.mode {
-        nixe_theme::ThemeMode::Omarchy => "omarchy".to_owned(),
-        nixe_theme::ThemeMode::Theme => "theme".to_owned(),
+        nyx_theme::ThemeMode::Omarchy => "omarchy".to_owned(),
+        nyx_theme::ThemeMode::Theme => "theme".to_owned(),
     }
 }
 
@@ -1742,7 +1742,7 @@ fn title_case_slug(slug: &str) -> String {
 }
 
 fn themes_directory() -> PathBuf {
-    nixe_theme::theme_dirs()[0].clone()
+    nyx_theme::theme_dirs()[0].clone()
 }
 
 fn user_stylesheet_path() -> PathBuf {

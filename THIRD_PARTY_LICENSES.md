@@ -73,7 +73,7 @@ artifacts. See its [build and redistribution requirements](packaging/media-runti
 ## UnRAR
 
 - Project: <https://www.rarlab.com/rar_add.htm>
-- Bundled source: UnRAR 7.01 (2024-05-12), statically linked by `unrar_sys` 0.5.8 in the separately licensed `nixe-files-rar` helper; never linked into Files
+- Bundled source: UnRAR 7.01 (2024-05-12), statically linked by `unrar_sys` 0.5.8 in the separately licensed `nyx-files-rar` helper; never linked into Files
 - Copyright: Alexander Roshal
 - License: custom UnRAR license; **not** MIT or Apache-2.0
 - Full license: [`data/licenses/UnRAR.txt`](data/licenses/UnRAR.txt), also shipped as `UnRAR.txt` in release archives

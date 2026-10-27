@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //! Connection preferences; account ownership and authorization live in Settings.
 use super::*;
-use nixe_cloud::{Client, Remote};
+use nyx_cloud::{Client, Remote};
 
 pub(super) fn cloud_page(manager: Rc<PreferenceManager>) -> gtk::Widget {
     let content = page_content();
@@ -24,7 +24,7 @@ pub(super) fn cloud_page(manager: Rc<PreferenceManager>) -> gtk::Widget {
     accounts.connect_clicked(|button| {
         if gio::Subprocess::newv(
             &[
-                std::ffi::OsStr::new("nixe-settings"),
+                std::ffi::OsStr::new("nyx-settings"),
                 std::ffi::OsStr::new("--section"),
                 std::ffi::OsStr::new("online-accounts"),
             ],
@@ -181,7 +181,7 @@ fn append_account(body: &gtk::Box, remote: Remote) {
         if cache_mib == 0 {
             return;
         }
-        let prefs = nixe_cloud::Preferences {
+        let prefs = nyx_cloud::Preferences {
             mount_on_login: login.is_active(),
             cache_mib,
             bandwidth: bandwidth.text().to_string(),

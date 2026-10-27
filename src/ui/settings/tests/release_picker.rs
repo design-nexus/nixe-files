@@ -57,7 +57,7 @@ fn choice(version: &str, kind: BuildKind) -> ReleaseChoice {
     ReleaseChoice {
         release: ReleaseMetadata {
             version: version.to_owned(),
-            url: format!("https://github.com/design-nexus/nixe-files/releases/tag/v{version}"),
+            url: format!("https://github.com/design-nexus/nyx-files/releases/tag/v{version}"),
             notes: String::new(),
             note_blocks: Vec::new(),
             kind,

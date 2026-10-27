@@ -4,7 +4,7 @@ use super::*;
 
 #[test]
 fn package_metadata_is_available_to_the_about_page() {
-    assert_eq!(REPOSITORY, "https://github.com/design-nexus/nixe-files");
+    assert_eq!(REPOSITORY, "https://github.com/design-nexus/nyx-files");
     assert_eq!(AUTHOR, "LGSE Ltd.");
 }
 

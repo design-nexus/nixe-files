@@ -646,7 +646,7 @@ fn appearance_changes_keep_an_active_preview_until_it_is_cancelled() {
 
             let manager = super::ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("nixe-dark");
+            manager.select_theme("nyx-dark");
             let saved = manager.active_model_palette();
             let mut tokens = manager.starter_tokens();
             tokens.accent = "#13579b".to_owned();
@@ -794,7 +794,7 @@ fn non_ascii_theme_names_save_under_a_fallback_id() {
             let directory = themes_directory();
             let manager = ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("nixe-dark");
+            manager.select_theme("nyx-dark");
 
             let mut tokens = azure_tokens();
             tokens.name = "日本語".to_owned();
@@ -812,7 +812,7 @@ fn non_ascii_theme_names_save_under_a_fallback_id() {
                 "the save waits for the settings writer"
             );
             assert!(!directory.join("custom-theme.toml").exists());
-            assert_eq!(manager.selected_id(), "nixe-dark");
+            assert_eq!(manager.selected_id(), "nyx-dark");
             drop(held);
             crate::storage::writer::settle();
             let id = saved
@@ -857,15 +857,15 @@ fn file_icon_colors_repaint_catppuccin_icons_live_across_images() {
         "ui::theme::tests::file_icon_colors_repaint_catppuccin_icons_live_across_images",
         || {
             let manager = super::ThemeManager::shared();
-            let directory = nixe_theme::theme_dirs()[0].clone();
+            let directory = nyx_theme::theme_dirs()[0].clone();
             std::fs::create_dir_all(&directory).expect("theme folder");
             let set_file_colors = |colors: &str| {
                 std::fs::write(
-                    directory.join("nixe-dark.toml"),
+                    directory.join("nyx-dark.toml"),
                     format!("[icons]\nfile_colors = \"{colors}\"\n"),
                 )
                 .expect("theme override");
-                manager.select_theme("nixe-dark");
+                manager.select_theme("nyx-dark");
             };
             set_file_colors("brand");
 

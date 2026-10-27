@@ -8,7 +8,7 @@ fn preview_presentation_popup_is_singleton_and_style_changes_cancel_old_loads() 
         "ui::preview::tests::presentation::preview_presentation_popup_is_singleton_and_style_changes_cancel_old_loads",
         || {
             let application = gtk::Application::builder()
-                .application_id("io.github.design_nexus.nixe.Files.PreviewLifecycleTest")
+                .application_id("io.github.design_nexus.nyx.Files.PreviewLifecycleTest")
                 .flags(gtk::gio::ApplicationFlags::NON_UNIQUE)
                 .build();
             application.register(None::<&gtk::gio::Cancellable>).unwrap();

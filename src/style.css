@@ -7441,7 +7441,7 @@ popover.settings-action-library > contents {
   min-width: 0;
 }
 
-/* Nixe 2.0: the header, sidebar, bars and content are one surface; spacing,
+/* Nyx 2.0: the header, sidebar, bars and content are one surface; spacing,
    not lines or fills, separates them. */
 headerbar,
 .mode-pane-header,
@@ -7516,7 +7516,7 @@ headerbar .mode-pane-header {
   background: transparent;
 }
 
-/* Nixe 2.0 header: groups of controls on a faint fill, like the mockup's path,
+/* Nyx 2.0 header: groups of controls on a faint fill, like the mockup's path,
    search and view switch; plain icon buttons inside them. */
 .header-row {
   padding: 0 8px 0 4px;

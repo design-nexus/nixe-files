@@ -2152,6 +2152,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nixe-core"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nixe-core.git?rev=87682e6c936b6a4f006639b1a1c099e96346c07c#87682e6c936b6a4f006639b1a1c099e96346c07c"
+dependencies = [
+ "anyhow",
+ "gtk4",
+ "serde",
+ "serde_json",
+ "toml 1.1.6+spec-1.1.0",
+]
+
+[[package]]
 name = "nixe-files"
 version = "0.1.0"
 dependencies = [
@@ -2185,6 +2197,8 @@ dependencies = [
  "libc",
  "mermaid-svg",
  "nixe-cloud",
+ "nixe-core",
+ "nixe-theme",
  "pangocairo",
  "poppler-rs",
  "pulldown-cmark",
@@ -2225,6 +2239,17 @@ dependencies = [
  "tempfile",
  "unrar",
  "unrar_sys",
+]
+
+[[package]]
+name = "nixe-theme"
+version = "0.1.0"
+source = "git+https://github.com/design-nexus/nixe-design.git?rev=451d239547a0458f88d88bb3089a8fb45f7822a5#451d239547a0458f88d88bb3089a8fb45f7822a5"
+dependencies = [
+ "gtk4",
+ "nixe-core",
+ "serde",
+ "toml 1.1.6+spec-1.1.0",
 ]
 
 [[package]]

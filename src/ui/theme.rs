@@ -54,7 +54,6 @@ thread_local! {
 
 const SOURCE_STYLE_FOLDER: &str = "/io/github/lgse/Strata/generated/source-styles/";
 
-const THEME_CATALOG: &str = include_str!("../../data/themes/catalog.toml");
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct ThemeTokens {
@@ -95,18 +94,6 @@ pub struct Theme {
     pub id: String,
     pub tokens: ThemeTokens,
     pub custom: bool,
-}
-
-#[derive(Deserialize)]
-struct ThemeCatalog {
-    themes: Vec<CatalogTheme>,
-}
-
-#[derive(Deserialize)]
-struct CatalogTheme {
-    id: String,
-    #[serde(flatten)]
-    tokens: ThemeTokens,
 }
 
 /// Appearance preferences that change the shared CSS or icon rendering the manager applies.
@@ -247,13 +234,10 @@ impl ThemeManager {
             .as_ref()
             .and_then(|state| state.tokens(OmarchyVariant::Original))
             .is_some();
-        preferences.normalize_loaded_theme_selection(
-            |id| themes.iter().any(|theme| theme.id == id),
-            omarchy_available,
-        );
+        let suite = nixe_theme::read_suite().unwrap_or_default();
         let appearance = AppearancePreferences {
-            mode: preferences.theme_mode(),
-            theme: preferences.selected_theme_id(),
+            mode: suite_mode(&suite),
+            theme: suite.theme.clone(),
             omarchy_variant: preferences.omarchy_variant(),
             text_size: preferences.text_size(),
             corner_roundness: preferences.corner_roundness(),
@@ -308,6 +292,7 @@ impl ThemeManager {
         manager.monitor_text_scaling();
         manager.monitor_omarchy(&omarchy.directories);
         manager.monitor_custom_themes(themes_directory().is_dir());
+        manager.follow_suite();
         manager
             .user_provider
             .load_from_string(&read_user_stylesheet());
@@ -324,11 +309,11 @@ impl ThemeManager {
     }
 
     pub fn follows_omarchy(&self) -> bool {
-        self.preferences.theme_mode() == "omarchy"
+        nixe_theme::read_suite().unwrap_or_default().mode == nixe_theme::ThemeMode::Omarchy
     }
 
     pub fn selected_id(&self) -> String {
-        self.preferences.selected_theme_id()
+        nixe_theme::read_suite().unwrap_or_default().theme
     }
 
     pub(crate) fn active_model_palette(&self) -> crate::services::ModelPalette {
@@ -351,12 +336,11 @@ impl ThemeManager {
             return;
         }
         self.preview.take();
-        let changed = self.follows_omarchy() || self.selected_id() != id;
-        self.preferences.set_theme_selection("theme", Some(id));
-        if !changed {
-            // Re-selecting the current theme restores it after a live preview.
-            self.apply_selected();
-        }
+        nixe_theme::update_suite(|suite| {
+            suite.mode = nixe_theme::ThemeMode::Theme;
+            suite.theme = id.to_owned();
+        });
+        self.suite_changed();
     }
 
     pub fn set_follow_omarchy(&self, enabled: bool) {
@@ -364,12 +348,10 @@ impl ThemeManager {
             return;
         }
         self.preview.take();
-        let changed = self.follows_omarchy() != enabled;
-        let mode = if enabled { "omarchy" } else { "theme" };
-        self.preferences.set_theme_selection(mode, None);
-        if !changed {
-            self.apply_selected();
-        }
+        nixe_theme::update_suite(|suite| {
+            suite.mode = if enabled { nixe_theme::ThemeMode::Omarchy } else { nixe_theme::ThemeMode::Theme };
+        });
+        self.suite_changed();
     }
 
     /// Applies `tokens` until [`Self::cancel_preview`] or a theme selection; appearance
@@ -409,7 +391,7 @@ impl ThemeManager {
     ) {
         let value = validate_tokens(&tokens)
             .map_err(|message| io::Error::new(io::ErrorKind::InvalidInput, message))
-            .and_then(|()| toml::to_string_pretty(&tokens).map_err(io::Error::other));
+            .and_then(|()| Ok(suite_theme_file(&tokens)));
         let value = match value {
             Ok(value) => value,
             Err(error) => return done(Err(error)),
@@ -426,15 +408,15 @@ impl ThemeManager {
             fs::create_dir_all(&directory)?;
             // Never replace a file already there, even one that did not load: it may be
             // a broken or newly linked dotfile the user still wants.
-            let id = custom_theme_id(&name, |candidate| {
-                taken.iter().any(|id| id == candidate)
+            let stem = custom_theme_id(&name, |candidate| {
+                taken.iter().any(|id| id == candidate || *id == format!("custom:{candidate}"))
                     || fs::symlink_metadata(directory.join(format!("{candidate}.toml"))).is_ok()
             });
             crate::storage::atomic_write_config(
-                &directory.join(format!("{id}.toml")),
+                &directory.join(format!("{stem}.toml")),
                 value.as_bytes(),
             )?;
-            Ok(id)
+            Ok(format!("custom:{stem}"))
         });
         let weak = Rc::downgrade(self);
         glib::MainContext::default().spawn_local(async move {
@@ -462,14 +444,7 @@ impl ThemeManager {
     }
 
     pub fn appearance_tokens(&self) -> ThemeTokens {
-        if self.follows_omarchy()
-            && let Some(tokens) = self
-                .omarchy_tokens(self.preferences.omarchy_variant())
-                .or_else(|| self.applied_omarchy_tokens.borrow().clone())
-        {
-            return tokens;
-        }
-        self.starter_tokens()
+        suite_tokens()
     }
 
     pub fn starter_tokens(&self) -> ThemeTokens {
@@ -620,22 +595,43 @@ impl ThemeManager {
             self.apply_tokens(&tokens, None);
             return;
         }
-        if self.follows_omarchy() {
-            if let Some(tokens) = self.omarchy_tokens(self.preferences.omarchy_variant()) {
-                self.applied_omarchy_tokens.replace(Some(tokens.clone()));
-                let palette = self
-                    .omarchy_state
-                    .borrow()
-                    .as_ref()
-                    .and_then(OmarchyState::source_palette);
-                self.apply_tokens(&tokens, palette.as_ref());
+        // Under Follow Omarchy, code keeps Omarchy's own syntax colors.
+        let tokens = suite_tokens();
+        let palette = if self.follows_omarchy() {
+            self.omarchy_state.borrow().as_ref().and_then(OmarchyState::source_palette)
+        } else {
+            None
+        };
+        self.applied_omarchy_tokens.replace(Some(tokens.clone()));
+        self.apply_tokens(&tokens, palette.as_ref());
+    }
+
+    /// Another app's theme or accent choice, a saved theme file, or Omarchy changing.
+    fn follow_suite(self: &Rc<Self>) {
+        let weak = Rc::downgrade(self);
+        let last = RefCell::new((suite_tokens(), theme_list_stamp()));
+        glib::timeout_add_seconds_local(1, move || {
+            let Some(manager) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            let now = (suite_tokens(), theme_list_stamp());
+            if *last.borrow() != now {
+                let themes_changed = last.borrow().1 != now.1;
+                last.replace(now);
+                if themes_changed {
+                    manager.themes.replace(merge_builtin_and_custom_themes(builtins(), load_custom_themes()));
+                }
+                manager.suite_changed();
             }
-            return;
+            glib::ControlFlow::Continue
+        });
+    }
+
+    fn suite_changed(&self) {
+        if self.preview.borrow().is_none() {
+            self.apply_selected();
         }
-        self.applied_omarchy_tokens.take();
-        if let Some(tokens) = self.current_tokens() {
-            self.apply_tokens(&tokens, None);
-        }
+        self.preferences.notify_changes();
     }
 
     fn omarchy_tokens(&self, variant: OmarchyVariant) -> Option<ThemeTokens> {
@@ -646,7 +642,7 @@ impl ThemeManager {
     }
 
     pub(in crate::ui) fn current_tokens(&self) -> Option<ThemeTokens> {
-        let id = self.preferences.selected_theme_id();
+        let id = self.selected_id();
         self.themes
             .borrow()
             .iter()
@@ -712,9 +708,10 @@ impl ThemeManager {
     }
 
     fn on_preferences_changed(&self) {
+        let suite = nixe_theme::read_suite().unwrap_or_default();
         let appearance = AppearancePreferences {
-            mode: self.preferences.theme_mode(),
-            theme: self.preferences.selected_theme_id(),
+            mode: suite_mode(&suite),
+            theme: suite.theme.clone(),
             omarchy_variant: self.preferences.omarchy_variant(),
             text_size: self.preferences.text_size(),
             corner_roundness: self.preferences.corner_roundness(),
@@ -808,8 +805,9 @@ impl ThemeManager {
             || (self.is_omarchy_available() && refresh.name_exists);
         let availability_changed = self.omarchy_available.replace(available) != available;
         if !available && self.follows_omarchy() {
+            // The suite falls back to its chosen theme by itself.
             self.preview.take();
-            self.preferences.set_theme_selection("theme", None);
+            self.suite_changed();
             return;
         }
         if availability_changed {
@@ -875,7 +873,7 @@ impl ThemeManager {
     /// A selected file caught mid-write, invalid, or removed keeps its last
     /// valid colors until a read succeeds again.
     fn adopt_custom_themes(&self, custom: Vec<Theme>) {
-        let selected = self.preferences.selected_theme_id();
+        let selected = self.selected_id();
         let before = self.current_tokens();
         let mut themes = merge_builtin_and_custom_themes(builtins(), custom);
         if !themes.iter().any(|theme| theme.id == selected)
@@ -918,28 +916,92 @@ fn is_omarchy_theme_event(file: &gio::File) -> bool {
 }
 
 fn builtins() -> Vec<Theme> {
-    let mut themes: Vec<_> = toml::from_str::<ThemeCatalog>(THEME_CATALOG)
-        .map(|catalog| {
-            catalog
-                .themes
-                .into_iter()
-                .map(|theme| Theme {
-                    id: theme.id,
-                    tokens: theme.tokens,
-                    custom: false,
-                })
-                .collect()
+    suite_themes(false)
+}
+
+fn suite_themes(custom: bool) -> Vec<Theme> {
+    let mut themes: Vec<_> = nixe_theme::all()
+        .into_iter()
+        .filter(|theme| theme.id.starts_with("custom:") == custom)
+        .map(|theme| Theme {
+            tokens: tokens_from(&theme.name, &theme.palette),
+            id: theme.id,
+            custom,
         })
-        .unwrap_or_default();
-    for theme in &mut themes {
-        // Dim text carries the same contrast floors as body text, and the lift
-        // stops at the first passing step, so it stays dimmer than text.
-        let tokens = &mut theme.tokens;
-        let dim = omarchy::readable(&tokens.dim_text, &[&tokens.background], &tokens.text, 4.5);
-        tokens.dim_text = omarchy::readable(&dim, &[&tokens.surface], &tokens.text, 3.0);
-    }
+        .collect();
     themes.sort_by_key(|theme| theme.tokens.name.to_lowercase());
     themes
+}
+
+fn suite_tokens() -> ThemeTokens {
+    let theme = nixe_theme::suite_theme("files");
+    tokens_from(&theme.name, &theme.palette)
+}
+
+/// Dim text carries the same contrast floors as body text, and the lift stops
+/// at the first passing step, so it stays dimmer than text.
+fn tokens_from(name: &str, palette: &nixe_theme::Palette) -> ThemeTokens {
+    let hex = |value: &str| canonical_color(value).unwrap_or_else(|| value.to_owned());
+    let mut tokens = ThemeTokens {
+        name: name.to_owned(),
+        background: hex(&palette.bg),
+        surface: hex(&palette.surface),
+        text: hex(&palette.text),
+        accent: hex(&palette.accent),
+        danger: hex(&palette.danger),
+        muted: hex(&palette.muted),
+        highlight: hex(&palette.highlight),
+        border: hex(&palette.border),
+        dim_text: hex(&palette.dim_text),
+        syntax_keyword: None,
+        syntax_string: None,
+        syntax_constant: None,
+        syntax_type: None,
+        syntax_preprocessor: None,
+    };
+    let dim = omarchy::readable(&tokens.dim_text, &[&tokens.background], &tokens.text, 4.5);
+    tokens.dim_text = omarchy::readable(&dim, &[&tokens.surface], &tokens.text, 3.0);
+    tokens
+}
+
+fn suite_theme_file(tokens: &ThemeTokens) -> String {
+    let mut file = toml::Table::new();
+    let mut put = |key: &str, value: &str| {
+        file.insert(key.to_owned(), toml::Value::String(value.to_owned()));
+    };
+    put("name", &tokens.name);
+    put("bg", &tokens.background);
+    put("surface", &tokens.surface);
+    put("text", &tokens.text);
+    put("dim_text", &tokens.dim_text);
+    put("accent", &tokens.accent);
+    put("glow", &tokens.accent);
+    put("border", &tokens.border);
+    put("muted", &tokens.muted);
+    put("highlight", &tokens.highlight);
+    put("danger", &tokens.danger);
+    put("shadow", &blend(&tokens.background, "#000000", 0.5));
+    let light = omarchy::contrast(&tokens.background, "#000000") > omarchy::contrast(&tokens.background, "#ffffff");
+    file.insert("light".to_owned(), toml::Value::Boolean(light));
+    toml::to_string_pretty(&file).unwrap_or_default()
+}
+
+fn theme_list_stamp() -> Vec<(PathBuf, Option<std::time::SystemTime>)> {
+    let mut files: Vec<_> = nixe_theme::theme_dirs()
+        .iter()
+        .filter_map(|dir| fs::read_dir(dir).ok())
+        .flat_map(|entries| entries.filter_map(Result::ok))
+        .map(|entry| (entry.path(), entry.metadata().and_then(|m| m.modified()).ok()))
+        .collect();
+    files.sort();
+    files
+}
+
+fn suite_mode(suite: &nixe_theme::Suite) -> String {
+    match suite.mode {
+        nixe_theme::ThemeMode::Omarchy => "omarchy".to_owned(),
+        nixe_theme::ThemeMode::Theme => "theme".to_owned(),
+    }
 }
 
 fn merge_builtin_and_custom_themes(mut builtins: Vec<Theme>, custom: Vec<Theme>) -> Vec<Theme> {
@@ -973,35 +1035,37 @@ fn azure_tokens() -> ThemeTokens {
 }
 
 fn load_custom_themes() -> Vec<Theme> {
-    let Ok(entries) = fs::read_dir(themes_directory()) else {
-        return Vec::new();
+    move_old_custom_themes();
+    suite_themes(true)
+}
+
+/// Themes saved by an older Files move to the suite's theme folder; a file of
+/// the same name already there is left alone.
+fn move_old_custom_themes() {
+    let old = super::preferences::config_directory().join("themes");
+    let Ok(entries) = fs::read_dir(&old) else {
+        return;
     };
-    let mut themes: Vec<_> = entries
-        .filter_map(Result::ok)
-        .filter(|entry| {
-            entry
-                .path()
-                .extension()
-                .is_some_and(|extension| extension == "toml")
-        })
-        .filter_map(|entry| {
-            let id = entry.path().file_stem()?.to_string_lossy().into_owned();
-            let source = fs::read_to_string(entry.path()).ok()?;
-            let mut tokens: ThemeTokens = toml::from_str(&source).ok()?;
-            validate_tokens(&tokens).ok()?;
-            // Canonical in memory only; the user's file stays as written.
-            for color in tokens.color_fields_mut() {
-                *color = canonical_color(color)?;
-            }
-            Some(Theme {
-                id,
-                tokens,
-                custom: true,
-            })
-        })
-        .collect();
-    themes.sort_by(|left, right| left.tokens.name.cmp(&right.tokens.name));
-    themes
+    for path in entries.filter_map(Result::ok).map(|entry| entry.path()) {
+        if path.extension().is_none_or(|extension| extension != "toml") {
+            continue;
+        }
+        let (Some(name), Ok(source)) = (path.file_name(), fs::read_to_string(&path)) else {
+            continue;
+        };
+        let Ok(tokens) = toml::from_str::<ThemeTokens>(&source) else {
+            continue;
+        };
+        let target = themes_directory().join(name);
+        if validate_tokens(&tokens).is_err() || target.exists() {
+            continue;
+        }
+        if fs::create_dir_all(themes_directory()).is_ok()
+            && crate::storage::atomic_write_config(&target, suite_theme_file(&tokens).as_bytes()).is_ok()
+        {
+            let _ = fs::rename(&path, path.with_extension("toml.moved"));
+        }
+    }
 }
 
 #[derive(Clone, PartialEq)]
@@ -1376,41 +1440,6 @@ impl ThemeTokens {
         )
     }
 
-    fn color_fields_mut(&mut self) -> impl Iterator<Item = &mut String> {
-        let Self {
-            name: _,
-            background,
-            surface,
-            text,
-            accent,
-            danger,
-            muted,
-            highlight,
-            border,
-            dim_text,
-            syntax_keyword,
-            syntax_string,
-            syntax_constant,
-            syntax_type,
-            syntax_preprocessor,
-        } = self;
-        [
-            background, surface, text, accent, danger, muted, highlight, border, dim_text,
-        ]
-        .into_iter()
-        .chain(
-            [
-                syntax_keyword,
-                syntax_string,
-                syntax_constant,
-                syntax_type,
-                syntax_preprocessor,
-            ]
-            .into_iter()
-            .flatten(),
-        )
-    }
-
     pub(super) fn initialize_syntax_colors(&mut self) {
         let palette = resolved_source_palette(self, None);
         self.syntax_keyword = Some(palette.statement);
@@ -1694,7 +1723,7 @@ fn title_case_slug(slug: &str) -> String {
 }
 
 fn themes_directory() -> PathBuf {
-    super::preferences::config_directory().join("themes")
+    nixe_theme::theme_dirs()[0].clone()
 }
 
 fn user_stylesheet_path() -> PathBuf {

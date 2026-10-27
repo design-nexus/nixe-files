@@ -172,6 +172,7 @@ fn run_udiskie_hook(arguments: &[OsString]) -> gtk::glib::ExitCode {
 }
 
 fn main() -> gtk::glib::ExitCode {
+    nixe_core::app::init(nixe_core::app::App { slug: "nixe-files", name: "Files" });
     let arguments: Vec<OsString> = std::env::args_os().collect();
     let mode = launch_mode(&arguments);
     match mode {

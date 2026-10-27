@@ -725,46 +725,6 @@ impl PreferenceManager {
         manager
     }
 
-    /// Repairs loaded values whose validity depends on data the preference store
-    /// does not own (theme catalog membership and Omarchy availability). The
-    /// caller runs this once during startup, before appearance changes apply.
-    pub(in crate::ui) fn normalize_loaded_theme_selection(
-        &self,
-        theme_is_known: impl Fn(&str) -> bool,
-        omarchy_available: bool,
-    ) {
-        let mut preferences = self.preferences.borrow_mut();
-        if !theme_is_known(&preferences.theme) {
-            preferences.theme = "azure-glow".to_owned();
-        }
-        if preferences.mode == "omarchy" && !omarchy_available {
-            preferences.mode = "theme".to_owned();
-        } else if !settings_path().is_file() && omarchy_available {
-            preferences.mode = "omarchy".to_owned();
-        }
-        self.changes.reset_baseline(&preferences);
-    }
-
-    pub(in crate::ui) fn theme_mode(&self) -> String {
-        self.preferences.borrow().mode.clone()
-    }
-
-    pub(in crate::ui) fn selected_theme_id(&self) -> String {
-        self.preferences.borrow().theme.clone()
-    }
-
-    /// Writes the theme selection as one change so mode and theme publish together.
-    pub(in crate::ui) fn set_theme_selection(&self, mode: &str, theme: Option<&str>) {
-        {
-            let mut preferences = self.preferences.borrow_mut();
-            preferences.mode = mode.to_owned();
-            if let Some(theme) = theme {
-                preferences.theme = theme.to_owned();
-            }
-        }
-        self.save_preferences();
-    }
-
     /// Applies the current value immediately, then only changes to that value.
     /// Capture weak references to owned widgets/state; the anchor owns the binding's lifetime.
     pub(crate) fn bind_preference<T: PartialEq + Clone + 'static>(
@@ -1122,6 +1082,7 @@ impl PreferenceManager {
         self.preferences.borrow().omarchy_variant
     }
 
+    #[cfg(test)]
     pub fn set_omarchy_variant(&self, variant: OmarchyVariant) {
         if self.omarchy_variant() == variant {
             return;

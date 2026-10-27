@@ -39,12 +39,6 @@ impl PreferenceChanges {
         true
     }
 
-    /// Rebases the last-published snapshot without publishing a change, so
-    /// startup repairs are the baseline rather than the next notification.
-    pub(super) fn reset_baseline(&self, preferences: &Preferences) {
-        self.latest.replace(preferences.clone());
-    }
-
     #[cfg(test)]
     pub(super) fn listener_count(&self) -> usize {
         self.listeners.borrow().len()

@@ -7504,3 +7504,14 @@ headerbar .mode-pane-header {
   font-weight: 600;
   font-size: 1.04em;
 }
+
+.list-headings,
+.column-header,
+.shortcut-footer {
+  background: @strata_bg;
+}
+
+.sidebar-split > separator.wide,
+.sidebar-separator {
+  background: transparent;
+}

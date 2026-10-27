@@ -24,12 +24,6 @@ impl PreviewState {
             split.set_end_child(None::<&gtk::Widget>);
         }
         self.floating.set(floating);
-        self.close.set_child(Some(&crate::assets::chrome_icon(if floating {
-            crate::assets::icons::X
-        } else {
-            crate::assets::icons::PANEL_RIGHT_CLOSE
-        })));
-        self.footer.set_visible(floating);
         if floating {
             self.split.take();
             self.resize_grip.set_visible(false);

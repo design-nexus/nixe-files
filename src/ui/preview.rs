@@ -288,7 +288,7 @@ impl PreviewDrawer {
             .valign(gtk::Align::Center)
             .build();
         super::accessibility::set_label(&open, &crate::i18n::tr("Open in default application"));
-        open.set_child(Some(&crate::assets::chrome_icon(
+        open.set_child(Some(&crate::assets::muted_chrome_icon(
             crate::assets::icons::EXTERNAL_LINK,
         )));
         open.add_css_class("preview-header-action");
@@ -299,7 +299,7 @@ impl PreviewDrawer {
             .build();
         model_spinner.add_css_class("preview-spinner");
         model_spinner.add_css_class("preview-header-spinner");
-        let document_view_icon = crate::assets::primary_icon(crate::assets::icons::FILE_CODE, 16);
+        let document_view_icon = crate::assets::muted_icon(crate::assets::icons::FILE_CODE, 16);
         let document_view_button = gtk::Button::builder()
             .tooltip_text(crate::i18n::tr("View source"))
             .valign(gtk::Align::Center)
@@ -313,7 +313,7 @@ impl PreviewDrawer {
             .valign(gtk::Align::Center)
             .build();
         super::accessibility::set_label(&print, &crate::i18n::tr("Print"));
-        print.set_child(Some(&crate::assets::chrome_icon(
+        print.set_child(Some(&crate::assets::muted_chrome_icon(
             crate::assets::icons::PRINTER,
         )));
         print.add_css_class("preview-header-action");
@@ -323,11 +323,16 @@ impl PreviewDrawer {
             .valign(gtk::Align::Center)
             .build();
         super::accessibility::set_label(&wrap, &crate::i18n::tr("Toggle word wrap"));
-        wrap.set_child(Some(&crate::assets::chrome_icon(
+        wrap.set_child(Some(&crate::assets::muted_chrome_icon(
             crate::assets::icons::WRAP_TEXT,
         )));
         wrap.add_css_class("preview-header-action");
         wrap.set_visible(false);
+        wrap.connect_toggled(|wrap| {
+            if let Some(image) = wrap.child().and_downcast::<gtk::Image>() {
+                crate::assets::set_icon_accented(&image, wrap.is_active());
+            }
+        });
         let close = gtk::Button::builder().valign(gtk::Align::Center).build();
         super::preferences::PreferenceManager::shared().bind_preference(
             &close,
@@ -341,7 +346,7 @@ impl PreviewDrawer {
                 super::accessibility::set_label(close, &label);
             },
         );
-        close.set_child(Some(&crate::assets::chrome_icon(
+        close.set_child(Some(&crate::assets::muted_chrome_icon(
             crate::assets::icons::PANEL_RIGHT_CLOSE,
         )));
         close.add_css_class("preview-close");
@@ -2107,7 +2112,7 @@ impl PreviewState {
         let label = crate::i18n::tr(label);
         self.document_view_button.set_tooltip_text(Some(&label));
         super::accessibility::set_label(&self.document_view_button, &label);
-        crate::assets::set_primary_icon(&self.document_view_icon, icon);
+        crate::assets::set_muted_icon(&self.document_view_icon, icon);
     }
 
     fn build_media_view(self: &Rc<Self>, media: &gtk::MediaStream) -> (gtk::Overlay, gtk::Button) {

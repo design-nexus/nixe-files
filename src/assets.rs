@@ -419,6 +419,17 @@ pub fn set_icon_accented(image: &gtk::Image, accented: bool) {
     }
 }
 
+/// [`chrome_icon`] in the muted colour, for quiet toolbar actions.
+pub fn muted_chrome_icon(name: &str) -> gtk::Image {
+    let image = gtk::Image::new();
+    image.add_css_class("chrome-icon");
+    register_interface_icon(&image, CHROME_ICON_PX);
+    set_muted_icon(&image, name);
+    image.set_halign(gtk::Align::Center);
+    image.set_valign(gtk::Align::Center);
+    image
+}
+
 pub fn chrome_icon(name: &str) -> gtk::Image {
     let image = gtk::Image::new();
     image.add_css_class("chrome-icon");

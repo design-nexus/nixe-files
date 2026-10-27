@@ -7666,6 +7666,11 @@ headerbar .mode-pane-header {
   box-shadow: inset 0 3px 0 @strata_accent;
 }
 
+/* The popup is its own window: nothing to tell its keys apart from. */
+.preview-popup .preview-pane.preview-keyboard-owner .preview-header {
+  box-shadow: none;
+}
+
 .preview-header-handle > image {
   color: @strata_accent;
 }

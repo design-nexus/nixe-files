@@ -24,7 +24,7 @@ impl PreviewState {
             split.set_end_child(None::<&gtk::Widget>);
         }
         self.floating.set(floating);
-        self.close.set_child(Some(&crate::assets::chrome_icon(if floating {
+        self.close.set_child(Some(&crate::assets::muted_chrome_icon(if floating {
             crate::assets::icons::X
         } else {
             crate::assets::icons::PANEL_RIGHT_CLOSE
@@ -68,6 +68,7 @@ impl PreviewState {
                 .modal(false)
                 .build();
             window.add_css_class("strata-window");
+            window.add_css_class("preview-popup");
             window.connect_close_request(|window| {
                 ACTIVE.with(|active| {
                     if let Some(state) = active.borrow().upgrade() {

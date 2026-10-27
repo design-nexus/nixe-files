@@ -78,7 +78,7 @@ pub(super) fn icon_button(label: &str, icon: &str) -> gtk::Button {
     let button = gtk::Button::new();
     button.add_css_class("preview-header-action");
     button.set_valign(gtk::Align::Center);
-    button.set_child(Some(&crate::assets::primary_icon(icon, 16)));
+    button.set_child(Some(&crate::assets::muted_icon(icon, 16)));
     button.set_tooltip_text(Some(&label));
     super::super::accessibility::set_label(&button, &label);
     button

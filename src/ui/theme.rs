@@ -595,15 +595,9 @@ impl ThemeManager {
             self.apply_tokens(&tokens, None);
             return;
         }
-        // Under Follow Omarchy, code keeps Omarchy's own syntax colors.
         let tokens = suite_tokens();
-        let palette = if self.follows_omarchy() {
-            self.omarchy_state.borrow().as_ref().and_then(OmarchyState::source_palette)
-        } else {
-            None
-        };
         self.applied_omarchy_tokens.replace(Some(tokens.clone()));
-        self.apply_tokens(&tokens, palette.as_ref());
+        self.apply_tokens(&tokens, None);
     }
 
     /// Another app's theme or accent choice, a saved theme file, or Omarchy changing.
@@ -694,7 +688,7 @@ impl ThemeManager {
             dark_background,
         ));
         crate::assets::set_catppuccin_theme_colors(
-            self.preferences.file_icon_colors() == FileIconColors::Theme,
+            nixe_theme::suite_theme("files").look.file_icon_colors == nixe_theme::FileIconColors::Theme,
         );
         // SVG strokes accept fewer color forms than GTK does.
         crate::assets::set_primary_icon_color(&color_to_hex(&tokens.accent));
@@ -924,7 +918,7 @@ fn suite_themes(custom: bool) -> Vec<Theme> {
         .into_iter()
         .filter(|theme| theme.id.starts_with("custom:") == custom)
         .map(|theme| Theme {
-            tokens: tokens_from(&theme.name, &theme.palette),
+            tokens: tokens_from(&theme),
             id: theme.id,
             custom,
         })
@@ -934,16 +928,17 @@ fn suite_themes(custom: bool) -> Vec<Theme> {
 }
 
 fn suite_tokens() -> ThemeTokens {
-    let theme = nixe_theme::suite_theme("files");
-    tokens_from(&theme.name, &theme.palette)
+    tokens_from(&nixe_theme::suite_theme("files"))
 }
 
 /// Dim text carries the same contrast floors as body text, and the lift stops
 /// at the first passing step, so it stays dimmer than text.
-fn tokens_from(name: &str, palette: &nixe_theme::Palette) -> ThemeTokens {
+fn tokens_from(theme: &nixe_theme::Theme) -> ThemeTokens {
+    let (palette, syntax) = (&theme.palette, &theme.look.syntax);
     let hex = |value: &str| canonical_color(value).unwrap_or_else(|| value.to_owned());
+    let code = |value: &Option<String>| value.as_deref().map(hex);
     let mut tokens = ThemeTokens {
-        name: name.to_owned(),
+        name: theme.name.clone(),
         background: hex(&palette.bg),
         surface: hex(&palette.surface),
         text: hex(&palette.text),
@@ -953,11 +948,11 @@ fn tokens_from(name: &str, palette: &nixe_theme::Palette) -> ThemeTokens {
         highlight: hex(&palette.highlight),
         border: hex(&palette.border),
         dim_text: hex(&palette.dim_text),
-        syntax_keyword: None,
-        syntax_string: None,
-        syntax_constant: None,
-        syntax_type: None,
-        syntax_preprocessor: None,
+        syntax_keyword: code(&syntax.keyword),
+        syntax_string: code(&syntax.string),
+        syntax_constant: code(&syntax.constant),
+        syntax_type: code(&syntax.type_name),
+        syntax_preprocessor: code(&syntax.preprocessor),
     };
     let dim = omarchy::readable(&tokens.dim_text, &[&tokens.background], &tokens.text, 4.5);
     tokens.dim_text = omarchy::readable(&dim, &[&tokens.surface], &tokens.text, 3.0);
@@ -1079,9 +1074,6 @@ impl OmarchyState {
         tokens_from_quattro(self.name.trim(), &self.colors, variant)
     }
 
-    fn source_palette(&self) -> Option<SourcePalette> {
-        source_palette_from_quattro(&self.colors)
-    }
 }
 
 struct OmarchyRefresh {

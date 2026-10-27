@@ -1107,6 +1107,7 @@ impl PreferenceManager {
         self.preferences.borrow().file_icon_colors
     }
 
+    #[cfg(test)]
     pub fn set_file_icon_colors(&self, colors: FileIconColors) {
         if self.file_icon_colors() == colors {
             return;

@@ -861,7 +861,7 @@ fn every_saved_preference_loads_before_any_settings_page_exists() {
                 &user_css,
                 gtk::STYLE_PROVIDER_PRIORITY_USER,
             );
-            for theme in ["nord", "azure-glow", "nord"] {
+            for theme in ["nord", "nixe-dark", "nord"] {
                 themes.select_theme(theme);
                 let tokens = themes.current_tokens().expect("active theme");
                 for window in &windows {
@@ -1377,7 +1377,7 @@ fn all_preference_setters_publish_and_persist_without_duplicate_notifications() 
             ];
             let theme_setters: &[fn(&ThemeManager)] = &[
                 |m| m.set_follow_omarchy(true),
-                |m| m.select_theme("azure-glow"),
+                |m| m.select_theme("nixe-dark"),
             ];
             let mut previous = toml::Table::try_from(&*manager.preferences.borrow())
                 .expect("preference inventory");

@@ -12,7 +12,7 @@ use crate::{
     ui::{
         controls::{number_stepper, segmented_control},
         preferences::{
-            CornerRoundness, FileIconColors, InterfaceRenderer, PreferenceManager,
+            CornerRoundness, InterfaceRenderer, PreferenceManager,
             TextSize,
         },
         theme::{Theme, ThemeManager, ThemeTokens},
@@ -150,7 +150,7 @@ pub(super) fn theme_page(
 
     append_text_size_option(&content, &preferences);
     append_corner_roundness_option(&content, &preferences);
-    append_file_icon_colors_option(&content, &preferences);
+    append_thumbnails_option(&content, &preferences);
     let effects = super::settings_group(&content, "EFFECTS");
     let (row, toggle) = super::settings_option(
         "Element glow",
@@ -300,23 +300,8 @@ fn append_follow_omarchy_option(content: &gtk::Box, themes: &Rc<ThemeManager>) -
     follow
 }
 
-fn append_file_icon_colors_option(content: &gtk::Box, preferences: &Rc<PreferenceManager>) {
+fn append_thumbnails_option(content: &gtk::Box, preferences: &Rc<PreferenceManager>) {
     let group = super::settings_group(content, "FILE ICONS");
-    let choice = super::bindings::choice_menu(
-        preferences,
-        "File icon colors",
-        &[
-            ("Brand colors", FileIconColors::Brand),
-            ("Theme colors", FileIconColors::Theme),
-        ],
-        PreferenceManager::file_icon_colors,
-        PreferenceManager::set_file_icon_colors,
-    );
-    group.append(&super::control_row(
-        "File icon colors",
-        "Brand colors use each file type's own palette; theme colors use the accent.",
-        &choice,
-    ));
     let (row, toggle) = super::settings_option(
         "Show thumbnails",
         "Show thumbnails instead of file-type icons. The preview panel stays available.",

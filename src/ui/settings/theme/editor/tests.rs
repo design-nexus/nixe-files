@@ -20,7 +20,7 @@ fn syntax_pickers_preview_cancel_and_save_to_custom_theme() {
         || {
             let manager = ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("azure-glow");
+            manager.select_theme("nixe-dark");
             let buffers = [
                 crate::ui::theme::new_source_buffer(),
                 crate::ui::theme::new_source_buffer(),
@@ -134,7 +134,7 @@ fn dismissing_the_editor_discards_the_preview_and_resets_the_form() {
         || {
             let manager = ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("azure-glow");
+            manager.select_theme("nixe-dark");
             let saved = manager.active_model_palette();
             let saved_accent = gdk::RGBA::parse(
                 manager
@@ -200,7 +200,7 @@ fn dismissing_an_editor_keeps_another_editors_preview() {
         || {
             let manager = ThemeManager::shared();
             manager.set_follow_omarchy(false);
-            manager.select_theme("azure-glow");
+            manager.select_theme("nixe-dark");
             for superseded in [false, true] {
                 let editing = theme_editor(manager.clone());
                 let other = theme_editor(manager.clone());

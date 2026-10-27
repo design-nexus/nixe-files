@@ -1475,6 +1475,13 @@ impl BrowserView {
         self.state.location_control.clone().upcast()
     }
 
+    /// In List and Icons the pane's row (back, forward, up, its actions) joins
+    /// `row` after `after`, with the path inside it.
+    pub fn attach_header(&self, row: &gtk::Box, after: &gtk::Widget) {
+        let host = crate::ui::browser_modes::HeaderHost::new(row, after, &self.location_widget());
+        self.state.mode_views.borrow().set_header_host(Rc::new(host));
+    }
+
     /// Shows the shared header spinner until the returned activity guard is dropped.
     pub fn begin_global_activity(&self, label: impl Into<String>) -> GlobalActivity {
         self.state.begin_global_activity(label)

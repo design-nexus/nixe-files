@@ -149,9 +149,17 @@ impl Header {
         let content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         content.set_hexpand(true);
         content.set_valign(gtk::Align::Center);
+        let brand = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+        brand.add_css_class("app-brand");
+        brand.append(&assets::chrome_icon(icons::FOLDER));
+        brand.append(&gtk::Label::new(Some(&crate::i18n::tr("Files"))));
+        content.append(&brand);
         content.append(&sidebar_toggle);
         content.append(&location);
         content.append(&actions);
+        if let Some(toggle) = brand.next_sibling() {
+            browser.attach_header(&content, &toggle);
+        }
         widget.set_title_widget(Some(&content));
         Self {
             widget,

@@ -485,7 +485,66 @@ impl Pane {
     }
 }
 
+/// Where the List or Icons pane's row joins the window header: the row stays one
+/// container (keyboard focus moves within it), and the path control takes the
+/// place of its folder heading. Columns mode gives the path back.
+pub struct HeaderHost {
+    row: gtk::Box,
+    after: gtk::Widget,
+    location: gtk::Widget,
+    adopted: RefCell<Option<glib::WeakRef<gtk::Box>>>,
+}
+
+impl HeaderHost {
+    pub fn new(row: &gtk::Box, after: &gtk::Widget, location: &gtk::Widget) -> Self {
+        Self { row: row.clone(), after: after.clone(), location: location.clone(), adopted: RefCell::default() }
+    }
+
+    fn adopt(&self, header: &gtk::Box) {
+        let previous = self.adopted.borrow().as_ref().and_then(glib::WeakRef::upgrade);
+        if previous.as_ref() != Some(header) {
+            remove_from_box(header.upcast_ref());
+            self.row.insert_child_after(header, Some(&self.after));
+            header.set_hexpand(true);
+        }
+        let heading = std::iter::successors(header.first_child(), |child| child.next_sibling())
+            .find(|child| child.has_css_class("pane-heading"));
+        if self.location.parent().as_ref() != Some(header.upcast_ref()) {
+            remove_from_box(&self.location);
+            header.insert_child_after(&self.location, heading.as_ref());
+        }
+        if let Some(heading) = heading {
+            heading.set_visible(false);
+        }
+        if let Some(previous) = previous.filter(|previous| previous != header)
+            && previous.parent().as_ref() == Some(self.row.upcast_ref())
+        {
+            self.row.remove(&previous);
+        }
+        self.adopted.replace(Some(header.downgrade()));
+    }
+
+    fn release(&self) {
+        if self.location.parent().as_ref() != Some(self.row.upcast_ref()) {
+            remove_from_box(&self.location);
+            self.row.insert_child_after(&self.location, Some(&self.after));
+        }
+        if let Some(previous) = self.adopted.take().and_then(|weak| weak.upgrade())
+            && previous.parent().as_ref() == Some(self.row.upcast_ref())
+        {
+            self.row.remove(&previous);
+        }
+    }
+}
+
+fn remove_from_box(widget: &gtk::Widget) {
+    if let Some(parent) = widget.parent().and_downcast::<gtk::Box>() {
+        parent.remove(widget);
+    }
+}
+
 pub struct ModeViews {
+    header_host: RefCell<Option<Rc<HeaderHost>>>,
     stack: gtk::Stack,
     icons_root: gtk::Box,
     list_root: gtk::Box,
@@ -566,6 +625,7 @@ impl ModeViews {
         stack.set_visible_child_name("columns");
 
         Self {
+            header_host: RefCell::default(),
             stack,
             icons_root,
             list_root,
@@ -626,6 +686,22 @@ impl ModeViews {
         pane.search
             .active_marquee()
             .or_else(|| Some(pane.marquee.clone()))
+    }
+
+    pub fn set_header_host(&self, host: Rc<HeaderHost>) {
+        self.header_host.replace(Some(host));
+        self.sync_header();
+    }
+
+    /// Keeps the window header showing the visible pane's row, or just the path.
+    fn sync_header(&self) {
+        let Some(host) = self.header_host.borrow().clone() else {
+            return;
+        };
+        match self.single_pane() {
+            Some(pane) => host.adopt(&pane.header),
+            None => host.release(),
+        }
     }
 
     fn single_pane(&self) -> Option<&Pane> {
@@ -1300,6 +1376,7 @@ impl ModeViews {
             BrowserMode::Icons => self.prepare_icons(),
             BrowserMode::List => self.prepare_list(),
         }
+        self.sync_header();
     }
 
     fn prepare_icons(&mut self) {
@@ -2022,6 +2099,7 @@ impl ModeViews {
         apply_snapshot(&pane, &snapshot, &self.browser);
         self.pane_navigation.borrow_mut().prepare(&pane, &snapshot);
         self.icons_panes.push(pane);
+        self.sync_header();
     }
 
     fn rebuild_list(&mut self) {
@@ -2058,6 +2136,7 @@ impl ModeViews {
         apply_snapshot(&pane, &snapshot, &self.browser);
         self.pane_navigation.borrow_mut().prepare(&pane, &snapshot);
         self.list_pane = Some(pane);
+        self.sync_header();
     }
 }
 
@@ -4218,6 +4297,7 @@ fn pane_base(
     header.add_css_class("mode-pane-header");
     super::tenxer_mode::hide_while_enabled(&header);
     let heading_box = gtk::Box::new(gtk::Orientation::Horizontal, 4);
+    heading_box.add_css_class("pane-heading");
     heading_box.set_hexpand(true);
     heading_box.set_valign(gtk::Align::Center);
     let heading = gtk::Label::new(Some(title));

@@ -7487,3 +7487,20 @@ headerbar.browser-header,
 .keyboard-navigation .file-list-mode row:focus-within {
   outline-color: alpha(@strata_accent, 0.5);
 }
+
+/* The List and Icons pane's row sits inside the window header. */
+headerbar .mode-pane-header {
+  background: transparent;
+  min-height: 0;
+  padding: 0;
+}
+
+.app-brand {
+  margin: 0 10px 0 6px;
+  color: @strata_accent;
+}
+
+.app-brand label {
+  font-weight: 600;
+  font-size: 1.04em;
+}

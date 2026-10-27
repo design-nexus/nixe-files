@@ -699,6 +699,7 @@ impl ThemeManager {
         // SVG strokes accept fewer color forms than GTK does.
         crate::assets::set_primary_icon_color(&color_to_hex(&tokens.accent));
         crate::assets::set_text_icon_color(&color_to_hex(&tokens.text));
+        crate::assets::set_muted_icon_color(&color_to_hex(&tokens.dim_text));
         crate::assets::set_danger_icon_color(&color_to_hex(&tokens.danger));
         super::thumbnail::refresh_all_customized_icons();
         stage_source_style_scheme(tokens, source_palette);

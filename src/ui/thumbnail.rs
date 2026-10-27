@@ -1491,22 +1491,26 @@ fn apply_path_customization_image(
         .then(|| super::special_folders::default_decoration(path))
         .flatten();
     let customized = custom_icon.is_some() || color.is_some() || special.is_some();
+    let muted = crate::assets::shows_muted(image);
+    let default_color = || {
+        if muted {
+            crate::assets::muted_icon_color()
+        } else {
+            crate::assets::primary_icon_color()
+        }
+    };
 
     if let Some(glyph) = special {
         let color = color
             .as_ref()
-            .map_or_else(crate::assets::primary_icon_color, |color| {
-                color.hex().to_owned()
-            });
+            .map_or_else(default_color, |color| color.hex().to_owned());
         crate::assets::set_folder_glyph_icon(image, glyph, &color);
     } else if (matches!(kind, ImageIconKind::Folder) || default_icon == crate::assets::icons::FOLDER)
         && let Some(decoration) = custom_icon.as_deref()
     {
         let color = color
             .as_ref()
-            .map_or_else(crate::assets::primary_icon_color, |color| {
-                color.hex().to_owned()
-            });
+            .map_or_else(default_color, |color| color.hex().to_owned());
         crate::assets::set_folder_decoration_icon(image, decoration, &color);
     } else if let Some(emoji) = custom_icon
         .as_deref()
@@ -1517,6 +1521,8 @@ fn apply_path_customization_image(
         let rendered_icon = custom_icon.as_deref().unwrap_or(default_icon);
         if let Some(color) = color {
             crate::assets::set_custom_colored_icon(image, rendered_icon, color.hex());
+        } else if muted {
+            crate::assets::set_muted_icon(image, rendered_icon);
         } else {
             crate::assets::set_primary_icon(image, rendered_icon);
         }
@@ -1569,6 +1575,21 @@ pub(super) fn refresh_customized_icons(paths: &[PathBuf]) {
 pub(super) fn refresh_customized_icons_within(roots: &[PathBuf]) {
     refresh_tracked_icons(|tracked| roots.iter().any(|root| tracked.path.starts_with(root)));
     refresh_tracked_images(|path| roots.iter().any(|root| path.starts_with(root)));
+}
+
+/// Redraws `image` if it shows a customized folder; false when it doesn't.
+pub(super) fn refresh_customized_image(image: &gtk::Image) -> bool {
+    let tracked = TRACKED_CUSTOMIZED_IMAGES.with_borrow(|images| {
+        images
+            .get(&(image.as_ptr() as usize))
+            .filter(|tracked| tracked.image.upgrade().as_ref() == Some(image))
+            .map(|tracked| (tracked.path.clone(), tracked.default_icon.clone(), tracked.kind))
+    });
+    let Some((path, default_icon, kind)) = tracked else {
+        return false;
+    };
+    apply_path_customization_image(image, &path, &default_icon, kind);
+    true
 }
 
 pub(super) fn refresh_all_customized_icons() {

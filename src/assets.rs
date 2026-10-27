@@ -251,6 +251,8 @@ thread_local! {
     static PRIMARY_ICONS: RefCell<Vec<PrimaryIcon>> = const { RefCell::new(Vec::new()) };
     static TEXT_ICON_COLOR: RefCell<String> = RefCell::new("#e6edf3".to_owned());
     static TEXT_ICONS: RefCell<Vec<PrimaryIcon>> = const { RefCell::new(Vec::new()) };
+    static MUTED_ICON_COLOR: RefCell<String> = RefCell::new("#9097a8".to_owned());
+    static MUTED_ICONS: RefCell<Vec<PrimaryIcon>> = const { RefCell::new(Vec::new()) };
     static DANGER_ICON_COLOR: RefCell<String> = RefCell::new("#e5484d".to_owned());
     static DANGER_ICONS: RefCell<Vec<PrimaryIcon>> = const { RefCell::new(Vec::new()) };
     static ICON_TEXTURES: RefCell<IconTextureCache> = RefCell::new(IconTextureCache::default());
@@ -334,6 +336,10 @@ fn register_interface_icon(image: &gtk::Image, base: i32) {
                 TEXT_ICON_COLOR.with(|color| color.borrow().clone()),
             ),
             (
+                &MUTED_ICONS,
+                MUTED_ICON_COLOR.with(|color| color.borrow().clone()),
+            ),
+            (
                 &DANGER_ICONS,
                 DANGER_ICON_COLOR.with(|color| color.borrow().clone()),
             ),
@@ -365,6 +371,57 @@ pub fn text_icon(name: &str, pixel_size: i32) -> gtk::Image {
 pub fn set_text_icon_color(color: &str) {
     TEXT_ICON_COLOR.with(|current| current.replace(color.to_owned()));
     TEXT_ICONS.with(|icons| recolor_registered_icons(icons, color));
+}
+
+/// An icon in the secondary text colour, such as a sidebar place that isn't
+/// the current one.
+pub fn muted_icon(name: &str, pixel_size: i32) -> gtk::Image {
+    let image = gtk::Image::new();
+    register_interface_icon(&image, pixel_size);
+    let color = MUTED_ICON_COLOR.with(|color| color.borrow().clone());
+    apply_primary_icon(&image, name, &color);
+    MUTED_ICONS.with(|icons| register_icon(icons, &image, name));
+    image
+}
+
+pub fn muted_icon_color() -> String {
+    MUTED_ICON_COLOR.with(|color| color.borrow().clone())
+}
+
+/// [`set_primary_icon`] in the muted colour.
+pub fn set_muted_icon(image: &gtk::Image, name: &str) {
+    PRIMARY_ICONS.with(|icons| icons.borrow_mut().retain(|icon| icon.image.upgrade().as_ref() != Some(image)));
+    apply_primary_icon(image, name, &muted_icon_color());
+    MUTED_ICONS.with(|icons| register_icon(icons, image, name));
+}
+
+/// A sidebar icon that isn't the current place's shows in the muted colour.
+pub fn shows_muted(image: &gtk::Image) -> bool {
+    image.has_css_class("sidebar-icon") && !image.has_css_class("accented")
+}
+
+pub fn set_muted_icon_color(color: &str) {
+    MUTED_ICON_COLOR.with(|current| current.replace(color.to_owned()));
+    MUTED_ICONS.with(|icons| recolor_registered_icons(icons, color));
+}
+
+/// Moves an icon made by [`muted_icon`] or [`primary_icon`] to the accent
+/// colour (`accented`) or back to the muted one.
+pub fn set_icon_accented(image: &gtk::Image, accented: bool) {
+    let (from, to, color) = if accented {
+        (&MUTED_ICONS, &PRIMARY_ICONS, primary_icon_color())
+    } else {
+        (&PRIMARY_ICONS, &MUTED_ICONS, MUTED_ICON_COLOR.with(|color| color.borrow().clone()))
+    };
+    let name = from.with(|icons| {
+        let mut icons = icons.borrow_mut();
+        let found = icons.iter().position(|icon| icon.image.upgrade().as_ref() == Some(image))?;
+        Some(icons.remove(found).name)
+    });
+    if let Some(name) = name {
+        apply_primary_icon(image, &name, &color);
+        to.with(|icons| register_icon(icons, image, &name));
+    }
 }
 
 pub fn chrome_icon(name: &str) -> gtk::Image {
@@ -399,6 +456,7 @@ pub fn use_bundled_spin_icons(root: &impl IsA<gtk::Widget>) {
 }
 
 pub fn set_primary_icon(image: &gtk::Image, name: &str) {
+    MUTED_ICONS.with(|icons| icons.borrow_mut().retain(|icon| icon.image.upgrade().as_ref() != Some(image)));
     let color = PRIMARY_ICON_COLOR.with(|color| color.borrow().clone());
     apply_primary_icon(image, name, &color);
     PRIMARY_ICONS.with(|icons| {

@@ -7472,7 +7472,7 @@ headerbar.browser-header,
 
 .sidebar-row:hover,
 .sidebar-device:hover {
-  background: alpha(@strata_accent, 0.06);
+  background: alpha(@strata_text, 0.05);
 }
 
 .sidebar-row.active,
@@ -7635,4 +7635,26 @@ headerbar .mode-pane-header {
   color: mix(@strata_dim_text, @strata_bg, 0.2);
   font-size: 11px;
   padding: 1px 5px;
+}
+
+/* Sidebar places in the secondary colour; the place you're in is the one
+   that lights up, with its icon in the accent. */
+.sidebar-row,
+.sidebar-row image {
+  color: @strata_dim_text;
+}
+
+.sidebar-row:hover,
+.sidebar-device:hover > .sidebar-row {
+  color: @strata_text;
+}
+
+.sidebar-row.active,
+.sidebar-device.active > .sidebar-row {
+  color: @strata_text;
+}
+
+.sidebar-row.active image,
+.sidebar-device.active .sidebar-row image {
+  color: @strata_accent;
 }

@@ -64,6 +64,7 @@ pub mod icons {
     pub const BOX: &str = "strata-box";
     pub const BRIEFCASE: &str = "strata-briefcase";
     pub const DROPBOX: &str = "strata-dropbox";
+    pub const EIGHTEEN_PLUS: &str = "strata-eighteen-plus";
     pub const GAMEPAD: &str = "strata-gamepad-2";
     pub const SCALE: &str = "strata-scale";
     pub const CORNER_DOWN_RIGHT: &str = "strata-corner-down-right";
@@ -777,6 +778,10 @@ fn folder_stroke_width(logical_px: i32) -> f64 {
     1.6 + (0.8 - 1.6) * t
 }
 
+/// The largest size (list rows, columns, the sidebar) at which a special folder
+/// shows only its glyph; the grid starts at 32.
+const SMALL_FOLDER_GLYPH_PX: i32 = 24;
+
 fn folder_outline_at(source: &str, logical_px: i32) -> String {
     source.replacen(
         "stroke-width=\"0.8\"",
@@ -797,6 +802,11 @@ pub(crate) fn sized_folder_glyph_paintable(
     let texture_px = ICON_TEXTURE_PX
         .max(logical_px.saturating_mul(scale_factor))
         .clamp(24, 768);
+    // At list and sidebar sizes a glyph inside a folder is too small to read; show
+    // the glyph alone, like the sidebar's places.
+    if logical_px <= SMALL_FOLDER_GLYPH_PX {
+        return primary_icon_texture_at(glyph, color, texture_px, logical_px, context);
+    }
     let width = folder_stroke_width(logical_px);
     texture_from_svg(
         &stroke_cache_name(&format!("folder-glyph:{glyph}@{width:.2}"), logical_px, context),

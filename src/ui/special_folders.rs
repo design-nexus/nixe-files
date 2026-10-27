@@ -15,7 +15,7 @@ const HOME_FOLDERS: &[(&str, &str)] = &[
     ("dropbox", icons::DROPBOX),
     ("music", icons::MUSIC),
     ("pictures", icons::PICTURES),
-    ("porn", icons::LOCK),
+    ("porn", icons::EIGHTEEN_PLUS),
     ("projects", icons::GIT_BRANCH),
     ("wallpapers", icons::MONITOR),
     ("wallpaper", icons::MONITOR),
@@ -70,7 +70,7 @@ mod tests {
     #[test]
     fn home_folders_get_their_decoration() {
         assert_eq!(deco("/home/u/Work", &[]), Some(icons::BRIEFCASE));
-        assert_eq!(deco("/home/u/Porn", &[]), Some(icons::LOCK));
+        assert_eq!(deco("/home/u/Porn", &[]), Some(icons::EIGHTEEN_PLUS));
         assert_eq!(deco("/home/u/go", &[]), Some(icons::CODE_XML));
         assert_eq!(deco("/home/u/Wallpapers", &[]), Some(icons::MONITOR));
     }

@@ -1411,8 +1411,18 @@ fn path_icon_texture(
     let preference_manager = super::preferences::PreferenceManager::shared();
     let custom_icon = preference_manager.custom_icon(path);
     let color = preference_manager.folder_color(path);
-    let customized = custom_icon.is_some() || color.is_some();
-    let texture = if fallback_icon == crate::assets::icons::FOLDER
+    let special = (custom_icon.is_none() && fallback_icon == crate::assets::icons::FOLDER)
+        .then(|| super::special_folders::default_decoration(path))
+        .flatten();
+    let customized = custom_icon.is_some() || color.is_some() || special.is_some();
+    let texture = if let Some(glyph) = special {
+        let color = color
+            .as_ref()
+            .map_or_else(crate::assets::primary_icon_color, |color| {
+                color.hex().to_owned()
+            });
+        crate::assets::sized_folder_glyph_paintable(glyph, &color, size, scale_factor, context)
+    } else if fallback_icon == crate::assets::icons::FOLDER
         && let Some(decoration) = custom_icon.as_deref()
     {
         let color = color
@@ -1476,9 +1486,20 @@ fn apply_path_customization_image(
     let preference_manager = super::preferences::PreferenceManager::shared();
     let custom_icon = preference_manager.custom_icon(path);
     let color = preference_manager.folder_color(path);
-    let customized = custom_icon.is_some() || color.is_some();
+    // Places that bring their own glyph keep it.
+    let special = (custom_icon.is_none() && default_icon == crate::assets::icons::FOLDER)
+        .then(|| super::special_folders::default_decoration(path))
+        .flatten();
+    let customized = custom_icon.is_some() || color.is_some() || special.is_some();
 
-    if (matches!(kind, ImageIconKind::Folder) || default_icon == crate::assets::icons::FOLDER)
+    if let Some(glyph) = special {
+        let color = color
+            .as_ref()
+            .map_or_else(crate::assets::primary_icon_color, |color| {
+                color.hex().to_owned()
+            });
+        crate::assets::set_folder_glyph_icon(image, glyph, &color);
+    } else if (matches!(kind, ImageIconKind::Folder) || default_icon == crate::assets::icons::FOLDER)
         && let Some(decoration) = custom_icon.as_deref()
     {
         let color = color

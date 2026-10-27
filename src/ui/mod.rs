@@ -48,6 +48,7 @@ mod settings;
 mod shortcut_footer;
 mod shortcut_reference;
 mod sidebar_toggle;
+mod special_folders;
 mod table_view;
 mod tabs_session;
 mod tenxer_mode;

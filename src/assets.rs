@@ -62,6 +62,9 @@ pub mod icons {
     pub const BUG: &str = "strata-bug";
     pub const STRATA_LOGO: &str = "strata-logo";
     pub const BOX: &str = "strata-box";
+    pub const BRIEFCASE: &str = "strata-briefcase";
+    pub const DROPBOX: &str = "strata-dropbox";
+    pub const GAMEPAD: &str = "strata-gamepad-2";
     pub const SCALE: &str = "strata-scale";
     pub const CORNER_DOWN_RIGHT: &str = "strata-corner-down-right";
     pub const FUNNEL: &str = "strata-funnel";
@@ -759,6 +762,64 @@ pub(crate) fn sized_folder_decoration_paintable(
         texture_px,
         || Some(compensate_icon_strokes(source, logical_px, context)),
     )
+}
+
+/// The plain outline folder with `glyph` drawn small in its middle, in the same
+/// colour and line weight: how folders that hold one kind of thing look.
+pub(crate) fn sized_folder_glyph_paintable(
+    glyph: &str,
+    color: &str,
+    logical_px: i32,
+    scale_factor: i32,
+    context: IconContext,
+) -> Option<gdk::Texture> {
+    let texture_px = ICON_TEXTURE_PX
+        .max(logical_px.saturating_mul(scale_factor))
+        .clamp(24, 768);
+    texture_from_svg(
+        &stroke_cache_name(&format!("folder-glyph:{glyph}"), logical_px, context),
+        color,
+        texture_px,
+        || {
+            let folder_data = gio::resources_lookup_data(
+                "/io/github/lgse/Strata/icons/scalable/actions/strata-folder.svg",
+                gio::ResourceLookupFlags::NONE,
+            )
+            .ok()?;
+            let folder = std::str::from_utf8(folder_data.as_ref()).ok()?;
+            let path = format!("/io/github/lgse/Strata/icons/scalable/actions/{glyph}.svg");
+            let data = gio::resources_lookup_data(&path, gio::ResourceLookupFlags::NONE).ok()?;
+            let body = svg_body(std::str::from_utf8(data.as_ref()).ok()?)?.to_owned();
+            // Centred in the folder body (x 3–21, y 8–19); 2 units at this scale is the
+            // folder's own 0.8 line.
+            let overlay = format!(
+                r#"<g transform="translate(7.2 8.7) scale(.4)" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{body}</g>"#,
+            );
+            let source = recolor_icon_source(folder, color)
+                .replacen(
+                    "fill=\"none\"",
+                    &format!("fill=\"{color}\" fill-opacity=\"0.15\""),
+                    1,
+                )
+                .replacen("</svg>", &format!("{overlay}</svg>"), 1);
+            Some(svg_at_texture_size(source, texture_px))
+        },
+    )
+}
+
+pub fn set_folder_glyph_icon(image: &gtk::Image, glyph: &str, color: &str) {
+    remove_primary_icon(image);
+    if let Some(texture) = sized_folder_glyph_paintable(
+        glyph,
+        color,
+        image.pixel_size(),
+        image.scale_factor(),
+        IconContext::Interface,
+    ) {
+        image.set_paintable(Some(&texture));
+    } else {
+        apply_primary_icon(image, icons::FOLDER, color);
+    }
 }
 
 fn folder_emoji_texture(

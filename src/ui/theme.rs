@@ -93,6 +93,7 @@ struct SourcePalette {
 pub struct Theme {
     pub id: String,
     pub tokens: ThemeTokens,
+    #[cfg(test)]
     pub custom: bool,
 }
 
@@ -181,6 +182,8 @@ impl ThemeListeners {
 
 pub struct ThemeManager {
     provider: gtk::CssProvider,
+    #[cfg(test)]
+    preview_generation: Cell<u64>,
     reset_provider: gtk::CssProvider,
     base_theme_provider: gtk::CssProvider,
     font_provider: gtk::CssProvider,
@@ -205,7 +208,6 @@ pub struct ThemeManager {
     user_style_monitor: RefCell<Option<LoadHandle>>,
     pending_user_style_refresh: RefCell<Option<glib::SourceId>>,
     preview: RefCell<Option<ThemeTokens>>,
-    preview_generation: Cell<u64>,
     /// Omarchy state can be unreadable mid-switch while the window keeps these colors.
     applied_omarchy_tokens: RefCell<Option<ThemeTokens>>,
     appearance: RefCell<AppearancePreferences>,
@@ -247,6 +249,8 @@ impl ThemeManager {
         };
 
         let manager = Rc::new(Self {
+            #[cfg(test)]
+            preview_generation: Cell::new(0),
             provider: gtk::CssProvider::new(),
             reset_provider: gtk::CssProvider::new(),
             base_theme_provider: gtk::CssProvider::new(),
@@ -267,7 +271,6 @@ impl ThemeManager {
             user_style_monitor: RefCell::new(None),
             pending_user_style_refresh: RefCell::new(None),
             preview: RefCell::new(None),
-            preview_generation: Cell::new(0),
             applied_omarchy_tokens: RefCell::new(None),
             appearance: RefCell::new(appearance),
             base_variant_dark: Cell::new(None),
@@ -331,29 +334,7 @@ impl ThemeManager {
         self.theme_listeners.bind(self, anchor, read, apply);
     }
 
-    pub fn select_theme(&self, id: &str) {
-        if !self.themes.borrow().iter().any(|theme| theme.id == id) {
-            return;
-        }
-        self.preview.take();
-        nyx_theme::update_suite(|suite| {
-            suite.mode = nyx_theme::ThemeMode::Theme;
-            suite.theme = id.to_owned();
-        });
-        self.suite_changed();
-    }
-
-    pub fn set_follow_omarchy(&self, enabled: bool) {
-        if enabled && !self.is_omarchy_available() {
-            return;
-        }
-        self.preview.take();
-        nyx_theme::update_suite(|suite| {
-            suite.mode = if enabled { nyx_theme::ThemeMode::Omarchy } else { nyx_theme::ThemeMode::Theme };
-        });
-        self.suite_changed();
-    }
-
+    #[cfg(test)]
     /// Applies `tokens` until [`Self::cancel_preview`] or a theme selection; appearance
     /// changes in the meantime re-apply the preview rather than the saved theme.
     /// Returns the preview's generation for [`Self::cancel_preview_from`].
@@ -366,12 +347,14 @@ impl ThemeManager {
         Some(self.preview_generation.get())
     }
 
+    #[cfg(test)]
     pub fn cancel_preview(&self) {
         if self.preview.take().is_some() {
             self.apply_selected();
         }
     }
 
+    #[cfg(test)]
     /// Cancels the preview only if no later one has replaced it.
     pub fn cancel_preview_from(&self, generation: u64) {
         if self.preview_generation.get() == generation {
@@ -380,10 +363,11 @@ impl ThemeManager {
     }
 
     #[cfg(test)]
-    pub(crate) fn is_previewing(&self) -> bool {
-        self.preview.borrow().is_some()
+    pub fn starter_tokens(&self) -> ThemeTokens {
+        self.current_tokens().unwrap_or_else(azure_tokens)
     }
 
+    #[cfg(test)]
     pub fn save_custom_theme(
         self: &Rc<Self>,
         tokens: ThemeTokens,
@@ -443,12 +427,36 @@ impl ThemeManager {
         });
     }
 
-    pub fn appearance_tokens(&self) -> ThemeTokens {
-        suite_tokens()
+    pub fn select_theme(&self, id: &str) {
+        if !self.themes.borrow().iter().any(|theme| theme.id == id) {
+            return;
+        }
+        self.preview.take();
+        nyx_theme::update_suite(|suite| {
+            suite.mode = nyx_theme::ThemeMode::Theme;
+            suite.theme = id.to_owned();
+        });
+        self.suite_changed();
     }
 
-    pub fn starter_tokens(&self) -> ThemeTokens {
-        self.current_tokens().unwrap_or_else(azure_tokens)
+    pub fn set_follow_omarchy(&self, enabled: bool) {
+        if enabled && !self.is_omarchy_available() {
+            return;
+        }
+        self.preview.take();
+        nyx_theme::update_suite(|suite| {
+            suite.mode = if enabled { nyx_theme::ThemeMode::Omarchy } else { nyx_theme::ThemeMode::Theme };
+        });
+        self.suite_changed();
+    }
+
+    #[cfg(test)]
+    pub(crate) fn is_previewing(&self) -> bool {
+        self.preview.borrow().is_some()
+    }
+
+    pub fn appearance_tokens(&self) -> ThemeTokens {
+        suite_tokens()
     }
 
     fn install_provider(&self) {
@@ -550,7 +558,8 @@ impl ThemeManager {
     /// Reparses the stylesheet only when the roundness changed; the other
     /// appearance preferences are applied through the token provider.
     fn apply_base_stylesheet(&self) {
-        let roundness = self.preferences.corner_roundness();
+        // Shapes come from the suite's theme; Files' own roundness is no longer offered.
+        let roundness = crate::ui::preferences::CornerRoundness::default();
         if self.base_roundness.replace(Some(roundness)) == Some(roundness) {
             return;
         }
@@ -660,23 +669,16 @@ impl ThemeManager {
         super::browser::find::apply_theme(&tokens.accent, &tokens.background);
         super::preview::audio::apply_theme(tokens);
         let root_font_px = snapped_root_font_px(
-            self.preferences.text_size().root_font_px(),
+            scaled_root_font_px(self.preferences.text_size().root_font_px()),
             desktop_text_scale_factor(),
         );
-        let glow = if self.preferences.element_glow() {
-            "@strata_accent"
-        } else {
-            "transparent"
-        };
+        let glow = "transparent";
         self.provider.load_from_string(&format!(
             "{}\n@define-color strata_glow {glow};\n{}",
             tokens_css(tokens, root_font_px),
             suite_sizes_css()
         ));
-        let family = self
-            .preferences
-            .interface_font()
-            .or_else(|| nyx_theme::suite_theme("files").look.font.ui);
+        let family = nyx_theme::suite_theme("files").look.font.ui;
         self.font_provider
             .load_from_string(&font::stylesheet(family.as_deref()));
         apply_interface_font(family.as_deref(), root_font_px);
@@ -927,6 +929,7 @@ fn suite_themes(custom: bool) -> Vec<Theme> {
         .map(|theme| Theme {
             tokens: tokens_from(&theme),
             id: theme.id,
+            #[cfg(test)]
             custom,
         })
         .collect();
@@ -1020,6 +1023,12 @@ fn suite_sizes_css() -> String {
     )
 }
 
+/// Files' zoom (Ctrl+plus and minus) on top of Settings' suite-wide text size.
+pub(in crate::ui) fn scaled_root_font_px(zoom_px: u32) -> u32 {
+    let scale = nyx_theme::read_suite().map_or(1.0, |suite| suite.text_scale).clamp(0.5, 2.0);
+    (f64::from(zoom_px) * scale).round() as u32
+}
+
 fn suite_mode(suite: &nyx_theme::Suite) -> String {
     match suite.mode {
         nyx_theme::ThemeMode::Omarchy => "omarchy".to_owned(),
@@ -1031,30 +1040,6 @@ fn merge_builtin_and_custom_themes(mut builtins: Vec<Theme>, custom: Vec<Theme>)
     builtins.retain(|builtin| !custom.iter().any(|theme| theme.id == builtin.id));
     builtins.extend(custom);
     builtins
-}
-
-fn azure_tokens() -> ThemeTokens {
-    builtins()
-        .into_iter()
-        .find(|theme| theme.id == "azure-glow")
-        .map(|theme| theme.tokens)
-        .unwrap_or_else(|| ThemeTokens {
-            name: "Azure Glow".to_owned(),
-            background: "#0c1a2b".to_owned(),
-            surface: "#122438".to_owned(),
-            text: "#c9deed".to_owned(),
-            accent: "#4fd6ff".to_owned(),
-            danger: default_danger(),
-            muted: "#1e3a52".to_owned(),
-            highlight: "#244d68".to_owned(),
-            border: "#315b75".to_owned(),
-            dim_text: "#6f8da3".to_owned(),
-            syntax_keyword: None,
-            syntax_string: None,
-            syntax_constant: None,
-            syntax_type: None,
-            syntax_preprocessor: None,
-        })
 }
 
 fn load_custom_themes() -> Vec<Theme> {
@@ -1424,6 +1409,16 @@ fn resolved_source_palette(tokens: &ThemeTokens, palette: Option<&SourcePalette>
 }
 
 impl ThemeTokens {
+    #[cfg(test)]
+    pub(super) fn initialize_syntax_colors(&mut self) {
+        let palette = resolved_source_palette(self, None);
+        self.syntax_keyword = Some(palette.statement);
+        self.syntax_string = Some(palette.string);
+        self.syntax_constant = Some(palette.constant);
+        self.syntax_type = Some(palette.type_color);
+        self.syntax_preprocessor = Some(palette.preprocessor);
+    }
+
     // Exhaustive destructuring makes a new field fail to compile until it is classified.
     fn color_fields(&self) -> impl Iterator<Item = &String> {
         let Self {
@@ -1460,14 +1455,6 @@ impl ThemeTokens {
         )
     }
 
-    pub(super) fn initialize_syntax_colors(&mut self) {
-        let palette = resolved_source_palette(self, None);
-        self.syntax_keyword = Some(palette.statement);
-        self.syntax_string = Some(palette.string);
-        self.syntax_constant = Some(palette.constant);
-        self.syntax_type = Some(palette.type_color);
-        self.syntax_preprocessor = Some(palette.preprocessor);
-    }
 }
 
 fn source_style_scheme_xml(tokens: &ThemeTokens, palette: Option<&SourcePalette>) -> String {
@@ -1692,41 +1679,6 @@ fn blend(left: &str, right: &str, amount: f64) -> String {
     format!("#{:02x}{:02x}{:02x}", channel(0), channel(1), channel(2))
 }
 
-fn slugify(name: &str) -> String {
-    name.trim()
-        .to_lowercase()
-        .chars()
-        .fold(String::new(), |mut slug, character| {
-            if character.is_ascii_alphanumeric() {
-                slug.push(character);
-            } else if !slug.is_empty() && !slug.ends_with('-') {
-                slug.push('-');
-            }
-            slug
-        })
-        .trim_end_matches('-')
-        .to_owned()
-}
-
-const FALLBACK_CUSTOM_THEME_ID: &str = "custom-theme";
-
-/// File id for a new custom theme: the ASCII slug of `name`, or a generic id when the
-/// name has no ASCII letters or digits, suffixed until `taken` no longer matches.
-fn custom_theme_id(name: &str, taken: impl Fn(&str) -> bool) -> String {
-    let slug = slugify(name);
-    let base = if slug.is_empty() {
-        FALLBACK_CUSTOM_THEME_ID
-    } else {
-        slug.as_str()
-    };
-    let mut id = base.to_owned();
-    let mut suffix = 2;
-    while taken(&id) {
-        id = format!("{base}-{suffix}");
-        suffix += 1;
-    }
-    id
-}
 
 fn title_case_slug(slug: &str) -> String {
     slug.split('-')
@@ -1769,3 +1721,67 @@ pub(in crate::ui) fn omarchy_state_dir() -> PathBuf {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+fn azure_tokens() -> ThemeTokens {
+    builtins()
+        .into_iter()
+        .find(|theme| theme.id == "azure-glow")
+        .map(|theme| theme.tokens)
+        .unwrap_or_else(|| ThemeTokens {
+            name: "Azure Glow".to_owned(),
+            background: "#0c1a2b".to_owned(),
+            surface: "#122438".to_owned(),
+            text: "#c9deed".to_owned(),
+            accent: "#4fd6ff".to_owned(),
+            danger: default_danger(),
+            muted: "#1e3a52".to_owned(),
+            highlight: "#244d68".to_owned(),
+            border: "#315b75".to_owned(),
+            dim_text: "#6f8da3".to_owned(),
+            syntax_keyword: None,
+            syntax_string: None,
+            syntax_constant: None,
+            syntax_type: None,
+            syntax_preprocessor: None,
+        })
+}
+
+#[cfg(test)]
+/// File id for a new custom theme: the ASCII slug of `name`, or a generic id when the
+/// name has no ASCII letters or digits, suffixed until `taken` no longer matches.
+fn custom_theme_id(name: &str, taken: impl Fn(&str) -> bool) -> String {
+    let slug = slugify(name);
+    let base = if slug.is_empty() {
+        FALLBACK_CUSTOM_THEME_ID
+    } else {
+        slug.as_str()
+    };
+    let mut id = base.to_owned();
+    let mut suffix = 2;
+    while taken(&id) {
+        id = format!("{base}-{suffix}");
+        suffix += 1;
+    }
+    id
+}
+
+#[cfg(test)]
+fn slugify(name: &str) -> String {
+    name.trim()
+        .to_lowercase()
+        .chars()
+        .fold(String::new(), |mut slug, character| {
+            if character.is_ascii_alphanumeric() {
+                slug.push(character);
+            } else if !slug.is_empty() && !slug.ends_with('-') {
+                slug.push('-');
+            }
+            slug
+        })
+        .trim_end_matches('-')
+        .to_owned()
+}
+
+#[cfg(test)]
+const FALLBACK_CUSTOM_THEME_ID: &str = "custom-theme";

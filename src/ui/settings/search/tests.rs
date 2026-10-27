@@ -89,8 +89,7 @@ fn ranks_exact_labels_aliases_and_small_typing_errors() {
         ("sidebar downloads", "general", "sidebar-places"),
         ("show network", "general", "sidebar-places"),
         ("show recent", "general", "sidebar-places"),
-        ("tezt size", "theme", "text"),
-        ("font size", "theme", "text"),
+        ("theme", "theme", "current-theme"),
         ("Show thumbnails", "theme", "show-thumbnails"),
         ("photos", "theme", "show-thumbnails"),
         ("nightly", "updates", "channel"),
@@ -212,11 +211,10 @@ fn global_search_navigates_filters_lazy_pages_and_restores_without_editing_prefe
             assert!(item(layer, "window-maximize").is_visible());
             assert!(!item(layer, "window-minimize").is_visible());
             assert!(!item(layer, "window-close").is_visible());
-            entry.set_text("tezt size");
+            entry.set_text("reduce motoin");
             assert_eq!(stack.visible_child_name().as_deref(), Some("theme"));
-            assert!(item(layer, "text").is_visible());
-            assert!(!item(layer, "motion").is_visible());
-            assert!(!item(layer, "themes").is_visible());
+            assert!(item(layer, "motion").is_visible());
+            assert!(!item(layer, "current-theme").is_visible());
             entry.set_text("unfindablequantumsetting");
             assert_eq!(
                 stack.visible_child_name().as_deref(),
@@ -225,7 +223,7 @@ fn global_search_navigates_filters_lazy_pages_and_restores_without_editing_prefe
             entry.set_text("");
             assert_eq!(stack.visible_child_name().as_deref(), Some("general"));
             assert!(item(layer, "previews").is_visible());
-            assert!(item(layer, "themes").is_visible());
+            assert!(item(layer, "current-theme").is_visible());
             assert!(item(layer, "motion").is_visible());
             assert_eq!(manager.folder_peeking(), original);
         },

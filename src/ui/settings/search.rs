@@ -268,38 +268,14 @@ const TARGETS: &[Target] = &[
     Target {
         id: "current-theme",
         page: "theme",
-        title: "Current theme",
-        aliases: "appearance palette colors selected theme",
-    },
-    Target {
-        id: "themes",
-        page: "theme",
-        title: "Theme library",
-        aliases: "appearance colors custom themes add edit light dark",
-    },
-    Target {
-        id: "interface-font",
-        page: "theme",
-        title: "Interface font",
-        aliases: "appearance font typeface family typography",
-    },
-    Target {
-        id: "text",
-        page: "theme",
-        title: "Text size",
-        aliases: "appearance font typography pixels zoom scaling",
+        title: "Theme",
+        aliases: "appearance palette colors selected theme edit file current",
     },
     Target {
         id: "date-format",
         page: "general",
         title: "Modified date format",
         aliases: "date time format relative iso 8601 long absolute modified timestamp clock appearance",
-    },
-    Target {
-        id: "roundness",
-        page: "theme",
-        title: "Corner roundness",
-        aliases: "appearance corners radius rounded square shape borders",
     },
     Target {
         id: "show-thumbnails",
@@ -318,12 +294,6 @@ const TARGETS: &[Target] = &[
         page: "theme",
         title: "File icon colors",
         aliases: "appearance file type icons brand palette accent theme monochrome catppuccin",
-    },
-    Target {
-        id: "glow",
-        page: "theme",
-        title: "Element glow",
-        aliases: "appearance effects dialogs menus shadows accent",
     },
     Target {
         id: "motion",

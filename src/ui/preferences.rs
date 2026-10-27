@@ -1098,14 +1098,6 @@ impl PreferenceManager {
         self.preferences.borrow().element_glow
     }
 
-    pub fn set_element_glow(&self, enabled: bool) {
-        if self.element_glow() == enabled {
-            return;
-        }
-        self.preferences.borrow_mut().element_glow = enabled;
-        self.save_preferences();
-    }
-
     pub fn file_icon_colors(&self) -> FileIconColors {
         self.preferences.borrow().file_icon_colors
     }
@@ -1578,6 +1570,21 @@ impl PreferenceManager {
         self.preferences.borrow().corner_roundness
     }
 
+    /// The chosen interface font family; `None` keeps the bundled default.
+    pub fn interface_font(&self) -> Option<String> {
+        self.preferences.borrow().interface_font.clone()
+    }
+
+    #[cfg(test)]
+    pub fn set_element_glow(&self, enabled: bool) {
+        if self.element_glow() == enabled {
+            return;
+        }
+        self.preferences.borrow_mut().element_glow = enabled;
+        self.save_preferences();
+    }
+
+    #[cfg(test)]
     pub fn set_corner_roundness(&self, roundness: CornerRoundness) {
         if self.corner_roundness() == roundness {
             return;
@@ -1586,11 +1593,7 @@ impl PreferenceManager {
         self.save_preferences();
     }
 
-    /// The chosen interface font family; `None` keeps the bundled default.
-    pub fn interface_font(&self) -> Option<String> {
-        self.preferences.borrow().interface_font.clone()
-    }
-
+    #[cfg(test)]
     pub fn set_interface_font(&self, family: Option<String>) {
         let family = family
             .map(|family| family.trim().to_owned())
@@ -1603,7 +1606,10 @@ impl PreferenceManager {
     }
 
     pub fn interface_scale(&self) -> f64 {
-        snapped_root_font_px(self.text_size().root_font_px(), desktop_text_scale_factor()) / 13.0
+        snapped_root_font_px(
+            super::theme::scaled_root_font_px(self.text_size().root_font_px()),
+            desktop_text_scale_factor(),
+        ) / 13.0
     }
 
     pub fn bind_interface_scale(

@@ -4326,6 +4326,7 @@ fn pane_base(
     header.append(&heading_box);
     header.append(&spinner);
     if let Some(actions) = header_actions {
+        actions.add_css_class("pane-actions");
         actions.set_valign(gtk::Align::Center);
         header.append(&actions);
     }

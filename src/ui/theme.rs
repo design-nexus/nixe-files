@@ -581,6 +581,7 @@ impl ThemeManager {
             _ => String::new(),
         };
         css.push_str(&frame_density_css(frame.px()));
+        css.push_str(&suite_sizes_css());
         self.density_provider.load_from_string(&css);
     }
 
@@ -625,6 +626,8 @@ impl ThemeManager {
         if self.preview.borrow().is_none() {
             self.apply_selected();
         }
+        self.density.take();
+        self.apply_density();
         self.preferences.notify_changes();
     }
 
@@ -993,6 +996,27 @@ fn theme_list_stamp() -> Vec<(PathBuf, Option<std::time::SystemTime>)> {
         .collect();
     files.sort();
     files
+}
+
+/// The suite density's sizes from STYLE.md (compact, balanced, relaxed), above
+/// Files' own density presets.
+fn suite_sizes_css() -> String {
+    let density = nixe_theme::read_suite().unwrap_or_default().density;
+    let (header, nav, row, control, status) = match density.as_str() {
+        "compact" => (42, 30, 30, 30, 26),
+        "relaxed" => (50, 38, 42, 34, 30),
+        _ => (46, 34, 36, 32, 28),
+    };
+    let grouped = control - 4;
+    format!(
+        "headerbar, headerbar > windowhandle > box {{ min-height: {header}px; }}\n\
+         headerbar button.header-action, headerbar menubutton.header-action > button, headerbar .sidebar-toggle {{ min-width: {control}px; min-height: {control}px; }}\n\
+         .header-row .list-navigation-button, .header-row .pane-actions button, .header-row .pane-actions menubutton > button, .header-row .header-actions button.header-action, .header-row .header-actions menubutton.header-action > button {{ min-width: {grouped}px; min-height: {grouped}px; }}\n\
+         .location-control, .location-entry {{ min-height: {control}px; }}\n\
+         .sidebar-row {{ min-height: {nav}px; }}\n\
+         .list-row {{ min-height: {row}px; }}\n\
+         .shortcut-footer {{ min-height: {status}px; }}\n"
+    )
 }
 
 fn suite_mode(suite: &nixe_theme::Suite) -> String {

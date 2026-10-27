@@ -146,7 +146,8 @@ impl Header {
         window_buttons.append(&close);
         show_while_floating(window, &window_buttons, &close, preferences);
         actions.append(&window_buttons);
-        let content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+        let content = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+        content.add_css_class("header-row");
         content.set_hexpand(true);
         content.set_valign(gtk::Align::Center);
         let brand = gtk::Box::new(gtk::Orientation::Horizontal, 8);

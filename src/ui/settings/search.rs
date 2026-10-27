@@ -308,6 +308,12 @@ const TARGETS: &[Target] = &[
         aliases: "appearance images pictures photos videos documents thumbnails icons previews disable",
     },
     Target {
+        id: "colored-sidebar-icons",
+        page: "theme",
+        title: "Colored sidebar icons",
+        aliases: "appearance sidebar places pinned icons colour color muted grey accent",
+    },
+    Target {
         id: "file-icon-colors",
         page: "theme",
         title: "File icon colors",

@@ -314,6 +314,18 @@ fn append_thumbnails_option(content: &gtk::Box, preferences: &Rc<PreferenceManag
         PreferenceManager::set_show_thumbnails,
     );
     group.append(&row);
+    let (row, toggle) = super::settings_option(
+        "Colored sidebar icons",
+        "Show every sidebar place's icon in its color. Off, only the current place's icon is colored.",
+        preferences.colored_sidebar_icons(),
+    );
+    bind_switch(
+        preferences,
+        &toggle,
+        PreferenceManager::colored_sidebar_icons,
+        PreferenceManager::set_colored_sidebar_icons,
+    );
+    group.append(&row);
 }
 
 fn append_text_size_option(content: &gtk::Box, preferences: &Rc<PreferenceManager>) {

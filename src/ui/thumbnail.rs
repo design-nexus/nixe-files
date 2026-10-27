@@ -1491,7 +1491,7 @@ fn apply_path_customization_image(
         .then(|| super::special_folders::default_decoration(path))
         .flatten();
     let customized = custom_icon.is_some() || color.is_some() || special.is_some();
-    let muted = crate::assets::shows_muted(image);
+    let muted = sidebar_icon_muted(image);
     let default_color = || {
         if muted {
             crate::assets::muted_icon_color()
@@ -1575,6 +1575,21 @@ pub(super) fn refresh_customized_icons(paths: &[PathBuf]) {
 pub(super) fn refresh_customized_icons_within(roots: &[PathBuf]) {
     refresh_tracked_icons(|tracked| roots.iter().any(|root| tracked.path.starts_with(root)));
     refresh_tracked_images(|path| roots.iter().any(|root| path.starts_with(root)));
+}
+
+/// A sidebar icon shows muted when colored sidebar icons are off and its
+/// place isn't the current one.
+pub(super) fn sidebar_icon_muted(image: &gtk::Image) -> bool {
+    image.has_css_class("sidebar-icon")
+        && !image.has_css_class("accented")
+        && !super::preferences::PreferenceManager::shared().colored_sidebar_icons()
+}
+
+/// Recolors a sidebar icon after its row or the setting changed.
+pub(super) fn refresh_sidebar_icon(image: &gtk::Image) {
+    if !refresh_customized_image(image) {
+        crate::assets::set_icon_accented(image, !sidebar_icon_muted(image));
+    }
 }
 
 /// Redraws `image` if it shows a customized folder; false when it doesn't.

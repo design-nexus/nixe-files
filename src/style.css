@@ -7637,10 +7637,9 @@ headerbar .mode-pane-header {
   padding: 1px 5px;
 }
 
-/* Sidebar places in the secondary colour; the place you're in is the one
-   that lights up, with its icon in the accent. */
-.sidebar-row,
-.sidebar-row image {
+/* Sidebar names in the secondary colour; the place you're in is the one
+   that lights up. Icons keep their colours. */
+.sidebar-row {
   color: @strata_dim_text;
 }
 
@@ -7652,9 +7651,4 @@ headerbar .mode-pane-header {
 .sidebar-row.active,
 .sidebar-device.active > .sidebar-row {
   color: @strata_text;
-}
-
-.sidebar-row.active image,
-.sidebar-device.active .sidebar-row image {
-  color: @strata_accent;
 }

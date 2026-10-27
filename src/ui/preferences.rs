@@ -218,6 +218,8 @@ pub(in crate::ui) struct Preferences {
     thumbnail_workers: usize,
     #[serde(default = "default_enabled")]
     show_thumbnails: bool,
+    #[serde(default = "default_enabled")]
+    colored_sidebar_icons: bool,
     #[serde(default = "default_icons_thumbnail_size")]
     icons_thumbnail_size: i32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -438,6 +440,7 @@ impl Default for Preferences {
             watch_network_folders: true,
             thumbnail_workers: crate::sandbox::browser::default_worker_limit(),
             show_thumbnails: true,
+            colored_sidebar_icons: true,
             icons_thumbnail_size: default_icons_thumbnail_size(),
             chooser_column_width: None,
             browser_column_width: None,
@@ -1186,6 +1189,15 @@ impl PreferenceManager {
 
     pub fn set_show_thumbnails(&self, enabled: bool) {
         self.preferences.borrow_mut().show_thumbnails = enabled;
+        self.save_preferences();
+    }
+
+    pub fn colored_sidebar_icons(&self) -> bool {
+        self.preferences.borrow().colored_sidebar_icons
+    }
+
+    pub fn set_colored_sidebar_icons(&self, enabled: bool) {
+        self.preferences.borrow_mut().colored_sidebar_icons = enabled;
         self.save_preferences();
     }
 

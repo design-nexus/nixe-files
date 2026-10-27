@@ -395,11 +395,6 @@ pub fn set_muted_icon(image: &gtk::Image, name: &str) {
     MUTED_ICONS.with(|icons| register_icon(icons, image, name));
 }
 
-/// A sidebar icon that isn't the current place's shows in the muted colour.
-pub fn shows_muted(image: &gtk::Image) -> bool {
-    image.has_css_class("sidebar-icon") && !image.has_css_class("accented")
-}
-
 pub fn set_muted_icon_color(color: &str) {
     MUTED_ICON_COLOR.with(|current| current.replace(color.to_owned()));
     MUTED_ICONS.with(|icons| recolor_registered_icons(icons, color));

@@ -3121,9 +3121,7 @@ fn set_sidebar_row_active(row: &gtk::Button, active: bool) {
         } else {
             image.remove_css_class("accented");
         }
-        if !super::thumbnail::refresh_customized_image(&image) {
-            crate::assets::set_icon_accented(&image, active);
-        }
+        super::thumbnail::refresh_sidebar_icon(&image);
     }
     if let Some(shell) = sidebar_device_shell(row) {
         if active {
@@ -4208,6 +4206,15 @@ fn sidebar_button(icon: &str, name: &str) -> gtk::Button {
     let content = gtk::Box::new(gtk::Orientation::Horizontal, 8);
     let image = crate::assets::muted_icon(icon, 17);
     image.add_css_class("sidebar-icon");
+    super::preferences::PreferenceManager::shared().bind_preference(
+        &image,
+        super::preferences::PreferenceManager::colored_sidebar_icons,
+        |image, _| {
+            if let Some(image) = image.downcast_ref::<gtk::Image>() {
+                super::thumbnail::refresh_sidebar_icon(image);
+            }
+        },
+    );
     let label = gtk::Label::new(Some(name));
     label.set_xalign(0.0);
     label.set_hexpand(true);

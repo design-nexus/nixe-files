@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-//! Storage properties, Strata-only display labels, and removable-only formatting.
+//! Storage properties, Files-only display labels, and removable-only formatting.
 
 use std::{cell::Cell, future::Future, path::PathBuf, rc::Rc};
 
@@ -697,9 +697,9 @@ fn show_label_dialog_for_identity(
     shell
         .layout
         .body
-        .append(&field_block("Label shown in Strata", &field.widget));
+        .append(&field_block("Label shown in Files", &field.widget));
     let hint = gtk::Label::new(Some(&crate::i18n::tr(
-        "Strata-only display label; filesystem unchanged. Leave blank to reset.",
+        "Files-only display label; filesystem unchanged. Leave blank to reset.",
     )));
     hint.add_css_class("dim-label");
     hint.set_max_width_chars(40);

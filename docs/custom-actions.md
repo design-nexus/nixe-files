@@ -12,7 +12,7 @@ results; it does not restrict what a script may do.
 ## Where actions live
 
 ```text
-$XDG_CONFIG_HOME/strata/actions/
+$XDG_CONFIG_HOME/nyx-files/actions/
   checksums/
     action.toml
     run.sh
@@ -220,18 +220,20 @@ Nothing is ever passed through a shell. Programs and interpreters receive argv
 entries directly, and every path is absolute, so a selected file name can never be
 read as a command or as an option such as `-rf`.
 
+The same variables are also set with the older `STRATA_ACTION_` prefix, so existing scripts keep working.
+
 | Environment variable | Contents |
 | --- | --- |
-| `STRATA_ACTION_VERSION` | Protocol version, currently `1`. |
-| `STRATA_ACTION_ID` | Definition identity; the display name is in context JSON. |
-| `STRATA_ACTION_MODE` | `per-item` or `whole-selection`. |
-| `STRATA_ACTION_SOURCE` | `selection` or `background`. |
-| `STRATA_ACTION_COUNT`, `STRATA_ACTION_POSITION` | Input count, and 1-based position for per-item runs. |
-| `STRATA_ACTION_PATHS` | File containing every input path, NUL-delimited and byte-exact. |
-| `STRATA_ACTION_PARENT` | File containing the invoking folder. |
-| `STRATA_ACTION_PROGRESS` | File to append progress events to (see below). |
-| `STRATA_ACTION_CONTEXT`, `STRATA_ACTION_RUN_DIR` | JSON context and private scratch directory, mode 0700. |
-| `STRATA_ACTION_DIR` | The action's own directory. |
+| `NYX_FILES_ACTION_VERSION` | Protocol version, currently `1`. |
+| `NYX_FILES_ACTION_ID` | Definition identity; the display name is in context JSON. |
+| `NYX_FILES_ACTION_MODE` | `per-item` or `whole-selection`. |
+| `NYX_FILES_ACTION_SOURCE` | `selection` or `background`. |
+| `NYX_FILES_ACTION_COUNT`, `NYX_FILES_ACTION_POSITION` | Input count, and 1-based position for per-item runs. |
+| `NYX_FILES_ACTION_PATHS` | File containing every input path, NUL-delimited and byte-exact. |
+| `NYX_FILES_ACTION_PARENT` | File containing the invoking folder. |
+| `NYX_FILES_ACTION_PROGRESS` | File to append progress events to (see below). |
+| `NYX_FILES_ACTION_CONTEXT`, `NYX_FILES_ACTION_RUN_DIR` | JSON context and private scratch directory, mode 0700. |
+| `NYX_FILES_ACTION_DIR` | The action's own directory. |
 
 Paths travel in files rather than in the environment so unusual names — spaces,
 newlines, and bytes that are not valid UTF-8 — survive exactly.
@@ -257,7 +259,7 @@ Process exit status decides success: `0` means the invocation succeeded and any
 other status means it failed. Reported percentages are presentational only.
 
 A script may optionally report measurable progress by appending one JSON object per
-line to `$STRATA_ACTION_PROGRESS`:
+line to `$NYX_FILES_ACTION_PROGRESS`:
 
 ```json
 {"event": "progress", "processed": 42, "total": 100, "message": "Converting images"}

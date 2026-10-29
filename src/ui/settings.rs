@@ -22,6 +22,7 @@ mod cloud;
 mod diagnostics;
 mod exclusions;
 mod general;
+mod keyboard;
 mod install_command;
 mod search;
 mod theme;
@@ -690,6 +691,11 @@ pub fn build_layer(
                         search::apply(&page, &search_state);
                         stack.add_named(&page, Some("actions"));
                     }
+                    "keyboard" => {
+                        let page = keyboard::keyboard_page();
+                        search::apply(&page, &search_state);
+                        stack.add_named(&page, Some("keyboard"));
+                    }
                     _ => {}
                 }
             }
@@ -924,7 +930,7 @@ struct NavigationEntry {
 
 /// Settings pages in navigation order. Search finds page titles here and routes
 /// to the button built from each entry.
-static NAVIGATION: [NavigationEntry; 6] = [
+static NAVIGATION: [NavigationEntry; 7] = [
     NavigationEntry {
         page: "general",
         label: "General",
@@ -951,6 +957,13 @@ static NAVIGATION: [NavigationEntry; 6] = [
         label: "Cloud Storage",
         subtitle: "Connections and cache",
         icon: icons::CLOUD,
+        accessible_label: None,
+    },
+    NavigationEntry {
+        page: "keyboard",
+        label: "Keyboard",
+        subtitle: "Shortcuts",
+        icon: icons::KEY,
         accessible_label: None,
     },
     NavigationEntry {

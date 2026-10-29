@@ -4,23 +4,18 @@ use super::{page_content, scrollable_page, settings_group};
 use crate::{assets::icons, services};
 use gtk::prelude::*;
 
+const DESCRIPTION: &str = "Browse, preview and manage your files.";
+
 pub(super) fn about_page() -> gtk::Widget {
     let content = page_content();
     content.add_css_class("about-page");
     let identity = gtk::Box::new(gtk::Orientation::Horizontal, 20);
     identity.add_css_class("about-identity");
     super::search::tag(&identity, "Version information");
-    let icon = crate::assets::text_icon(icons::STRATA_LOGO, 36);
-    let logo = gtk::Box::new(gtk::Orientation::Horizontal, 0);
-    logo.add_css_class("about-logo");
-    icon.set_halign(gtk::Align::Center);
+    let icon = gtk::Image::from_icon_name("io.github.design_nexus.nyx.Files");
+    icon.set_pixel_size(64);
     icon.set_valign(gtk::Align::Center);
-    icon.set_hexpand(true);
-    logo.append(&icon);
-    logo.set_valign(gtk::Align::Center);
-    logo.set_halign(gtk::Align::Start);
-    logo.set_hexpand(false);
-    identity.append(&logo);
+    identity.append(&icon);
     let copy = gtk::Box::new(gtk::Orientation::Vertical, 6);
     copy.set_hexpand(true);
     copy.set_valign(gtk::Align::Center);
@@ -36,7 +31,7 @@ pub(super) fn about_page() -> gtk::Widget {
         heading.append(&badge);
     }
     copy.append(&heading);
-    let description = gtk::Label::new(Some(&crate::i18n::tr("Navigate every layer.")));
+    let description = gtk::Label::new(Some(&crate::i18n::tr(DESCRIPTION)));
     description.set_xalign(0.0);
     description.set_wrap(true);
     description.add_css_class("about-description");
@@ -118,7 +113,7 @@ pub(super) fn toolkit_version() -> String {
 }
 
 fn version_info() -> String {
-    rust_i18n::t!("Files %{value1}\n%{value2}\nCommit: %{value3}\nToolkit: %{value4}\nAuthor: %{value5}\nLicense: GPL-3.0-or-later", value1 = crate::build_info::displayed_version(), value2 = crate::i18n::tr("Navigate every layer."), value3 = crate::build_info::COMMIT, value4 = toolkit_version(), value5 = crate::build_info::AUTHOR).into_owned()
+    rust_i18n::t!("Files %{value1}\n%{value2}\nCommit: %{value3}\nToolkit: %{value4}\nAuthor: %{value5}\nLicense: GPL-3.0-or-later", value1 = crate::build_info::displayed_version(), value2 = crate::i18n::tr(DESCRIPTION), value3 = crate::build_info::COMMIT, value4 = toolkit_version(), value5 = crate::build_info::AUTHOR).into_owned()
 }
 
 fn append_about_detail(container: &gtk::Box, label: &str, value: &str) {

@@ -371,6 +371,15 @@ fn build_command(
     if let Some((position, _)) = context.position {
         command.env(ENV_POSITION, position.to_string());
     }
+    // The same variables under Files' own prefix; scripts written for the old names keep working.
+    let renamed: Vec<_> = command
+        .get_envs()
+        .filter_map(|(key, value)| {
+            let suffix = key.to_str()?.strip_prefix("STRATA_ACTION_")?;
+            Some((format!("NYX_FILES_ACTION_{suffix}"), value?.to_owned()))
+        })
+        .collect();
+    command.envs(renamed);
     command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())

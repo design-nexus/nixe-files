@@ -156,7 +156,7 @@ fn notice_text(
         SaveProblem::UnreadableAtStartup => (
             title,
             rust_i18n::t!(
-                "Files couldn't read “%{path}” when it started: %{reason}. To keep the file as it is, Files won't save over it. Fix or remove the file, then restart Strata.",
+                "Files couldn't read “%{path}” when it started: %{reason}. To keep the file as it is, Files won't save over it. Fix or remove the file, then restart Files.",
                 path = path,
                 reason = reason
             )

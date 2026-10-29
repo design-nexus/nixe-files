@@ -3883,7 +3883,7 @@ fn media_error_feedback(message: &str) -> (String, String, Option<&'static str>)
         return (
             crate::i18n::tr("Additional media support required"),
             crate::i18n::tr(
-                "On Arch or Omarchy, install the required GStreamer plugins, then restart Strata.",
+                "On Arch or Omarchy, install the required GStreamer plugins, then restart Files.",
             ),
             Some(MEDIA_PLUGIN_INSTALL_COMMAND),
         );

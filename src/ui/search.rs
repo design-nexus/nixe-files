@@ -437,7 +437,7 @@ impl SearchDialog {
             .set_placeholder_text(Some(&crate::i18n::tr("Jump to a folder…")));
         crate::ui::accessibility::set_description(
             &self.state.field,
-            Some(&crate::i18n::tr("Folders previously visited in Strata")),
+            Some(&crate::i18n::tr("Folders previously visited in Files")),
         );
         self.state.field.set_sensitive(true);
         clear_results(&self.state);

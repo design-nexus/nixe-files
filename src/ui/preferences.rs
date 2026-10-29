@@ -665,7 +665,7 @@ impl PreferenceManager {
             Ok(preferences) => (preferences, None),
             Err(error) => {
                 tracing::warn!(%error, path = %settings_path().display(),
-                    "unable to load settings; using temporary defaults without saving; fix the file and restart Strata");
+                    "unable to load settings; using temporary defaults without saving; fix the file and restart Files");
                 (Preferences::default(), Some(error))
             }
         };

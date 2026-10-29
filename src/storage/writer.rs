@@ -319,7 +319,7 @@ pub(crate) fn flush(wait: Duration) -> bool {
 pub(crate) fn flush_at_exit() {
     let _exit = ui_thread::allow(ui_thread::Exception::ExitFlush);
     if !flush(EXIT_FLUSH_WAIT) {
-        tracing::warn!("quitting before Strata's own files finished saving");
+        tracing::warn!("quitting before Files finished saving its own files");
     }
 }
 

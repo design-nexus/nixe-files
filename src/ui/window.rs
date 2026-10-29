@@ -3538,7 +3538,7 @@ fn request_encrypted_lock_showing(
             parent,
             &crate::i18n::tr("Unable to lock device"),
             &crate::i18n::tr(
-                "This volume has no supported lock operation while unmounted. Mount it in Strata, then try Lock again.",
+                "This volume has no supported lock operation while unmounted. Mount it in Files, then try Lock again.",
             ),
         );
         return;

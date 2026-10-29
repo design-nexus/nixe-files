@@ -13,15 +13,15 @@ The browser does not need to know about cloud accounts, pins or service sockets.
 
 ## Registration and artwork
 
-Install one directory per provider under `$XDG_CONFIG_HOME/strata/providers/`
-(default `~/.config/strata/providers/`), then restart Strata. For example:
+Install one directory per provider under `$XDG_CONFIG_HOME/nyx-files/providers/`
+(default `~/.config/nyx-files/providers/`; registrations under the old `~/.config/strata/providers/` are copied over once), then restart Files. For example:
 
 ```json
 {
   "version": 1,
   "id": "example",
   "name": "Example Cloud",
-  "command": ["/usr/bin/python3", "/home/alice/.config/strata/providers/example/provider.py"],
+  "command": ["/usr/bin/python3", "/home/alice/.config/nyx-files/providers/example/provider.py"],
   "icon": "logo",
   "icons": {"logo": "logo.png", "available": "available.png", "working": "working.png"}
 }

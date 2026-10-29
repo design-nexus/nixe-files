@@ -144,7 +144,7 @@ impl UdiskieIntegrationStatus {
 
     pub(crate) fn show_result(&self, result: Result<portal_setup::udiskie::UdiskieStatus, String>) {
         if let Some(button) = self.use_strata.upgrade() {
-            button.set_label(&crate::i18n::tr("Use Strata"));
+            button.set_label(&crate::i18n::tr("Use Files"));
         }
         if let Some(button) = self.restore.upgrade() {
             button.set_label(&crate::i18n::tr("Restore default"));
@@ -191,7 +191,7 @@ impl UdiskieIntegrationStatus {
         };
         if let Some(button) = action.upgrade() {
             button.set_label(&crate::i18n::tr(if enable {
-                "Using Strata…"
+                "Using Files…"
             } else {
                 "Restoring defaults…"
             }));

@@ -127,7 +127,7 @@ fn kept_line(item: &KeptItem, in_trash: bool) -> String {
         )
         .into_owned(),
         KeptCause::StillOpen(Some(Holder::Strata)) => rust_i18n::t!(
-            "“%{name}” was left in “%{folder}”, as a file in it is still in use by Strata",
+            "“%{name}” was left in “%{folder}”, as a file in it is still in use by Files",
             name = name,
             folder = folder()
         )

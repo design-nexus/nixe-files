@@ -272,7 +272,7 @@ fn runtime_changes_preserve_drafts_and_save_only_the_active_runtime() {
             let script = script.expect("Bash script");
             assert_eq!(script.file_name, "run.sh");
             assert!(definition.interpreter_for_source(&script.contents).is_ok());
-            assert!(script.contents.contains("STRATA_ACTION_PATHS"));
+            assert!(script.contents.contains("NYX_FILES_ACTION_PATHS"));
             form.script.buffer().set_text("printf 'bash draft\\n'\n");
             choose(&form, "Command");
             form.program.set_text("printf");

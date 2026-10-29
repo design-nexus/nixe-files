@@ -449,6 +449,7 @@ fn every_page_row_is_registered_for_search() {
                     .widget,
                 ),
                 ("actions", super::super::actions::actions_page()),
+                ("keyboard", super::super::keyboard::keyboard_page()),
                 ("diagnostics", super::super::diagnostics::diagnostics_page()),
                 ("about", super::super::about_page()),
             ];

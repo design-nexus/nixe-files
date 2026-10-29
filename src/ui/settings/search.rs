@@ -308,6 +308,12 @@ const TARGETS: &[Target] = &[
         aliases: "appearance graphics cairo gtk gpu text artifacts performance restart",
     },
     Target {
+        id: "keyboard",
+        page: "keyboard",
+        title: "Keyboard",
+        aliases: "keys shortcuts keybindings hotkeys",
+    },
+    Target {
         id: "diagnostics",
         page: "diagnostics",
         title: "Run diagnostics",
@@ -317,13 +323,13 @@ const TARGETS: &[Target] = &[
         id: "version",
         page: "about",
         title: "Version information",
-        aliases: "strata build commit toolkit gtk copy author",
+        aliases: "files nyx build commit toolkit gtk copy author",
     },
     Target {
         id: "website",
         page: "about",
         title: "Website",
-        aliases: "links stratafiles home",
+        aliases: "links nyx files home",
     },
     Target {
         id: "source",

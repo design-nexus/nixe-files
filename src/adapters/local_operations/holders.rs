@@ -55,7 +55,7 @@ pub(super) fn held_inside(holder: Option<&Holder>) -> Option<String> {
         )
         .into_owned(),
         Holder::Strata => crate::i18n::tr(
-            "A file in it is still in use by Strata. Try again when its other operation or search ends.",
+            "A file in it is still in use by Files. Try again when its other operation or search ends.",
         ),
     })
 }

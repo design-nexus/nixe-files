@@ -344,7 +344,7 @@ impl PageState {
         let layout = modal_layout(
             action_icon(action.definition.icon.as_deref()),
             &crate::i18n::tr(title),
-            &crate::i18n::tr("Saved as action.toml under ~/.config/strata/actions/<id>"),
+            &crate::i18n::tr("Saved as action.toml under ~/.config/nyx-files/actions/<id>"),
             &crate::i18n::tr(confirm),
         );
         layout.content.add_css_class("settings-action-dialog");
@@ -1534,7 +1534,7 @@ fn text_contents(view: &impl IsA<gtk::TextView>) -> String {
 }
 
 fn bash_template() -> &'static str {
-    "#!/usr/bin/env bash\nwhile IFS= read -r -d '' path; do\n    printf 'Processing %s\\n' \"$path\"\ndone < \"$STRATA_ACTION_PATHS\"\n"
+    "#!/usr/bin/env bash\nwhile IFS= read -r -d '' path; do\n    printf 'Processing %s\\n' \"$path\"\ndone < \"$NYX_FILES_ACTION_PATHS\"\n"
 }
 
 fn draft_definition(runtime: ActionRuntime, mode: ExecutionMode) -> ActionDefinition {

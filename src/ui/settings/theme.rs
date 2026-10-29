@@ -35,6 +35,7 @@ pub(super) fn theme_page(
     let system = super::settings_group(&content, "THEME");
     let follow = append_follow_omarchy_option(&system, &themes);
     system.append(&theme_choice_row(&themes));
+    system.append(&accent_row());
 
     let rendering = super::settings_group(&content, "RENDERING");
     let renderer = super::bindings::choice_menu(
@@ -221,3 +222,85 @@ fn append_thumbnails_option(content: &gtk::Box, preferences: &Rc<PreferenceManag
     group.append(&row);
 }
 
+
+/// Files' accent among the suite's swatches. The theme manager's suite poll
+/// repaints the window within a second, so this only stores the choice.
+fn accent_row() -> gtk::Box {
+    const APP: &str = "files";
+    let strip = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    strip.set_valign(gtk::Align::Center);
+    let mut names: Vec<Option<String>> = vec![None];
+    names.extend(nyx_theme::swatches().into_iter().map(|(name, _)| Some(name)));
+    let buttons: Rc<Vec<(gtk::Button, gtk::CssProvider, Option<String>)>> = Rc::new(
+        names
+            .into_iter()
+            .map(|name| {
+                let button = gtk::Button::new();
+                button.add_css_class("accent-swatch");
+                let tip = match &name {
+                    None => crate::i18n::tr("Theme default"),
+                    Some(name) => {
+                        let mut chars = name.chars();
+                        chars
+                            .next()
+                            .map(|first| first.to_uppercase().collect::<String>() + chars.as_str())
+                            .unwrap_or_default()
+                    }
+                };
+                if name.is_none() {
+                    button.add_css_class("theme-default");
+                }
+                button.set_tooltip_text(Some(&tip));
+                crate::ui::accessibility::set_label(&button, &tip);
+                let provider = gtk::CssProvider::new();
+                #[expect(deprecated, reason = "GTK has no per-widget CSS provider replacement")]
+                button
+                    .style_context()
+                    .add_provider(&provider, gtk::STYLE_PROVIDER_PRIORITY_USER);
+                strip.append(&button);
+                (button, provider, name)
+            })
+            .collect(),
+    );
+    let refresh = {
+        let buttons = buttons.clone();
+        move || {
+            let swatches = nyx_theme::swatches();
+            let current = nyx_theme::app_swatch(APP);
+            let default = nyx_theme::look()
+                .accents
+                .get(APP)
+                .cloned()
+                .unwrap_or_else(|| nyx_theme::palette().accent);
+            for (button, provider, name) in buttons.iter() {
+                let colour = match name {
+                    None => Some(default.clone()),
+                    Some(name) => swatches.iter().find(|(s, _)| s == name).map(|(_, c)| c.clone()),
+                };
+                if let Some(colour) = colour {
+                    provider.load_from_string(&format!("* {{ background: {colour}; }}"));
+                }
+                if *name == current {
+                    button.add_css_class("selected");
+                } else {
+                    button.remove_css_class("selected");
+                }
+            }
+        }
+    };
+    refresh();
+    let refresh = Rc::new(refresh);
+    for (button, _, name) in buttons.iter() {
+        let name = name.clone();
+        let refresh = refresh.clone();
+        button.connect_clicked(move |_| {
+            nyx_theme::set_app_swatch(APP, name.as_deref());
+            refresh();
+        });
+    }
+    let row = super::control_row("Accent", "This app's colour for selection and highlights.", &strip);
+    row.set_orientation(gtk::Orientation::Vertical);
+    row.set_spacing(10);
+    strip.set_halign(gtk::Align::Start);
+    row
+}

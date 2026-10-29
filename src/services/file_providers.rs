@@ -199,7 +199,30 @@ pub(crate) fn config_root() -> Option<PathBuf> {
         .map(PathBuf::from)
         .filter(|p| p.is_absolute())
         .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".config")))?;
-    Some(base.join("strata/providers"))
+    let root = base.join("nyx-files/providers");
+    let previous = base.join("strata/providers");
+    if !root.exists() && previous.is_dir() {
+        // Registrations made before the move; the old folder is left as it was.
+        if let Err(error) = copy_tree(&previous, &root) {
+            tracing::warn!(%error, "could not copy file provider registrations");
+        }
+    }
+    Some(root)
+}
+
+fn copy_tree(from: &Path, to: &Path) -> std::io::Result<()> {
+    fs::create_dir_all(to)?;
+    for entry in fs::read_dir(from)? {
+        let entry = entry?;
+        let kind = entry.file_type()?;
+        let target = to.join(entry.file_name());
+        if kind.is_dir() {
+            copy_tree(&entry.path(), &target)?;
+        } else if kind.is_file() {
+            fs::copy(entry.path(), &target)?;
+        }
+    }
+    Ok(())
 }
 #[cfg(test)]
 mod tests;

@@ -60,7 +60,7 @@ pub(crate) fn uninstall() -> Result<String, String> {
     dismiss_prompt_at(&context)?;
     let restart_warning = refresh_portals();
     let edit_note = if preserved_edits {
-        "\nKept the remaining portal configuration and removed only Strata."
+        "\nKept the remaining portal configuration and removed only Files."
     } else {
         ""
     };
@@ -83,7 +83,7 @@ pub(crate) fn install_file_manager() -> Result<String, String> {
     set_default_file_manager()?;
     omarchy::install(&context, &executable)?;
     reload_dbus();
-    Ok("Installed Files as the default file manager. Reveal and Open Containing Folder from other apps will now use Strata.".into())
+    Ok("Installed Files as the default file manager. Reveal and Open Containing Folder from other apps will now use Files.".into())
 }
 
 pub(crate) fn uninstall_file_manager() -> Result<String, String> {

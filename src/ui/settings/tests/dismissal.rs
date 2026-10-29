@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-use std::{
-    rc::Rc,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use gtk::{gdk, glib, prelude::*};
 
@@ -152,9 +149,6 @@ fn closing_settings_cancels_the_theme_preview_and_collapses_the_editor() {
                     &button,
                     &root,
                     PreferenceManager::shared(),
-                    Rc::new(|_| {}),
-                    super::super::install_guard(),
-                    Rc::new(|_| {}),
                 );
                 overlay.add_overlay(&layer);
                 let window = gtk::Window::builder()

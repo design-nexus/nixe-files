@@ -2246,7 +2246,6 @@ dependencies = [
  "gstreamer",
  "gstreamer-app",
  "gtk4",
- "hex",
  "html5gum",
  "ignore",
  "image",
@@ -2269,7 +2268,6 @@ dependencies = [
  "rust-i18n",
  "rust-i18n-support",
  "rustix",
- "rustls",
  "seccompiler",
  "serde",
  "serde_json",
@@ -2288,7 +2286,6 @@ dependencies = [
  "yeslogic-fontconfig-sys",
  "zbus",
  "zip 9.0.4",
- "zstd",
 ]
 
 [[package]]

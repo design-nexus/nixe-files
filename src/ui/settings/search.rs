@@ -308,42 +308,6 @@ const TARGETS: &[Target] = &[
         aliases: "appearance graphics cairo gtk gpu text artifacts performance restart",
     },
     Target {
-        id: "check",
-        page: "updates",
-        title: "Check for updates",
-        aliases: "version status install download upgrade",
-    },
-    Target {
-        id: "auto-updates",
-        page: "updates",
-        title: "Check for updates automatically",
-        aliases: "startup github release",
-    },
-    Target {
-        id: "channel",
-        page: "updates",
-        title: "Release channel",
-        aliases: "stable preview nightly builds",
-    },
-    Target {
-        id: "release",
-        page: "updates",
-        title: "Install a specific release",
-        aliases: "rollback roll back downgrade older previous version choose pick",
-    },
-    Target {
-        id: "notes",
-        page: "updates",
-        title: "Release notes",
-        aliases: "what new changes changelog",
-    },
-    Target {
-        id: "integrations",
-        page: "integrations",
-        title: "Integrations",
-        aliases: "add-ons addons plugins extensions providers catalog install kde connect localsend nextcloud dropbox cloud devices phone",
-    },
-    Target {
         id: "diagnostics",
         page: "diagnostics",
         title: "Run diagnostics",

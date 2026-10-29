@@ -16,7 +16,6 @@ use super::{
 use crate::{
     assets::{self, icons},
     services::{
-        InstallSource,
         diagnostics::{self, Check, CheckId, Finding, GROUPS, Group, InstallHint, Status},
         package_manager::PackageManager,
     },
@@ -47,7 +46,7 @@ fn diagnostics_page_with(spawn: Spawner) -> gtk::Widget {
     title.set_xalign(0.0);
     title.add_css_class("settings-option-title");
     let description = gtk::Label::new(Some(&crate::i18n::tr(
-        "Checks the tools and services that previews, locations, devices and desktop integration rely on. Sample files are rendered in the preview sandbox and GitHub is contacted to test the connection. Nothing is changed or installed.",
+        "Checks the tools and services that previews, locations, devices and desktop integration rely on. Sample files are rendered in the preview sandbox. Nothing is changed or installed.",
     )));
     description.set_xalign(0.0);
     description.set_wrap(true);
@@ -418,7 +417,6 @@ fn title(id: CheckId) -> &'static str {
         CheckId::Cameras => "Cameras",
         CheckId::Drives => "Removable drives",
         CheckId::FolderMonitoring => "Folder change monitoring",
-        CheckId::UpdateServer => "Update server",
         CheckId::Terminal => "Terminal",
         CheckId::Portal => "Desktop portal",
         CheckId::SecretService => "Password storage",
@@ -511,10 +509,6 @@ fn message(check: &Check) -> String {
         Finding::MonitoringFailed => {
             tr("Folder changes can't be detected, so folders won't refresh automatically.")
         }
-        Finding::Connected => tr("Connected to GitHub."),
-        Finding::ConnectionFailed(_) => {
-            tr("Couldn't connect to GitHub, so update checks and release notes are unavailable.")
-        }
         Finding::TerminalMissing => crate::ui::terminal::no_terminal_message(),
         Finding::ServiceAvailable => tr("The service is available."),
         Finding::PortalMissing => tr(
@@ -550,7 +544,6 @@ fn message(check: &Check) -> String {
 
 fn detail(check: &Check) -> Option<String> {
     match (&check.finding, &check.detail) {
-        (Finding::ConnectionFailed(error), _) => Some(error.message()),
         (_, Some(detail)) => Some(crate::i18n::tr(detail)),
         (_, None) => None,
     }
@@ -576,10 +569,6 @@ fn copy_report(
 
 fn environment(anchor: &impl IsA<gtk::Widget>) -> Vec<(String, String)> {
     let tr = crate::i18n::tr;
-    let installation = match InstallSource::detect().managed() {
-        Some(managed) => managed.ownership_summary(),
-        None => tr("Self-managed"),
-    };
     let kernel = ["ostype", "osrelease"]
         .map(|name| {
             std::fs::read_to_string(format!("/proc/sys/kernel/{name}"))
@@ -609,7 +598,6 @@ fn environment(anchor: &impl IsA<gtk::Widget>) -> Vec<(String, String)> {
     vec![
         (tr("Version"), crate::build_info::displayed_version()),
         (tr("Commit"), crate::build_info::COMMIT.to_owned()),
-        (tr("Installation"), installation),
         (tr("Toolkit"), super::about::toolkit_version()),
         (
             "GStreamer".to_owned(),

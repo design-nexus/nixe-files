@@ -5,7 +5,7 @@ use crate::services::file_providers::{
     self as protocol, Client, Decoration, Feedback, MenuAction, OutcomeStatus, Placement,
     Registration, Request, Update,
 };
-use crate::services::integration_catalog::Category;
+use crate::services::file_providers::Category;
 use gtk::{gdk, gio, glib, prelude::*};
 use std::{
     cell::RefCell,
@@ -107,29 +107,13 @@ fn tick_hub() -> glib::ControlFlow {
     }
 }
 
-/// The themed icon standing for an integration without artwork of its own.
+/// The themed icon standing for a provider without artwork of its own.
 pub(crate) fn category_icon(category: Option<Category>) -> &'static str {
     match category {
         Some(Category::Cloud) => icons::CLOUD,
         Some(Category::Devices) => icons::SMARTPHONE,
         Some(Category::VersionControl) => icons::GIT_BRANCH,
         Some(Category::Other) | None => icons::BLOCKS,
-    }
-}
-
-/// Stops every provider and discovers the registrations again, so edits
-/// under the providers directory take effect without a restart.
-pub(crate) fn reload() {
-    reload_with(spawn_discovery());
-}
-
-fn reload_with(discovery: mpsc::Receiver<Vec<Registration>>) {
-    let start_timer = with_hub(|hub| {
-        hub.reload(discovery);
-        !std::mem::replace(&mut hub.ticking, true)
-    });
-    if start_timer {
-        glib::timeout_add_local(Duration::from_millis(100), tick_hub);
     }
 }
 
@@ -219,21 +203,6 @@ pub(super) fn forget(id: usize) {
 impl Hub {
     fn has_no_providers(&self) -> bool {
         self.discovered && self.providers.is_empty()
-    }
-
-    /// Drops the running providers, which ends their processes, and waits
-    /// for a new discovery result. Tracked rows lose their badges until the
-    /// new providers answer.
-    fn reload(&mut self, discovery: mpsc::Receiver<Vec<Registration>>) {
-        self.discovery = discovery;
-        self.discovered = false;
-        self.providers.clear();
-        self.pending.clear();
-        for slot in self.slots.values() {
-            if let Some(widget) = slot.widget.upgrade() {
-                widget.set_decoration(None, None);
-            }
-        }
     }
 
     fn send(&mut self, provider: usize, mut r: Request, pending: Pending) {

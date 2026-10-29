@@ -2,8 +2,7 @@
 
 Strata's defaults already isolate the riskiest work: previews and thumbnails are
 parsed inside a [bubblewrap sandbox](preview-sandbox.md) with no network, no
-session bus, and resource limits, and in-app updates are
-[signature-checked](signed-updates.md). This page lists the further choices
+session bus, and resource limits. This page lists the further choices
 available to users who prefer a smaller attack surface over convenience or
 hardware acceleration. None of them are required.
 

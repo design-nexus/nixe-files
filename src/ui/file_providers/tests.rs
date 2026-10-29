@@ -404,7 +404,7 @@ fn send_to_placement_fills_provider_submenus_or_falls_back_to_the_group() {
             install_hub();
             with_hub(|hub| {
                 hub.providers[0].category =
-                    Some(crate::services::integration_catalog::Category::Devices)
+                    Some(crate::services::file_providers::Category::Devices)
             });
             let placed = |id: &str, label: &str, children| {
                 let mut device = action(id, label, children);
@@ -544,7 +544,7 @@ fn send_to_entry_is_a_single_item_only_while_it_is_the_providers_only_destinatio
             install_hub();
             with_hub(|hub| {
                 hub.providers[0].category =
-                    Some(crate::services::integration_catalog::Category::Devices)
+                    Some(crate::services::file_providers::Category::Devices)
             });
             let placed = |id: &str, label: &str, placement, children| {
                 let mut action = action(id, label, children);
@@ -1065,42 +1065,3 @@ fn hub_timer_stops_and_tracking_ends_once_discovery_finds_no_providers() {
     );
 }
 
-#[test]
-fn reload_replaces_providers_and_restarts_a_stopped_timer() {
-    crate::test_support::gtk_test(
-        "ui::file_providers::tests::reload_replaces_providers_and_restarts_a_stopped_timer",
-        || {
-            install_hub();
-            let slot = ThumbnailSlot::new(16);
-            slot.set_provider_path(Some("/tracked".into()));
-            assert!(admit(&slot, "/tracked".into()));
-            slot.set_decoration(None, Some("Available offline"));
-            with_hub(|hub| hub.ticking = false);
-
-            let (sender, discovery) = mpsc::channel();
-            reload_with(discovery);
-            with_hub(|hub| {
-                assert!(hub.providers.is_empty(), "running providers are dropped");
-                assert!(!hub.discovered, "a new discovery is awaited");
-                assert!(hub.ticking, "a stopped timer is started again");
-                assert_eq!(hub.slots.len(), 1, "tracked rows stay tracked");
-            });
-            assert!(
-                slot.decoration_description().is_none(),
-                "old badges are cleared"
-            );
-            assert_eq!(tick_hub(), glib::ControlFlow::Continue);
-
-            sender.send(vec![registration()]).expect("discovery result");
-            assert_eq!(tick_hub(), glib::ControlFlow::Continue);
-            with_hub(|hub| assert_eq!(hub.providers.len(), 1));
-
-            let (sender, discovery) = mpsc::channel();
-            reload_with(discovery);
-            sender.send(Vec::new()).expect("discovery result");
-            assert_eq!(tick_hub(), glib::ControlFlow::Break);
-            with_hub(|hub| assert!(!hub.ticking));
-            HUB.with(|cell| cell.replace(None));
-        },
-    );
-}

@@ -22,6 +22,39 @@ pub(crate) const ICON_LIMIT: u64 = 65536;
 /// An empty file beside `provider.json` that keeps the registration from loading.
 pub(crate) const DISABLED_FILE: &str = "disabled";
 
+/// What a provider is for; picks its fallback icon.
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) enum Category {
+    Cloud,
+    Devices,
+    VersionControl,
+    Other,
+}
+
+impl Category {
+    pub(crate) const ALL: [Self; 4] = [
+        Self::Cloud,
+        Self::Devices,
+        Self::VersionControl,
+        Self::Other,
+    ];
+
+    /// The manifest spelling, also written to installed registrations.
+    pub(crate) fn id(self) -> &'static str {
+        match self {
+            Self::Cloud => "cloud",
+            Self::Devices => "devices",
+            Self::VersionControl => "version-control",
+            Self::Other => "other",
+        }
+    }
+
+    pub(crate) fn from_id(id: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|category| category.id() == id)
+    }
+}
+
 #[derive(Clone, Deserialize)]
 pub(crate) struct Manifest {
     pub version: u32,

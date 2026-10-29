@@ -64,7 +64,6 @@ mod window;
 #[cfg(feature = "qa")]
 pub(crate) use accessibility::qa as accessibility_qa;
 pub(crate) use chooser::{cancel_chooser, present_chooser};
-pub(crate) use settings::schedule_rollback_cleanup;
 pub(crate) use window::default_save_folder;
 #[cfg(test)]
 pub(in crate::ui) use window::offer_removable_destinations_for_test;
@@ -82,6 +81,5 @@ pub(crate) fn prepare_portal_ui() {
 
 pub(crate) fn read_install_facts() {
     let _startup = crate::util::ui_thread::allow(crate::util::ui_thread::Exception::Startup);
-    crate::services::InstallSource::detect();
     open_with::uses_portal();
 }

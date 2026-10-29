@@ -942,8 +942,6 @@ fn every_saved_preference_loads_before_any_settings_page_exists() {
                 }
             );
             assert!(!manager.remember_folder_views());
-            assert!(!manager.checks_for_updates());
-            assert_eq!(manager.release_channel(), Channel::Nightly);
             assert!(manager.preview_muted());
             assert_eq!(manager.preview_volume(), 0.35);
             assert!(manager.preview_text_wrap());
@@ -1339,8 +1337,6 @@ fn all_preference_setters_publish_and_persist_without_duplicate_notifications() 
                 |m| m.set_interface_font(None),
                 |m| m.set_interface_renderer(InterfaceRenderer::System),
                 |m| m.set_language(crate::i18n::Language::Auto),
-                |m| m.set_checks_for_updates(true),
-                |m| m.set_release_channel(Channel::Stable),
                 |m| m.set_preview_muted(false),
                 |m| m.set_preview_volume(0.8),
                 |m| m.set_preview_text_wrap(false),

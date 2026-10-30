@@ -119,6 +119,7 @@ fn theme_choice_row(themes: &Rc<ThemeManager>) -> gtk::Box {
     }
     let ids: Rc<Vec<String>> = Rc::new(list.into_iter().map(|theme| theme.id).collect());
     let dropdown = gtk::DropDown::builder().model(&names).build();
+    dropdown.add_css_class("form-control");
     dropdown.set_valign(gtk::Align::Center);
     crate::ui::accessibility::set_label(&dropdown, &crate::i18n::tr("Theme"));
     let edit = gtk::Button::builder()
@@ -230,7 +231,7 @@ fn accent_row() -> gtk::Box {
     let strip = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     strip.set_valign(gtk::Align::Center);
     let mut names: Vec<Option<String>> = vec![None];
-    names.extend(nyx_theme::swatches().into_iter().map(|(name, _)| Some(name)));
+    names.extend(nyx_theme::suite_theme(APP).look.swatches.into_iter().map(|(name, _)| Some(name)));
     let buttons: Rc<Vec<(gtk::Button, gtk::CssProvider, Option<String>)>> = Rc::new(
         names
             .into_iter()
@@ -256,7 +257,7 @@ fn accent_row() -> gtk::Box {
                 #[expect(deprecated, reason = "GTK has no per-widget CSS provider replacement")]
                 button
                     .style_context()
-                    .add_provider(&provider, gtk::STYLE_PROVIDER_PRIORITY_USER);
+                    .add_provider(&provider, gtk::STYLE_PROVIDER_PRIORITY_USER + 8);
                 strip.append(&button);
                 (button, provider, name)
             })
@@ -264,21 +265,22 @@ fn accent_row() -> gtk::Box {
     );
     let refresh = {
         let buttons = buttons.clone();
+        let last = std::cell::RefCell::new(None);
         move || {
-            let swatches = nyx_theme::swatches();
+            let theme = nyx_theme::suite_theme(APP);
+            let swatches = theme.look.swatches;
             let current = nyx_theme::app_swatch(APP);
-            let default = nyx_theme::look()
-                .accents
-                .get(APP)
-                .cloned()
-                .unwrap_or_else(|| nyx_theme::palette().accent);
+            let default = theme.look.accents.get(APP).cloned().unwrap_or(theme.palette.accent);
+            let state = (swatches.clone(), current.clone(), default.clone());
+            if last.borrow().as_ref() == Some(&state) { return; }
+            *last.borrow_mut() = Some(state);
             for (button, provider, name) in buttons.iter() {
                 let colour = match name {
                     None => Some(default.clone()),
                     Some(name) => swatches.iter().find(|(s, _)| s == name).map(|(_, c)| c.clone()),
                 };
                 if let Some(colour) = colour {
-                    provider.load_from_string(&format!("* {{ background: {colour}; }}"));
+                    provider.load_from_string(&format!("button.accent-swatch {{ background-color: {colour}; background-image: none; }}"));
                 }
                 if *name == current {
                     button.add_css_class("selected");
@@ -299,8 +301,17 @@ fn accent_row() -> gtk::Box {
         });
     }
     let row = super::control_row("Accent", "This app's colour for selection and highlights.", &strip);
+    row.add_css_class("settings-accent-row");
     row.set_orientation(gtk::Orientation::Vertical);
     row.set_spacing(10);
     strip.set_halign(gtk::Align::Start);
+    let weak = row.downgrade();
+    gtk::glib::timeout_add_seconds_local(1, move || {
+        if weak.upgrade().is_none() {
+            return gtk::glib::ControlFlow::Break;
+        }
+        refresh();
+        gtk::glib::ControlFlow::Continue
+    });
     row
 }

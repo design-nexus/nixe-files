@@ -7557,3 +7557,11 @@ headerbar .mode-pane-header {
   font-family: monospace;
   color: @strata_dim_text;
 }
+
+/* The dropdown's button provides the frame; keep the outer node transparent. */
+.theme-page dropdown.form-control {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}

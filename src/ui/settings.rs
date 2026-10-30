@@ -433,6 +433,7 @@ fn reflow_settings(
             .is_some_and(|child| child.is::<gtk::Switch>());
         // Short numeric controls can stay beside wrapping copy after other rows stack.
         let stack_row = if row.has_css_class("settings-renderer-row")
+            || row.has_css_class("settings-accent-row")
             || row.has_css_class("settings-exclusions-row")
         {
             true

@@ -487,35 +487,43 @@ impl Pane {
 
 /// Where the List or Icons pane's row joins the window header: the row stays one
 /// container (keyboard focus moves within it), and the path control takes the
-/// place of its folder heading. Columns mode gives the path back.
+/// place of its folder heading. Columns mode gives the path back, and so does a
+/// pane row that 10xer mode hides.
 pub struct HeaderHost {
     row: gtk::Box,
     after: gtk::Widget,
     location: gtk::Widget,
     adopted: RefCell<Option<glib::WeakRef<gtk::Box>>>,
+    visibility: RefCell<Option<glib::SignalHandlerId>>,
 }
 
 impl HeaderHost {
     pub fn new(row: &gtk::Box, after: &gtk::Widget, location: &gtk::Widget) -> Self {
-        Self { row: row.clone(), after: after.clone(), location: location.clone(), adopted: RefCell::default() }
+        Self {
+            row: row.clone(),
+            after: after.clone(),
+            location: location.clone(),
+            adopted: RefCell::default(),
+            visibility: RefCell::default(),
+        }
     }
 
-    fn adopt(&self, header: &gtk::Box) {
+    fn adopt(self: &Rc<Self>, header: &gtk::Box) {
         let previous = self.adopted.borrow().as_ref().and_then(glib::WeakRef::upgrade);
         if previous.as_ref() != Some(header) {
+            self.stop_following(previous.as_ref());
             remove_from_box(header.upcast_ref());
             self.row.insert_child_after(header, Some(&self.after));
             header.set_hexpand(true);
+            let host = Rc::downgrade(self);
+            let handler = header.connect_visible_notify(move |header| {
+                if let Some(host) = host.upgrade() {
+                    host.place_location(header);
+                }
+            });
+            self.visibility.replace(Some(handler));
         }
-        let heading = std::iter::successors(header.first_child(), |child| child.next_sibling())
-            .find(|child| child.has_css_class("pane-heading"));
-        if self.location.parent().as_ref() != Some(header.upcast_ref()) {
-            remove_from_box(&self.location);
-            header.insert_child_after(&self.location, heading.as_ref());
-        }
-        if let Some(heading) = heading {
-            heading.set_visible(false);
-        }
+        self.place_location(header);
         if let Some(previous) = previous.filter(|previous| previous != header)
             && previous.parent().as_ref() == Some(self.row.upcast_ref())
         {
@@ -524,12 +532,41 @@ impl HeaderHost {
         self.adopted.replace(Some(header.downgrade()));
     }
 
+    fn place_location(&self, header: &gtk::Box) {
+        let heading = std::iter::successors(header.first_child(), |child| child.next_sibling())
+            .find(|child| child.has_css_class("pane-heading"));
+        if !header.get_visible() {
+            if self.location.parent().as_ref() != Some(self.row.upcast_ref()) {
+                remove_from_box(&self.location);
+                self.row.insert_child_after(&self.location, Some(header));
+            }
+            return;
+        }
+        if self.location.parent().as_ref() != Some(header.upcast_ref()) {
+            remove_from_box(&self.location);
+            header.insert_child_after(&self.location, heading.as_ref());
+        }
+        if let Some(heading) = heading {
+            heading.set_visible(false);
+        }
+    }
+
+    fn stop_following(&self, header: Option<&gtk::Box>) {
+        if let Some(handler) = self.visibility.take()
+            && let Some(header) = header
+        {
+            header.disconnect(handler);
+        }
+    }
+
     fn release(&self) {
         if self.location.parent().as_ref() != Some(self.row.upcast_ref()) {
             remove_from_box(&self.location);
             self.row.insert_child_after(&self.location, Some(&self.after));
         }
-        if let Some(previous) = self.adopted.take().and_then(|weak| weak.upgrade())
+        let previous = self.adopted.take().and_then(|weak| weak.upgrade());
+        self.stop_following(previous.as_ref());
+        if let Some(previous) = previous
             && previous.parent().as_ref() == Some(self.row.upcast_ref())
         {
             self.row.remove(&previous);

@@ -56,7 +56,7 @@ use super::{
     shortcut_footer::ShortcutFooter,
     top_bar_navigation::TopBarNavigation,
     window::{
-        ChooserKeys, ChooserPolicy, MIN_SIDEBAR_WIDTH, SIDEBAR_WIDTH, SidebarView,
+        ChooserKeys, ChooserPolicy, MIN_SIDEBAR_WIDTH, PATH_MAX_WIDTH, SIDEBAR_WIDTH, SidebarView,
         build_appearance_menu, build_sidebar, edit_focused_text, home_directory,
         install_modal_focus_trap, visible_modal_layer,
     },
@@ -1449,17 +1449,8 @@ fn chooser_default_dimensions_for_monitor(monitor_width: i32, monitor_height: i3
     (target_width, target_height)
 }
 
-fn chooser_initial_dimensions(
-    monitor: Option<(i32, i32)>,
-    parent_size_hint: Option<(i32, i32)>,
-) -> (i32, i32) {
-    let monitor = monitor.filter(|(width, height)| *width > 0 && *height > 0);
-    let parent = parent_size_hint.filter(|(width, height)| *width > 0 && *height > 0);
-    let bounds = match (monitor, parent) {
-        (Some((mw, mh)), Some((pw, ph))) => Some((mw.min(pw), mh.min(ph))),
-        (monitor, parent) => parent.or(monitor),
-    };
-    bounds.map_or(
+fn chooser_initial_dimensions(monitor: Option<(i32, i32)>) -> (i32, i32) {
+    monitor.filter(|(width, height)| *width > 0 && *height > 0).map_or(
         (FALLBACK_CHOOSER_WIDTH, FALLBACK_CHOOSER_HEIGHT),
         |(width, height)| chooser_default_dimensions_for_monitor(width, height),
     )
@@ -1690,10 +1681,8 @@ fn build_chooser_hosted(
         false,
     );
 
-    let (initial_width, initial_height) = chooser_initial_dimensions(
-        detect_monitor_geometry(None, None),
-        request.parent_size_hint,
-    );
+    let (initial_width, initial_height) =
+        chooser_initial_dimensions(detect_monitor_geometry(None, None));
 
     let window = gtk::Window::builder()
         .title(&request.title)
@@ -1734,12 +1723,16 @@ fn build_chooser_hosted(
     let sidebar_toggle = super::sidebar_toggle::SidebarToggle::new();
     let location = view.location_widget();
     location.set_hexpand(true);
+    let path = nyx_ui::clamp::Clamp::new(&location, PATH_MAX_WIDTH);
+    path.set_start(true);
+    path.set_hexpand(true);
     let appearance = build_appearance_menu(&view, &browser, theme.clone(), &preview);
-    let header_content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+    let header_content = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+    header_content.add_css_class("header-row");
     header_content.set_hexpand(true);
     header_content.set_valign(gtk::Align::Center);
     header_content.append(&sidebar_toggle);
-    header_content.append(&location);
+    header_content.append(&path);
     let close = gtk::Button::builder()
         .tooltip_text(crate::ui::shortcut_reference::with_keys(
             "Cancel file selection (%{keys})",
@@ -1756,9 +1749,11 @@ fn build_chooser_hosted(
     });
     let header_actions = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     header_actions.add_css_class("header-actions");
+    header_actions.set_valign(gtk::Align::Center);
     header_actions.append(&appearance);
     header_actions.append(&close);
     header_content.append(&header_actions);
+    view.attach_header(&header_content, sidebar_toggle.upcast_ref(), path.upcast_ref());
     header.set_title_widget(Some(&header_content));
 
     let confined = source.root_limit.is_some();
@@ -2142,13 +2137,10 @@ fn build_chooser_hosted(
             .surface()
             .and_downcast::<gdk4_wayland::WaylandToplevel>()
     {
-        surface.set_application_id(crate::portal::CHOOSER_APPLICATION_ID);
+        surface.set_application_id(crate::portal::chooser_application_id());
     }
     apply_external_parent(&window, state.request.parent.as_ref());
-    let dimensions = chooser_initial_dimensions(
-        detect_monitor_geometry(None, Some(&window)),
-        state.request.parent_size_hint,
-    );
+    let dimensions = chooser_initial_dimensions(detect_monitor_geometry(None, Some(&window)));
     window.set_default_size(dimensions.0, dimensions.1);
     browser.navigate(Location::local(&state.request.initial_directory));
     window.present();

@@ -34,6 +34,9 @@ pub(super) async fn parent_size_hint(
 }
 
 pub(crate) async fn prepare_chooser_placement() {
+    if super::chooser_application_id() != super::CHOOSER_APPLICATION_ID {
+        return;
+    }
     let Some(socket) = hyprland_socket() else {
         return;
     };

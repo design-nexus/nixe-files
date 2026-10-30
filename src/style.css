@@ -7429,6 +7429,22 @@ headerbar .mode-pane-header {
   font-size: 11.5px;
 }
 
+.copy-path {
+  opacity: 1;
+  margin-left: 6px;
+}
+
+.location-control {
+  min-width: 0;
+}
+
+/* The chooser's name, filter and buttons sit on the same surface as the files. */
+.chooser-details,
+.chooser-actions {
+  background: @strata_bg;
+  border-top-color: transparent;
+}
+
 .header-row button.header-search {
   background: alpha(@strata_text, 0.045);
   border: none;

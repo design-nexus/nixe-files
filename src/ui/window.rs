@@ -81,6 +81,8 @@ pub(super) use sidebar::build_sidebar;
 
 pub(super) const SIDEBAR_WIDTH: i32 = 201;
 pub(super) const MIN_SIDEBAR_WIDTH: i32 = 169;
+/// The path bar's widest, as in the Nyx 2.0 mockup; it sits at the start.
+pub(super) const PATH_MAX_WIDTH: i32 = 520;
 pub(super) fn sidebar_rail_button_size() -> i32 {
     // Match the compact header toggle; the rail supplies its own side gutters.
     (24.0 * PreferenceManager::shared().interface_scale()).round() as i32

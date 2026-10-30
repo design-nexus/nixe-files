@@ -21,8 +21,8 @@ use crate::{
 };
 
 use super::super::{
-    MIN_SIDEBAR_WIDTH, SIDEBAR_WIDTH, SidebarView, animate_sidebar, build_appearance_menu,
-    pin_status, sidebar_rail_width,
+    MIN_SIDEBAR_WIDTH, PATH_MAX_WIDTH, SIDEBAR_WIDTH, SidebarView, animate_sidebar,
+    build_appearance_menu, pin_status, sidebar_rail_width,
 };
 
 pub(super) struct Header {
@@ -271,9 +271,6 @@ fn bind_maximize_icon(window: &gtk::ApplicationWindow, button: &gtk::Button) {
     update(window);
     window.connect_maximized_notify(move |window| update(window));
 }
-
-/// The path bar's widest, as in the Nyx 2.0 mockup; it sits at the start.
-const PATH_MAX_WIDTH: i32 = 520;
 
 /// Search as a field in the header: its icon, a placeholder and its keys.
 fn search_field(tooltip: &str, keys: &str) -> gtk::Button {

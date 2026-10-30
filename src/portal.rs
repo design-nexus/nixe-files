@@ -35,6 +35,7 @@ use crate::model::{FileEntry, Location};
 
 const BACKEND_NAME: &str = "org.freedesktop.impl.portal.desktop.strata";
 pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.design_nexus.nyx.Files.FileChooser";
+const CHOOSER_APPLICATION_ID_OVERRIDE: &str = "NYX_FILES_CHOOSER_APP_ID";
 pub(crate) const FILE_CHOOSER_VERSION: u32 = 4;
 const MAX_ACTIVE_REQUESTS: usize = 16;
 const MAX_CHOICES: usize = 16;
@@ -207,8 +208,20 @@ impl FileChooserBackend {
     }
 }
 
+/// The chooser windows' application ID; a test copy sets its own so compositor
+/// rules for the real chooser never match it.
+pub(crate) fn chooser_application_id() -> &'static str {
+    static ID: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    ID.get_or_init(|| {
+        std::env::var(CHOOSER_APPLICATION_ID_OVERRIDE)
+            .ok()
+            .filter(|id| !id.is_empty())
+            .unwrap_or_else(|| CHOOSER_APPLICATION_ID.to_owned())
+    })
+}
+
 pub(crate) fn run(#[cfg(feature = "qa")] qa: Option<crate::qa::Session>) -> glib::ExitCode {
-    glib::set_prgname(Some(CHOOSER_APPLICATION_ID));
+    glib::set_prgname(Some(chooser_application_id()));
     glib::set_application_name("Files");
 
     // Keep worker-thread invocations queued until GTK is ready on this thread.

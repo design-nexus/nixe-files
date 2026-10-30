@@ -419,6 +419,7 @@ impl BrowserView {
             .child(&breadcrumbs)
             .hscrollbar_policy(gtk::PolicyType::External)
             .vscrollbar_policy(gtk::PolicyType::Never)
+            .propagate_natural_width(true)
             .hexpand(true)
             .build();
         breadcrumb_scroller.add_css_class("breadcrumb-scroller");
@@ -557,8 +558,24 @@ impl BrowserView {
         location_control.add_css_class("location-control");
         location_control.set_hexpand(true);
         location_control.set_valign(gtk::Align::Center);
+        location_control.set_halign(gtk::Align::Start);
         location_control.append(&location_stack);
         location_control.append(&global_activity_spinner);
+        // The path fits its folders; typing a location gets the whole width.
+        location_stack.connect_visible_child_name_notify({
+            let location_control = location_control.downgrade();
+            move |stack| {
+                if let Some(location_control) = location_control.upgrade() {
+                    location_control.set_halign(
+                        if stack.visible_child_name().as_deref() == Some("entry") {
+                            gtk::Align::Fill
+                        } else {
+                            gtk::Align::Start
+                        },
+                    );
+                }
+            }
+        });
 
         let preferences = super::preferences::PreferenceManager::shared();
         let browser = Browser::with_preferences(source, preferences.sort_preferences());
